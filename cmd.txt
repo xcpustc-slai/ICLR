@@ -1,0 +1,12 @@
+python scripts/play_carrybox.py --num_envs 1 --steps 100000 --real-time  --checkpoint /home/xcp/workspace/PhysHSI-main_pure/legged_gym/resources/ckpt/carrybox.ptpython scripts/play_carrybox.py --num_envs 1 --steps 100000 --real-time  --checkpoint /home/xcp/workspace/PhysHSI-main_pure/legged_gym/resources/ckpt/carrybox.pt
+
+python scripts/play_checkpoint.py --num_envs 1 --steps 100000 --real-time
+
+nohup python scripts/train_carrybox.py --num_envs 2018  --max_iterations 10000  --headless > ./baseline_LAB_2048.txt 2>&1 &
+# LAB newest
+python scripts/play_carrybox.py --num_envs 1 --steps 100000 --real-time  --checkpoint /home/xcp/workspace/d3/logs/amp_carrybox/Jun15_10-09-12_carrybox_coef0.25/model_9999.pt
+#gym baseline
+python scripts/play_carrybox.py --num_envs 1 --steps 100000 --real-time  --checkpoint /home/xcp/Documents/PhysHSI-main/legged_gym/logs/amp_carrybox/Jun12_04-54-40_carrybox_coef0.25/model_19999.pt
+# play use physhsi's script
+python ../PhysHSI-main_pure/legged_gym/legged_gym/scripts/play.py --task carrybox --resume_path /home/xcp/Documents/PhysHSI-main/legged_gym/logs/amp_carrybox/Jun12_04-54-40_carrybox_coef0.25/model_19999.pt
+python ../PhysHSI-main_pure/legged_gym/legged_gym/scripts/play.py --task carrybox --resume_path /home/xcp/workspace/d3/logs/amp_carrybox/Jun15_10-09-12_carrybox_coef0.25/model_9999.pt

@@ -1,0 +1,19 @@
+PhysHSI rsl_rl fork vendored for ICLR
+=====================================
+
+Package: rsl_rl
+Version: 1.0.2
+Vendored path: /home/xcp/workspace/ICLR/vendor/rsl_rl
+Copied from: /home/xcp/workspace/PhysHSI-main_pure/rsl_rl
+Copied on: 2026-06-24
+
+The source directory was not a git checkout, so there is no upstream commit hash
+to record. The vendored copy contains only setup.py and the rsl_rl package
+source; generated egg-info and __pycache__ directories were intentionally
+excluded.
+
+Deterministic source tar hash:
+712b3ec6992de84f44fda869ed51076eca79b47d291f385f7cc7186c066c6a6d
+
+Hash command:
+tar --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner -cf - -C vendor/rsl_rl setup.py rsl_rl | sha256sum

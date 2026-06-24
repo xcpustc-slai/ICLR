@@ -28,7 +28,13 @@ simulation_app = app_launcher.app
 import gymnasium as gym
 
 import phys_hsi_carrybox_lab  # noqa: F401
-from phys_hsi_carrybox_lab.assets import GENERATED_USD_ROOT, PHYS_HSI_G1_URDF, PROJECT_ROOT, SOURCE_ROOT
+from phys_hsi_carrybox_lab.assets import (
+    GENERATED_USD_ROOT,
+    PHYS_HSI_G1_URDF,
+    PROJECT_ROOT,
+    SOURCE_ROOT,
+    VENDORED_RSL_RL_ROOT,
+)
 from phys_hsi_carrybox_lab.envs.carrybox_env_cfg import CarryBoxEnvCfg, CarryBoxTrainCfg, sync_carrybox_mode_cfg
 from phys_hsi_carrybox_lab.source_rl import (
     CarryBoxSourceEnvAdapter,
@@ -70,6 +76,7 @@ def _print_startup_banner(train_cfg: CarryBoxTrainCfg, env_cfg: CarryBoxEnvCfg, 
     print(f"cwd: {os.getcwd()}", flush=True)
     print(f"project_root: {PROJECT_ROOT}", flush=True)
     print(f"source_root: {SOURCE_ROOT}", flush=True)
+    print(f"vendored_rsl_rl: {VENDORED_RSL_RL_ROOT}", flush=True)
     print(f"robot_urdf: {PHYS_HSI_G1_URDF}", flush=True)
     print(f"generated_usd_dir: {GENERATED_USD_ROOT / 'g1_29dof_lab'}", flush=True)
     print(f"log_dir: {log_dir}", flush=True)

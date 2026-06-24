@@ -11,7 +11,35 @@ from pathlib import Path
 
 import torch
 
-from .assets import SOURCE_ROOT
+from .assets import VENDORED_RSL_RL_ROOT
+
+
+def _path_is_relative_to(path: Path, parent: Path) -> bool:
+    try:
+        path.resolve().relative_to(parent.resolve())
+    except ValueError:
+        return False
+    return True
+
+
+def _install_vendored_rsl_rl() -> Path:
+    vendored_rsl = VENDORED_RSL_RL_ROOT
+    if not (vendored_rsl / "rsl_rl").exists():
+        raise FileNotFoundError(f"Could not find vendored PhysHSI rsl_rl package: {vendored_rsl}")
+
+    existing = sys.modules.get("rsl_rl")
+    if existing is not None:
+        module_file = getattr(existing, "__file__", None)
+        if module_file is not None and not _path_is_relative_to(Path(module_file), vendored_rsl):
+            raise RuntimeError(
+                f"rsl_rl was already imported from {module_file}; expected vendored package at {vendored_rsl}."
+            )
+
+    vendored_str = str(vendored_rsl)
+    if vendored_str in sys.path:
+        sys.path.remove(vendored_str)
+    sys.path.insert(0, vendored_str)
+    return vendored_rsl
 
 
 def install_source_him_runner():
@@ -26,10 +54,7 @@ def install_source_him_runner():
         muon.SingleDeviceMuonWithAuxAdam = SingleDeviceMuonWithAuxAdam
         sys.modules["muon"] = muon
 
-    source_rsl = SOURCE_ROOT / "rsl_rl"
-    if not (source_rsl / "rsl_rl").exists():
-        raise FileNotFoundError(f"Could not find original PhysHSI rsl_rl package: {source_rsl}")
-    sys.path.insert(0, str(source_rsl))
+    _install_vendored_rsl_rl()
 
     from rsl_rl.runners.him_on_policy_runner import HIMOnPolicyRunner
 

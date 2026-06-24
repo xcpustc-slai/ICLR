@@ -8,6 +8,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_ROOT = Path("/home/xcp/workspace/PhysHSI-main_pure")
 SOURCE_LEGGED_GYM_ROOT = SOURCE_ROOT / "legged_gym"
 SOURCE_RESOURCE_ROOT = SOURCE_LEGGED_GYM_ROOT / "resources"
+VENDORED_RSL_RL_ROOT = PROJECT_ROOT / "vendor" / "rsl_rl"
 
 CARRYBOX_CHECKPOINT = SOURCE_RESOURCE_ROOT / "ckpt" / "carrybox.pt"
 CARRYBOX_MOTION_CONFIG = SOURCE_RESOURCE_ROOT / "config" / "carrybox.yaml"

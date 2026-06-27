@@ -91,17 +91,22 @@ class HIMPPO:
 
         # amp
         self.amp = amp
-        self.amp.to(self.device)
+        if self.amp is not None:
+            self.amp.to(self.device)
         self.motion_buffer = motion_buffer
 
         if use_muon_optim:
             ac_hidden_weights = [p for p in self.actor_critic.parameters() if p.ndim >= 2]
-            amp_trunk_hidden_weights = [p for p in self.amp.trunk.parameters() if p.ndim >= 2]
-            amp_linear_hidden_weights = [p for p in self.amp.amp_linear.parameters() if p.ndim >= 2]
-
             ac_hidden_gains_biases = [p for p in self.actor_critic.parameters() if p.ndim < 2]
-            amp_trunk_hidden_gains_biases = [p for p in self.amp.trunk.parameters() if p.ndim < 2]
-            amp_linear_hidden_gains_biases = [p for p in self.amp.amp_linear.parameters() if p.ndim < 2]
+            amp_trunk_hidden_weights = []
+            amp_linear_hidden_weights = []
+            amp_trunk_hidden_gains_biases = []
+            amp_linear_hidden_gains_biases = []
+            if self.amp is not None:
+                amp_trunk_hidden_weights = [p for p in self.amp.trunk.parameters() if p.ndim >= 2]
+                amp_linear_hidden_weights = [p for p in self.amp.amp_linear.parameters() if p.ndim >= 2]
+                amp_trunk_hidden_gains_biases = [p for p in self.amp.trunk.parameters() if p.ndim < 2]
+                amp_linear_hidden_gains_biases = [p for p in self.amp.amp_linear.parameters() if p.ndim < 2]
 
             # param_groups = [
             #     dict(params=ac_hidden_gains_biases, use_muon=False, lr=learning_rate, betas=(0.9, 0.95)),
@@ -122,12 +127,13 @@ class HIMPPO:
             
             self.optimizer = SingleDeviceMuonWithAuxAdam(param_groups)
         else:
-            params = [
-                {'params': self.actor_critic.parameters(), 'name': 'actor_critic'},
-                {'params': self.amp.trunk.parameters(),
-                 'weight_decay': 10e-4, 'name': 'amp_trunk'},
-                {'params': self.amp.amp_linear.parameters(),
-                 'weight_decay': 10e-2, 'name': 'amp_head'}]
+            params = [{'params': self.actor_critic.parameters(), 'name': 'actor_critic'}]
+            if self.amp is not None:
+                params += [
+                    {'params': self.amp.trunk.parameters(),
+                     'weight_decay': 10e-4, 'name': 'amp_trunk'},
+                    {'params': self.amp.amp_linear.parameters(),
+                     'weight_decay': 10e-2, 'name': 'amp_head'}]
             self.optimizer = optim.Adam(params, lr=learning_rate)
 
         self.amp_normalizer = amp_normalizer
@@ -190,6 +196,9 @@ class HIMPPO:
 
         for obs_batch, next_obs_batch, critic_obs_batch, actions_batch, next_critic_obs_batch, cont_batch, target_values_batch, advantages_batch, returns_batch, shortreturns_batch, old_actions_log_prob_batch, \
             old_mu_batch, old_sigma_batch, amp_obs_batch in generator:
+                amp_loss = torch.zeros((), device=self.device)
+                expert_loss = torch.zeros((), device=self.device)
+                policy_loss = torch.zeros((), device=self.device)
 
                 self.actor_critic.act(obs_batch)
                 actions_log_prob_batch = self.actor_critic.get_actions_log_prob(actions_batch)
@@ -249,6 +258,8 @@ class HIMPPO:
 
                 # amp loss
                 if self.amp is not None:
+                    if self.motion_buffer is None:
+                        raise RuntimeError("AMP is enabled but no motion buffer was provided.")
                     amp_expert_obs_batch = self.motion_buffer.get_expert_obs(batch_size=obs_batch.shape[0]).to(self.device)
                     if self.amp_normalizer is not None:
                         amp_expert_obs_batch = self.amp_normalizer.normalize(amp_expert_obs_batch)

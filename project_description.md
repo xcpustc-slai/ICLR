@@ -3,7 +3,8 @@
 ILCR trains the PhysHSI CarryBox humanoid task in Isaac Lab. The robot is a
 29-DoF G1 humanoid that must approach a box, lift it, carry it to a goal
 platform, and stand after placement. Training uses the vendored PhysHSI
-`rsl_rl` fork (`vendor/rsl_rl`) with HIM-PPO plus AMP.
+`rsl_rl` fork (`vendor/rsl_rl`) with HIM-PPO; AMP is currently enabled only for
+baseline mode.
 
 ## Main Training Data Flow
 
@@ -69,31 +70,68 @@ The AMO policy input is:
 The frozen AMO policy outputs `(N,15)` lower-body actions, converted to target
 positions for 12 leg joints plus 3 waist joints. These 15 targets are merged
 with the learned 14 arm targets into the final `joint_target_29`, then the same
-PD torque path is used. AMO uses `sim_dt=0.002`, decimation `10`, 17D AMP by
-default, reward speed targets `0.5 m/s`, and disables control randomization and
-delay by default to keep the frozen controller stable.
+PD torque path is used. AMO uses `sim_dt=0.002`, decimation `10`, task reward
+only, reward speed targets `0.5 m/s`, and disables control randomization and
+delay by default to keep the frozen controller stable. AMO also disables RSI for
+now: `reset_mode=default` and `use_motionlib=False`, so robot resets start from
+the default robot state instead of sampled reference-motion states.
 
 ## AMP Module
 
-AMP is active in both modes. The environment appends a motion-style AMP
+AMP is active in baseline mode only. The environment appends a motion-style AMP
 observation to a 10-step history and returns it as `extras["amp_obs"]`.
 
 - Baseline AMP one-step obs is `(N,60)`: base height `1`, joints `29`,
   end-effectors `15`, local box position `3`, base linear velocity `3`, base
   angular velocity `3`, and root rotation 6D `6`; history gives `(N,600)`.
-- AMO with `amp_len=17` uses `(N,42)` per step: base height `1`, selected joints
-  `17`, selected end-effectors `9`, box `3`, linear velocity `3`, angular
-  velocity `3`, root rotation `6`; history gives `(N,420)`.
 
 `motionlib.py` samples expert AMP windows from the CarryBox motion dataset. The
 AMP discriminator compares policy AMP observations with expert observations,
 produces an AMP reward, and HIM-PPO combines it with task reward using
-`amp_coef=0.25`.
+`amp_coef=0.25`. When `mode=amo`, `amp.enabled=False`, no AMP discriminator is
+constructed, no AMP reward is mixed into rollout reward, and no AMP loss is
+added during PPO update.
 
 ## Rewards
 
-Task reward terms are `walk_task`, `carryup_task`, `relocation_task`, and
-`standup_task`. Regularization terms are `action_rate`, `dof_acc`,
-`dof_pos_limits`, `dof_vel`, `dof_vel_limits`, `torque_limits`, and `torques`.
-In AMO mode, the action-rate penalty is applied only to the 14 learned arm
-actions.
+The environment computes a raw task reward every step as the sum of the terms
+below. Each term is multiplied by `dt` before summation. Baseline later mixes
+this raw reward with AMP reward using `amp_coef=0.25`; AMO currently uses only
+the raw task reward because AMP is disabled.
+
+Positive task terms:
+
+- `walk_task` (`+1.0`): rewards walking toward the box. It uses forward speed
+  along the robot-to-box direction and a heading reward:
+  `exp(-5 * (target_speed_loco - speed_to_box)^2) + 0.5 * heading_reward`.
+  It is set to `1.5` once the robot is close to the box or the object is already
+  at the goal. `target_speed_loco` is `0.85 m/s` in baseline and `0.5 m/s` in
+  AMO.
+- `carryup_task` (`+1.0`): rewards grasp/lift behavior. It combines hand
+  proximity to the box and box height:
+  `0.7 * hand_reward + 2.0 * lift_reward`. This term is zero if the robot is
+  too far from the box, and becomes `2.7` after object-goal success.
+- `relocation_task` (`+1.0`): rewards carrying the box toward the goal. It uses
+  heading to goal, speed along the robot-to-goal direction, object-goal
+  distance, and box height matching near the goal. It is active only after the
+  box is lifted or moved away from its start area, and becomes `3.5` when the
+  box reaches the goal threshold.
+- `standup_task` (`+0.2`): only active after success. It rewards head height,
+  staying near the default posture, and hands being free of contact.
+
+Regularization and safety terms:
+
+- `action_rate` (`-0.03`): penalizes action changes between consecutive policy
+  steps. In AMO mode this penalty is applied only to the 14 learned arm actions.
+- `dof_acc` (`-1e-7`): penalizes joint acceleration estimated from velocity
+  difference over `dt`.
+- `dof_pos_limits` (`-5.0`): penalizes joints outside the soft position limit
+  band.
+- `dof_vel` (`-2e-4`): penalizes squared joint velocity.
+- `dof_vel_limits` (`-1e-3`): penalizes velocity above the soft velocity limit.
+- `torque_limits` (`-0.03`): penalizes computed torque above the soft torque
+  limit.
+- `torques` (`-1e-4`): penalizes squared applied torque normalized by PD gains.
+
+The logged reward keys are prefixed with `rew_`, for example
+`rew_walk_task`, `rew_carryup_task`, and `rew_action_rate`.

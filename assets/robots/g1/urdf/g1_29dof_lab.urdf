@@ -558,8 +558,15 @@
   </joint>
 
   <link name="d455_link">
-    
-  <inertial><origin xyz="0 0 0" rpy="0 0 0" /><mass value="0.001" /><inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" /></inertial></link>
+    <inertial><origin xyz="0 0 0" rpy="0 0 0" /><mass value="0.001" /><inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" /></inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.001 0.001 0.001" />
+      </geometry>
+      <material name="dark" />
+    </visual>
+  </link>
   <joint name="d455_joint" type="fixed">
     <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708" />
     <parent link="temp_link" />

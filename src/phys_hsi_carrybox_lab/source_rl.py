@@ -177,6 +177,7 @@ def source_train_cfg(train_cfg, env_cfg) -> dict:
             "activation": train_cfg.activation,
         },
         "amp": {
+            "enabled": bool(env_cfg.use_amp),
             "amp_coef": train_cfg.amp_coef,
             "num_one_step_obs": env_cfg.amp_observation_space,
             "window_length": env_cfg.num_amp_observations,

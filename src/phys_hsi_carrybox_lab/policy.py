@@ -37,6 +37,9 @@ class PhysHSIActor(nn.Module):
 def load_policy_from_checkpoint(
     checkpoint: str | Path = CARRYBOX_CHECKPOINT,
     device: str | torch.device = "cpu",
+    observation_dim: int = 738,
+    action_dim: int = 29,
+    hidden_dims: tuple[int, int, int] = (512, 256, 256),
 ) -> tuple[PhysHSIActor, dict[str, Any]]:
     """Load the original CarryBox actor weights for inference."""
     checkpoint_path = require_source_file(Path(checkpoint))
@@ -48,7 +51,11 @@ def load_policy_from_checkpoint(
         if key.startswith("actor.")
     }
 
-    policy = PhysHSIActor().to(device)
+    policy = PhysHSIActor(
+        observation_dim=observation_dim,
+        action_dim=action_dim,
+        hidden_dims=hidden_dims,
+    ).to(device)
     policy.actor.load_state_dict(actor_state, strict=True)
     policy.eval()
     return policy, loaded

@@ -76,11 +76,13 @@ class HIMOnPolicyRunner:
                                                         **self.policy_cfg).to(self.device)
 
         self.amp_cfg = train_cfg["amp"]
-        amp = AMP(self.amp_cfg['num_obs'], self.amp_cfg['amp_coef'], device=self.device).to(self.device)
-        if self.amp_cfg['use_normalizer']:
+        self.use_amp = bool(self.amp_cfg.get("enabled", True))
+        amp = None
+        amp_normalizer = None
+        if self.use_amp:
+            amp = AMP(self.amp_cfg['num_obs'], self.amp_cfg['amp_coef'], device=self.device).to(self.device)
+        if self.use_amp and self.amp_cfg['use_normalizer']:
             amp_normalizer = AmpNormalizer(self.amp_cfg['num_obs'], device=self.device)
-        else:
-            amp_normalizer = None
 
         alg_class = eval(self.cfg["algorithm_class_name"]) # HIMPPO
         self.alg: HIMPPO = alg_class(actor_critic,  amp=amp, amp_normalizer=amp_normalizer, motion_buffer=self.env.motionlib, use_muon_optim=self.cfg["use_muon_optim"], device=self.device, **self.alg_cfg)
@@ -150,12 +152,15 @@ class HIMOnPolicyRunner:
                     termination_privileged_obs = termination_privileged_obs.to(self.device)
 
                     self.alg.process_amp_state(amp_state)
-                    amp_reward = self.alg.amp.predict_reward(amp_state, normalizer=self.alg.amp_normalizer).squeeze(1) * 0.5
+                    if self.use_amp:
+                        amp_reward = self.alg.amp.predict_reward(amp_state, normalizer=self.alg.amp_normalizer).squeeze(1) * 0.5
+                    else:
+                        amp_reward = torch.zeros_like(raw_rewards)
 
                     next_critic_obs = critic_obs.clone().detach()
                     next_critic_obs[termination_ids] = termination_privileged_obs.clone().detach()
 
-                    rewards = self.alg.amp.combine_reward(amp_reward, raw_rewards)
+                    rewards = self.alg.amp.combine_reward(amp_reward, raw_rewards) if self.use_amp else raw_rewards
 
                     self.alg.process_env_step(rewards, dones, infos, next_critic_obs)
                 
@@ -208,7 +213,17 @@ class HIMOnPolicyRunner:
         self.tot_time += locs['collection_time'] + locs['learn_time']
         iteration_time = locs['collection_time'] + locs['learn_time']
 
-        ep_string = f''
+        episode_values = {}
+        reward_order = ("walk_task", "carryup_task", "relocation_task", "standup_task")
+        penalty_order = (
+            "action_rate",
+            "dof_acc",
+            "dof_pos_limits",
+            "dof_vel",
+            "dof_vel_limits",
+            "torque_limits",
+            "torques",
+        )
         if locs['ep_infos']:
             for key in locs['ep_infos'][0]:
                 infotensor = torch.tensor([], device=self.device)
@@ -221,7 +236,22 @@ class HIMOnPolicyRunner:
                     infotensor = torch.cat((infotensor, ep_info[key].to(self.device)))
                 value = torch.mean(infotensor)
                 self.writer.add_scalar('Episode/' + key, value, locs['it'])
-                ep_string += f"""{f'Mean episode {key}:':>{pad}} {value:.4f}\n"""
+                episode_values[key] = value.item()
+        reward_string = ""
+        if episode_values:
+            reward_lines = [f"{name}: {episode_values[f'rew_{name}']:.4f}\n" for name in reward_order
+                            if f"rew_{name}" in episode_values]
+            penalty_lines = [f"{name}: {episode_values[f'rew_{name}']:.4f}\n" for name in penalty_order
+                             if f"rew_{name}" in episode_values]
+            grouped_keys = {f"rew_{name}" for name in reward_order + penalty_order}
+            other_lines = [f"""{f'Mean episode {key}:':>{pad}} {value:.4f}\n"""
+                           for key, value in episode_values.items() if key not in grouped_keys]
+            if reward_lines:
+                reward_string += "---reward--\n" + "".join(reward_lines)
+            if penalty_lines:
+                reward_string += "--penalty--\n" + "".join(penalty_lines)
+            if other_lines:
+                reward_string += "".join(other_lines)
         mean_std = self.alg.actor_critic.std[0:10].mean()
         fps = int(self.num_steps_per_env * self.env.num_envs / (locs['collection_time'] + locs['learn_time']))
 
@@ -232,9 +262,10 @@ class HIMOnPolicyRunner:
         # self.writer.add_scalar('Loss/Actor Sym Loss', locs['mean_actor_sym_loss'], locs['it'])
         # self.writer.add_scalar('Loss/Critic Sym Loss', locs['mean_critic_sym_loss'], locs['it'])
         self.writer.add_scalar('Loss/learning_rate', self.alg.learning_rate, locs['it'])
-        self.writer.add_scalar('Loss/amp_loss', locs['amp_loss'], locs['it'])
-        self.writer.add_scalar('Loss/amp_expert_loss', locs['expert_loss'], locs['it'])
-        self.writer.add_scalar('Loss/amp_policy_loss', locs['policy_loss'], locs['it'])
+        if self.use_amp:
+            self.writer.add_scalar('Loss/amp_loss', locs['amp_loss'], locs['it'])
+            self.writer.add_scalar('Loss/amp_expert_loss', locs['expert_loss'], locs['it'])
+            self.writer.add_scalar('Loss/amp_policy_loss', locs['policy_loss'], locs['it'])
         self.writer.add_scalar('Policy/mean_noise_std', mean_std.item(), locs['it'])
         self.writer.add_scalar('Perf/total_fps', fps, locs['it'])
         self.writer.add_scalar('Perf/collection time', locs['collection_time'], locs['it'])
@@ -243,7 +274,8 @@ class HIMOnPolicyRunner:
         if len(locs['rewbuffer']) > 0:
             self.writer.add_scalar('Train/mean_reward', statistics.mean(locs['rewbuffer']), locs['it'])
             self.writer.add_scalar('Train/mean_raw_reward', statistics.mean(locs['raw_rewbuffer']), locs['it'])
-            self.writer.add_scalar('Train/mean_amp_reward', statistics.mean(locs['amp_rewbuffer']), locs['it'])
+            if self.use_amp:
+                self.writer.add_scalar('Train/mean_amp_reward', statistics.mean(locs['amp_rewbuffer']), locs['it'])
             self.writer.add_scalar('Train/mean_episode_length', statistics.mean(locs['lenbuffer']), locs['it'])
             if self.logger_type != "wandb":  # wandb does not support non-integer x-axis logging
                 self.writer.add_scalar('Train/mean_reward/time', statistics.mean(locs['rewbuffer']), self.tot_time)
@@ -256,15 +288,16 @@ class HIMOnPolicyRunner:
                           f"""{str.center(width, ' ')}\n\n"""
                           f"""{'Computation:':>{pad}} {fps:.0f} steps/s (collection: {locs[
                             'collection_time']:.3f}s, learning {locs['learn_time']:.3f}s)\n"""
+                          f"""{'Mean reward:':>{pad}} {statistics.mean(locs['rewbuffer']):.2f}\n"""
+                          f"""{'Mean episode length:':>{pad}} {statistics.mean(locs['lenbuffer']):.2f}\n"""
+                          f"""---loss--\n"""
                           f"""{'Value function loss:':>{pad}} {locs['mean_value_loss']:.4f}\n"""
                           f"""{'Surrogate loss:':>{pad}} {locs['mean_surrogate_loss']:.4f}\n"""
                         #   f"""{'Kld Loss:':>{pad}} {locs['mean_kld_loss']:.4f}\n"""
                         #   f"""{'Swap loss:':>{pad}} {locs['mean_swap_loss']:.4f}\n"""
                         #   f"""{'Mean actor sym loss:':>{pad}} {locs['mean_actor_sym_loss']:.4f}\n"""
                         #   f"""{'Mean critic sym loss:':>{pad}} {locs['mean_critic_sym_loss']:.4f}\n"""
-                          f"""{'Mean action noise std:':>{pad}} {mean_std.item():.2f}\n"""
-                          f"""{'Mean reward:':>{pad}} {statistics.mean(locs['rewbuffer']):.2f}\n"""
-                          f"""{'Mean episode length:':>{pad}} {statistics.mean(locs['lenbuffer']):.2f}\n""")
+                          f"""{'Mean action noise std:':>{pad}} {mean_std.item():.2f}\n""")
                         #   f"""{'Mean reward/step:':>{pad}} {locs['mean_reward']:.2f}\n"""
                         #   f"""{'Mean episode length/episode:':>{pad}} {locs['mean_trajectory_length']:.2f}\n""")
         else:
@@ -272,6 +305,7 @@ class HIMOnPolicyRunner:
                           f"""{str.center(width, ' ')}\n\n"""
                           f"""{'Computation:':>{pad}} {fps:.0f} steps/s (collection: {locs[
                             'collection_time']:.3f}s, learning {locs['learn_time']:.3f}s)\n"""
+                          f"""---loss--\n"""
                           f"""{'Value function loss:':>{pad}} {locs['mean_value_loss']:.4f}\n"""
                           f"""{'Surrogate loss:':>{pad}} {locs['mean_surrogate_loss']:.4f}\n"""
                         #   f"""{'Kld Loss:':>{pad}} {locs['mean_kld_loss']:.4f}\n"""
@@ -282,7 +316,7 @@ class HIMOnPolicyRunner:
                         #   f"""{'Mean reward/step:':>{pad}} {locs['mean_reward']:.2f}\n"""
                         #   f"""{'Mean episode length/episode:':>{pad}} {locs['mean_trajectory_length']:.2f}\n""")
 
-        log_string += ep_string
+        log_string += reward_string
         log_string += (f"""{'-' * width}\n"""
                        f"""{'Total timesteps:':>{pad}} {self.tot_timesteps}\n"""
                        f"""{'Iteration time:':>{pad}} {iteration_time:.2f}s\n"""
@@ -294,18 +328,20 @@ class HIMOnPolicyRunner:
 
         
     def save(self, path, infos=None):
-        torch.save({
+        checkpoint = {
             'model_state_dict': self.alg.actor_critic.state_dict(),
-            'amp_state_dict': self.alg.amp.state_dict(),
             'optimizer_state_dict': self.alg.optimizer.state_dict(),
             'iter': self.current_learning_iteration + 1,
             'infos': infos,
-            }, path)
+            }
+        if self.alg.amp is not None:
+            checkpoint['amp_state_dict'] = self.alg.amp.state_dict()
+        torch.save(checkpoint, path)
 
     def load(self, path, load_optimizer=True):
         loaded_dict = torch.load(path, map_location=self.device)
         self.alg.actor_critic.load_state_dict(loaded_dict['model_state_dict'])
-        if 'amp_state_dict' in loaded_dict.keys():
+        if self.alg.amp is not None and 'amp_state_dict' in loaded_dict.keys():
             self.alg.amp.load_state_dict(loaded_dict['amp_state_dict'])
         if self.cfg["use_muon_optim"]:
             load_optimizer = False

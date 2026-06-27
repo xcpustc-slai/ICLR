@@ -326,6 +326,7 @@ class CarryBoxEnvCfg(DirectRLEnvCfg):
     skill_names = ("loco", "pickUp", "carryWith", "putDown")
     skill_init_prob = (0.8, 0.2, 0.2, 0.0)
     add_task_noise = True
+    use_amp = True
 
     thresh_robot2object = 0.7
     thresh_robot2goal = 0.65
@@ -514,6 +515,9 @@ def sync_carrybox_mode_cfg(cfg: CarryBoxEnvCfg) -> CarryBoxEnvCfg:
         cfg.decimation = int(cfg.baseline_decimation)
         cfg.sim.dt = float(cfg.baseline_sim_dt)
         cfg.amp_len = 29
+        cfg.use_amp = True
+        cfg.use_motionlib = True
+        cfg.reset_mode = "hybrid"
         cfg.randomize_actuation_offset = True
         cfg.randomize_motor_strength = True
         cfg.randomize_kp = True
@@ -526,6 +530,9 @@ def sync_carrybox_mode_cfg(cfg: CarryBoxEnvCfg) -> CarryBoxEnvCfg:
         cfg.action_space = int(cfg.amo_num_actions)
         cfg.decimation = int(cfg.amo.control_decimation)
         cfg.sim.dt = float(cfg.amo.sim_dt)
+        cfg.use_amp = False
+        cfg.use_motionlib = False
+        cfg.reset_mode = "default"
         if int(cfg.amp_len) not in (17, 29):
             raise ValueError(f"Unsupported AMO amp_len: {cfg.amp_len}. Supported values: 17 or 29.")
         cfg.randomize_actuation_offset = bool(cfg.amo_randomize_actuation_offset)

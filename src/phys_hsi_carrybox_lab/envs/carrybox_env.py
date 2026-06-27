@@ -1061,7 +1061,8 @@ class CarryBoxEnv(DirectRLEnv):
         reward = torch.stack(tuple(reward_terms.values()), dim=0).sum(dim=0)
         for name, rew in reward_terms.items():
             self._episode_sums[name] += rew
-        self._update_amp_observation_history()
+        if self.cfg.use_amp:
+            self._update_amp_observation_history()
         self._pre_reset_critic_obs = self._get_critic_observation()
         self.extras["termination_privileged_obs"] = self._pre_reset_critic_obs
         self._last_dof_vel[:] = dof_vel
@@ -1147,7 +1148,7 @@ class CarryBoxEnv(DirectRLEnv):
             self.cfg.camera_facing_angle_range[0], self.cfg.camera_facing_angle_range[1], (len(env_ids),)
         )
 
-        if self.cfg.reset_mode == "play" or self.motionlib is None:
+        if self.cfg.reset_mode == "play":
             self._reset_play(env_ids)
         else:
             self._reset_training(env_ids)

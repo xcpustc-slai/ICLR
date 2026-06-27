@@ -1,0 +1,455 @@
+--- git status ---
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   project_description.md
+	modified:   scripts/train_carrybox.py
+	modified:   src/phys_hsi_carrybox_lab/envs/carrybox_env.py
+	modified:   src/phys_hsi_carrybox_lab/envs/carrybox_env_cfg.py
+	modified:   src/phys_hsi_carrybox_lab/source_rl.py
+	modified:   vendor/rsl_rl/rsl_rl/algorithms/him_ppo.py
+	modified:   vendor/rsl_rl/rsl_rl/runners/him_on_policy_runner.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	0626_1718_amo_env4096_iter10k.txt
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/project_description.md b/project_description.md
+index 4dfc674..95b87d5 100644
+--- a/project_description.md
++++ b/project_description.md
+@@ -3,7 +3,8 @@
+ ILCR trains the PhysHSI CarryBox humanoid task in Isaac Lab. The robot is a
+ 29-DoF G1 humanoid that must approach a box, lift it, carry it to a goal
+ platform, and stand after placement. Training uses the vendored PhysHSI
+-`rsl_rl` fork (`vendor/rsl_rl`) with HIM-PPO plus AMP.
++`rsl_rl` fork (`vendor/rsl_rl`) with HIM-PPO; AMP is currently enabled only for
++baseline mode.
+ 
+ ## Main Training Data Flow
+ 
+@@ -69,31 +70,68 @@ The AMO policy input is:
+ The frozen AMO policy outputs `(N,15)` lower-body actions, converted to target
+ positions for 12 leg joints plus 3 waist joints. These 15 targets are merged
+ with the learned 14 arm targets into the final `joint_target_29`, then the same
+-PD torque path is used. AMO uses `sim_dt=0.002`, decimation `10`, 17D AMP by
+-default, reward speed targets `0.5 m/s`, and disables control randomization and
+-delay by default to keep the frozen controller stable.
++PD torque path is used. AMO uses `sim_dt=0.002`, decimation `10`, task reward
++only, reward speed targets `0.5 m/s`, and disables control randomization and
++delay by default to keep the frozen controller stable. AMO also disables RSI for
++now: `reset_mode=default` and `use_motionlib=False`, so robot resets start from
++the default robot state instead of sampled reference-motion states.
+ 
+ ## AMP Module
+ 
+-AMP is active in both modes. The environment appends a motion-style AMP
++AMP is active in baseline mode only. The environment appends a motion-style AMP
+ observation to a 10-step history and returns it as `extras["amp_obs"]`.
+ 
+ - Baseline AMP one-step obs is `(N,60)`: base height `1`, joints `29`,
+   end-effectors `15`, local box position `3`, base linear velocity `3`, base
+   angular velocity `3`, and root rotation 6D `6`; history gives `(N,600)`.
+-- AMO with `amp_len=17` uses `(N,42)` per step: base height `1`, selected joints
+-  `17`, selected end-effectors `9`, box `3`, linear velocity `3`, angular
+-  velocity `3`, root rotation `6`; history gives `(N,420)`.
+ 
+ `motionlib.py` samples expert AMP windows from the CarryBox motion dataset. The
+ AMP discriminator compares policy AMP observations with expert observations,
+ produces an AMP reward, and HIM-PPO combines it with task reward using
+-`amp_coef=0.25`.
++`amp_coef=0.25`. When `mode=amo`, `amp.enabled=False`, no AMP discriminator is
++constructed, no AMP reward is mixed into rollout reward, and no AMP loss is
++added during PPO update.
+ 
+ ## Rewards
+ 
+-Task reward terms are `walk_task`, `carryup_task`, `relocation_task`, and
+-`standup_task`. Regularization terms are `action_rate`, `dof_acc`,
+-`dof_pos_limits`, `dof_vel`, `dof_vel_limits`, `torque_limits`, and `torques`.
+-In AMO mode, the action-rate penalty is applied only to the 14 learned arm
+-actions.
++The environment computes a raw task reward every step as the sum of the terms
++below. Each term is multiplied by `dt` before summation. Baseline later mixes
++this raw reward with AMP reward using `amp_coef=0.25`; AMO currently uses only
++the raw task reward because AMP is disabled.
++
++Positive task terms:
++
++- `walk_task` (`+1.0`): rewards walking toward the box. It uses forward speed
++  along the robot-to-box direction and a heading reward:
++  `exp(-5 * (target_speed_loco - speed_to_box)^2) + 0.5 * heading_reward`.
++  It is set to `1.5` once the robot is close to the box or the object is already
++  at the goal. `target_speed_loco` is `0.85 m/s` in baseline and `0.5 m/s` in
++  AMO.
++- `carryup_task` (`+1.0`): rewards grasp/lift behavior. It combines hand
++  proximity to the box and box height:
++  `0.7 * hand_reward + 2.0 * lift_reward`. This term is zero if the robot is
++  too far from the box, and becomes `2.7` after object-goal success.
++- `relocation_task` (`+1.0`): rewards carrying the box toward the goal. It uses
++  heading to goal, speed along the robot-to-goal direction, object-goal
++  distance, and box height matching near the goal. It is active only after the
++  box is lifted or moved away from its start area, and becomes `3.5` when the
++  box reaches the goal threshold.
++- `standup_task` (`+0.2`): only active after success. It rewards head height,
++  staying near the default posture, and hands being free of contact.
++
++Regularization and safety terms:
++
++- `action_rate` (`-0.03`): penalizes action changes between consecutive policy
++  steps. In AMO mode this penalty is applied only to the 14 learned arm actions.
++- `dof_acc` (`-1e-7`): penalizes joint acceleration estimated from velocity
++  difference over `dt`.
++- `dof_pos_limits` (`-5.0`): penalizes joints outside the soft position limit
++  band.
++- `dof_vel` (`-2e-4`): penalizes squared joint velocity.
++- `dof_vel_limits` (`-1e-3`): penalizes velocity above the soft velocity limit.
++- `torque_limits` (`-0.03`): penalizes computed torque above the soft torque
++  limit.
++- `torques` (`-1e-4`): penalizes squared applied torque normalized by PD gains.
++
++The logged reward keys are prefixed with `rew_`, for example
++`rew_walk_task`, `rew_carryup_task`, and `rew_action_rate`.
+diff --git a/scripts/train_carrybox.py b/scripts/train_carrybox.py
+index 9d7037c..3cc190d 100644
+--- a/scripts/train_carrybox.py
++++ b/scripts/train_carrybox.py
+@@ -91,6 +91,9 @@ def _print_startup_banner(train_cfg: CarryBoxTrainCfg, env_cfg: CarryBoxEnvCfg,
+     print(f"privileged_obs_dim: {env_cfg.state_space}", flush=True)
+     print(f"amp_len: {env_cfg.amp_len}", flush=True)
+     print(f"amp_obs_dim: {env_cfg.num_amp_observations * env_cfg.amp_observation_space}", flush=True)
++    print(f"amp_enabled: {env_cfg.use_amp}", flush=True)
++    print(f"use_motionlib: {env_cfg.use_motionlib}", flush=True)
++    print(f"reset_mode: {env_cfg.reset_mode}", flush=True)
+     print(f"sim_dt: {env_cfg.sim.dt}", flush=True)
+     print(f"decimation: {env_cfg.decimation}", flush=True)
+     print(f"control_dt: {env_cfg.sim.dt * env_cfg.decimation}", flush=True)
+diff --git a/src/phys_hsi_carrybox_lab/envs/carrybox_env.py b/src/phys_hsi_carrybox_lab/envs/carrybox_env.py
+index 8636050..ad10bf8 100644
+--- a/src/phys_hsi_carrybox_lab/envs/carrybox_env.py
++++ b/src/phys_hsi_carrybox_lab/envs/carrybox_env.py
+@@ -1061,7 +1061,8 @@ class CarryBoxEnv(DirectRLEnv):
+         reward = torch.stack(tuple(reward_terms.values()), dim=0).sum(dim=0)
+         for name, rew in reward_terms.items():
+             self._episode_sums[name] += rew
+-        self._update_amp_observation_history()
++        if self.cfg.use_amp:
++            self._update_amp_observation_history()
+         self._pre_reset_critic_obs = self._get_critic_observation()
+         self.extras["termination_privileged_obs"] = self._pre_reset_critic_obs
+         self._last_dof_vel[:] = dof_vel
+@@ -1147,7 +1148,7 @@ class CarryBoxEnv(DirectRLEnv):
+             self.cfg.camera_facing_angle_range[0], self.cfg.camera_facing_angle_range[1], (len(env_ids),)
+         )
+ 
+-        if self.cfg.reset_mode == "play" or self.motionlib is None:
++        if self.cfg.reset_mode == "play":
+             self._reset_play(env_ids)
+         else:
+             self._reset_training(env_ids)
+diff --git a/src/phys_hsi_carrybox_lab/envs/carrybox_env_cfg.py b/src/phys_hsi_carrybox_lab/envs/carrybox_env_cfg.py
+index dbbdc1b..0fe01e5 100644
+--- a/src/phys_hsi_carrybox_lab/envs/carrybox_env_cfg.py
++++ b/src/phys_hsi_carrybox_lab/envs/carrybox_env_cfg.py
+@@ -326,6 +326,7 @@ class CarryBoxEnvCfg(DirectRLEnvCfg):
+     skill_names = ("loco", "pickUp", "carryWith", "putDown")
+     skill_init_prob = (0.8, 0.2, 0.2, 0.0)
+     add_task_noise = True
++    use_amp = True
+ 
+     thresh_robot2object = 0.7
+     thresh_robot2goal = 0.65
+@@ -514,6 +515,9 @@ def sync_carrybox_mode_cfg(cfg: CarryBoxEnvCfg) -> CarryBoxEnvCfg:
+         cfg.decimation = int(cfg.baseline_decimation)
+         cfg.sim.dt = float(cfg.baseline_sim_dt)
+         cfg.amp_len = 29
++        cfg.use_amp = True
++        cfg.use_motionlib = True
++        cfg.reset_mode = "hybrid"
+         cfg.randomize_actuation_offset = True
+         cfg.randomize_motor_strength = True
+         cfg.randomize_kp = True
+@@ -526,6 +530,9 @@ def sync_carrybox_mode_cfg(cfg: CarryBoxEnvCfg) -> CarryBoxEnvCfg:
+         cfg.action_space = int(cfg.amo_num_actions)
+         cfg.decimation = int(cfg.amo.control_decimation)
+         cfg.sim.dt = float(cfg.amo.sim_dt)
++        cfg.use_amp = False
++        cfg.use_motionlib = False
++        cfg.reset_mode = "default"
+         if int(cfg.amp_len) not in (17, 29):
+             raise ValueError(f"Unsupported AMO amp_len: {cfg.amp_len}. Supported values: 17 or 29.")
+         cfg.randomize_actuation_offset = bool(cfg.amo_randomize_actuation_offset)
+diff --git a/src/phys_hsi_carrybox_lab/source_rl.py b/src/phys_hsi_carrybox_lab/source_rl.py
+index b14313e..2662646 100644
+--- a/src/phys_hsi_carrybox_lab/source_rl.py
++++ b/src/phys_hsi_carrybox_lab/source_rl.py
+@@ -177,6 +177,7 @@ def source_train_cfg(train_cfg, env_cfg) -> dict:
+             "activation": train_cfg.activation,
+         },
+         "amp": {
++            "enabled": bool(env_cfg.use_amp),
+             "amp_coef": train_cfg.amp_coef,
+             "num_one_step_obs": env_cfg.amp_observation_space,
+             "window_length": env_cfg.num_amp_observations,
+diff --git a/vendor/rsl_rl/rsl_rl/algorithms/him_ppo.py b/vendor/rsl_rl/rsl_rl/algorithms/him_ppo.py
+index 055600a..4c069b2 100644
+--- a/vendor/rsl_rl/rsl_rl/algorithms/him_ppo.py
++++ b/vendor/rsl_rl/rsl_rl/algorithms/him_ppo.py
+@@ -91,17 +91,22 @@ class HIMPPO:
+ 
+         # amp
+         self.amp = amp
+-        self.amp.to(self.device)
++        if self.amp is not None:
++            self.amp.to(self.device)
+         self.motion_buffer = motion_buffer
+ 
+         if use_muon_optim:
+             ac_hidden_weights = [p for p in self.actor_critic.parameters() if p.ndim >= 2]
+-            amp_trunk_hidden_weights = [p for p in self.amp.trunk.parameters() if p.ndim >= 2]
+-            amp_linear_hidden_weights = [p for p in self.amp.amp_linear.parameters() if p.ndim >= 2]
+-
+             ac_hidden_gains_biases = [p for p in self.actor_critic.parameters() if p.ndim < 2]
+-            amp_trunk_hidden_gains_biases = [p for p in self.amp.trunk.parameters() if p.ndim < 2]
+-            amp_linear_hidden_gains_biases = [p for p in self.amp.amp_linear.parameters() if p.ndim < 2]
++            amp_trunk_hidden_weights = []
++            amp_linear_hidden_weights = []
++            amp_trunk_hidden_gains_biases = []
++            amp_linear_hidden_gains_biases = []
++            if self.amp is not None:
++                amp_trunk_hidden_weights = [p for p in self.amp.trunk.parameters() if p.ndim >= 2]
++                amp_linear_hidden_weights = [p for p in self.amp.amp_linear.parameters() if p.ndim >= 2]
++                amp_trunk_hidden_gains_biases = [p for p in self.amp.trunk.parameters() if p.ndim < 2]
++                amp_linear_hidden_gains_biases = [p for p in self.amp.amp_linear.parameters() if p.ndim < 2]
+ 
+             # param_groups = [
+             #     dict(params=ac_hidden_gains_biases, use_muon=False, lr=learning_rate, betas=(0.9, 0.95)),
+@@ -122,12 +127,13 @@ class HIMPPO:
+             
+             self.optimizer = SingleDeviceMuonWithAuxAdam(param_groups)
+         else:
+-            params = [
+-                {'params': self.actor_critic.parameters(), 'name': 'actor_critic'},
+-                {'params': self.amp.trunk.parameters(),
+-                 'weight_decay': 10e-4, 'name': 'amp_trunk'},
+-                {'params': self.amp.amp_linear.parameters(),
+-                 'weight_decay': 10e-2, 'name': 'amp_head'}]
++            params = [{'params': self.actor_critic.parameters(), 'name': 'actor_critic'}]
++            if self.amp is not None:
++                params += [
++                    {'params': self.amp.trunk.parameters(),
++                     'weight_decay': 10e-4, 'name': 'amp_trunk'},
++                    {'params': self.amp.amp_linear.parameters(),
++                     'weight_decay': 10e-2, 'name': 'amp_head'}]
+             self.optimizer = optim.Adam(params, lr=learning_rate)
+ 
+         self.amp_normalizer = amp_normalizer
+@@ -190,6 +196,9 @@ class HIMPPO:
+ 
+         for obs_batch, next_obs_batch, critic_obs_batch, actions_batch, next_critic_obs_batch, cont_batch, target_values_batch, advantages_batch, returns_batch, shortreturns_batch, old_actions_log_prob_batch, \
+             old_mu_batch, old_sigma_batch, amp_obs_batch in generator:
++                amp_loss = torch.zeros((), device=self.device)
++                expert_loss = torch.zeros((), device=self.device)
++                policy_loss = torch.zeros((), device=self.device)
+ 
+                 self.actor_critic.act(obs_batch)
+                 actions_log_prob_batch = self.actor_critic.get_actions_log_prob(actions_batch)
+@@ -249,6 +258,8 @@ class HIMPPO:
+ 
+                 # amp loss
+                 if self.amp is not None:
++                    if self.motion_buffer is None:
++                        raise RuntimeError("AMP is enabled but no motion buffer was provided.")
+                     amp_expert_obs_batch = self.motion_buffer.get_expert_obs(batch_size=obs_batch.shape[0]).to(self.device)
+                     if self.amp_normalizer is not None:
+                         amp_expert_obs_batch = self.amp_normalizer.normalize(amp_expert_obs_batch)
+@@ -282,4 +293,4 @@ class HIMPPO:
+         self.storage.clear()
+ 
+         return mean_value_loss, mean_surrogate_loss, mean_amp_loss, mean_expert_loss, mean_policy_loss
+-    
+\ No newline at end of file
++    
+diff --git a/vendor/rsl_rl/rsl_rl/runners/him_on_policy_runner.py b/vendor/rsl_rl/rsl_rl/runners/him_on_policy_runner.py
+index ce4777f..744ada0 100644
+--- a/vendor/rsl_rl/rsl_rl/runners/him_on_policy_runner.py
++++ b/vendor/rsl_rl/rsl_rl/runners/him_on_policy_runner.py
+@@ -76,11 +76,13 @@ class HIMOnPolicyRunner:
+                                                         **self.policy_cfg).to(self.device)
+ 
+         self.amp_cfg = train_cfg["amp"]
+-        amp = AMP(self.amp_cfg['num_obs'], self.amp_cfg['amp_coef'], device=self.device).to(self.device)
+-        if self.amp_cfg['use_normalizer']:
++        self.use_amp = bool(self.amp_cfg.get("enabled", True))
++        amp = None
++        amp_normalizer = None
++        if self.use_amp:
++            amp = AMP(self.amp_cfg['num_obs'], self.amp_cfg['amp_coef'], device=self.device).to(self.device)
++        if self.use_amp and self.amp_cfg['use_normalizer']:
+             amp_normalizer = AmpNormalizer(self.amp_cfg['num_obs'], device=self.device)
+-        else:
+-            amp_normalizer = None
+ 
+         alg_class = eval(self.cfg["algorithm_class_name"]) # HIMPPO
+         self.alg: HIMPPO = alg_class(actor_critic,  amp=amp, amp_normalizer=amp_normalizer, motion_buffer=self.env.motionlib, use_muon_optim=self.cfg["use_muon_optim"], device=self.device, **self.alg_cfg)
+@@ -150,12 +152,15 @@ class HIMOnPolicyRunner:
+                     termination_privileged_obs = termination_privileged_obs.to(self.device)
+ 
+                     self.alg.process_amp_state(amp_state)
+-                    amp_reward = self.alg.amp.predict_reward(amp_state, normalizer=self.alg.amp_normalizer).squeeze(1) * 0.5
++                    if self.use_amp:
++                        amp_reward = self.alg.amp.predict_reward(amp_state, normalizer=self.alg.amp_normalizer).squeeze(1) * 0.5
++                    else:
++                        amp_reward = torch.zeros_like(raw_rewards)
+ 
+                     next_critic_obs = critic_obs.clone().detach()
+                     next_critic_obs[termination_ids] = termination_privileged_obs.clone().detach()
+ 
+-                    rewards = self.alg.amp.combine_reward(amp_reward, raw_rewards)
++                    rewards = self.alg.amp.combine_reward(amp_reward, raw_rewards) if self.use_amp else raw_rewards
+ 
+                     self.alg.process_env_step(rewards, dones, infos, next_critic_obs)
+                 
+@@ -208,7 +213,17 @@ class HIMOnPolicyRunner:
+         self.tot_time += locs['collection_time'] + locs['learn_time']
+         iteration_time = locs['collection_time'] + locs['learn_time']
+ 
+-        ep_string = f''
++        episode_values = {}
++        reward_order = ("walk_task", "carryup_task", "relocation_task", "standup_task")
++        penalty_order = (
++            "action_rate",
++            "dof_acc",
++            "dof_pos_limits",
++            "dof_vel",
++            "dof_vel_limits",
++            "torque_limits",
++            "torques",
++        )
+         if locs['ep_infos']:
+             for key in locs['ep_infos'][0]:
+                 infotensor = torch.tensor([], device=self.device)
+@@ -221,7 +236,22 @@ class HIMOnPolicyRunner:
+                     infotensor = torch.cat((infotensor, ep_info[key].to(self.device)))
+                 value = torch.mean(infotensor)
+                 self.writer.add_scalar('Episode/' + key, value, locs['it'])
+-                ep_string += f"""{f'Mean episode {key}:':>{pad}} {value:.4f}\n"""
++                episode_values[key] = value.item()
++        reward_string = ""
++        if episode_values:
++            reward_lines = [f"{name}: {episode_values[f'rew_{name}']:.4f}\n" for name in reward_order
++                            if f"rew_{name}" in episode_values]
++            penalty_lines = [f"{name}: {episode_values[f'rew_{name}']:.4f}\n" for name in penalty_order
++                             if f"rew_{name}" in episode_values]
++            grouped_keys = {f"rew_{name}" for name in reward_order + penalty_order}
++            other_lines = [f"""{f'Mean episode {key}:':>{pad}} {value:.4f}\n"""
++                           for key, value in episode_values.items() if key not in grouped_keys]
++            if reward_lines:
++                reward_string += "---reward--\n" + "".join(reward_lines)
++            if penalty_lines:
++                reward_string += "--penalty--\n" + "".join(penalty_lines)
++            if other_lines:
++                reward_string += "".join(other_lines)
+         mean_std = self.alg.actor_critic.std[0:10].mean()
+         fps = int(self.num_steps_per_env * self.env.num_envs / (locs['collection_time'] + locs['learn_time']))
+ 
+@@ -232,9 +262,10 @@ class HIMOnPolicyRunner:
+         # self.writer.add_scalar('Loss/Actor Sym Loss', locs['mean_actor_sym_loss'], locs['it'])
+         # self.writer.add_scalar('Loss/Critic Sym Loss', locs['mean_critic_sym_loss'], locs['it'])
+         self.writer.add_scalar('Loss/learning_rate', self.alg.learning_rate, locs['it'])
+-        self.writer.add_scalar('Loss/amp_loss', locs['amp_loss'], locs['it'])
+-        self.writer.add_scalar('Loss/amp_expert_loss', locs['expert_loss'], locs['it'])
+-        self.writer.add_scalar('Loss/amp_policy_loss', locs['policy_loss'], locs['it'])
++        if self.use_amp:
++            self.writer.add_scalar('Loss/amp_loss', locs['amp_loss'], locs['it'])
++            self.writer.add_scalar('Loss/amp_expert_loss', locs['expert_loss'], locs['it'])
++            self.writer.add_scalar('Loss/amp_policy_loss', locs['policy_loss'], locs['it'])
+         self.writer.add_scalar('Policy/mean_noise_std', mean_std.item(), locs['it'])
+         self.writer.add_scalar('Perf/total_fps', fps, locs['it'])
+         self.writer.add_scalar('Perf/collection time', locs['collection_time'], locs['it'])
+@@ -243,7 +274,8 @@ class HIMOnPolicyRunner:
+         if len(locs['rewbuffer']) > 0:
+             self.writer.add_scalar('Train/mean_reward', statistics.mean(locs['rewbuffer']), locs['it'])
+             self.writer.add_scalar('Train/mean_raw_reward', statistics.mean(locs['raw_rewbuffer']), locs['it'])
+-            self.writer.add_scalar('Train/mean_amp_reward', statistics.mean(locs['amp_rewbuffer']), locs['it'])
++            if self.use_amp:
++                self.writer.add_scalar('Train/mean_amp_reward', statistics.mean(locs['amp_rewbuffer']), locs['it'])
+             self.writer.add_scalar('Train/mean_episode_length', statistics.mean(locs['lenbuffer']), locs['it'])
+             if self.logger_type != "wandb":  # wandb does not support non-integer x-axis logging
+                 self.writer.add_scalar('Train/mean_reward/time', statistics.mean(locs['rewbuffer']), self.tot_time)
+@@ -256,15 +288,16 @@ class HIMOnPolicyRunner:
+                           f"""{str.center(width, ' ')}\n\n"""
+                           f"""{'Computation:':>{pad}} {fps:.0f} steps/s (collection: {locs[
+                             'collection_time']:.3f}s, learning {locs['learn_time']:.3f}s)\n"""
++                          f"""{'Mean reward:':>{pad}} {statistics.mean(locs['rewbuffer']):.2f}\n"""
++                          f"""{'Mean episode length:':>{pad}} {statistics.mean(locs['lenbuffer']):.2f}\n"""
++                          f"""---loss--\n"""
+                           f"""{'Value function loss:':>{pad}} {locs['mean_value_loss']:.4f}\n"""
+                           f"""{'Surrogate loss:':>{pad}} {locs['mean_surrogate_loss']:.4f}\n"""
+                         #   f"""{'Kld Loss:':>{pad}} {locs['mean_kld_loss']:.4f}\n"""
+                         #   f"""{'Swap loss:':>{pad}} {locs['mean_swap_loss']:.4f}\n"""
+                         #   f"""{'Mean actor sym loss:':>{pad}} {locs['mean_actor_sym_loss']:.4f}\n"""
+                         #   f"""{'Mean critic sym loss:':>{pad}} {locs['mean_critic_sym_loss']:.4f}\n"""
+-                          f"""{'Mean action noise std:':>{pad}} {mean_std.item():.2f}\n"""
+-                          f"""{'Mean reward:':>{pad}} {statistics.mean(locs['rewbuffer']):.2f}\n"""
+-                          f"""{'Mean episode length:':>{pad}} {statistics.mean(locs['lenbuffer']):.2f}\n""")
++                          f"""{'Mean action noise std:':>{pad}} {mean_std.item():.2f}\n""")
+                         #   f"""{'Mean reward/step:':>{pad}} {locs['mean_reward']:.2f}\n"""
+                         #   f"""{'Mean episode length/episode:':>{pad}} {locs['mean_trajectory_length']:.2f}\n""")
+         else:
+@@ -272,6 +305,7 @@ class HIMOnPolicyRunner:
+                           f"""{str.center(width, ' ')}\n\n"""
+                           f"""{'Computation:':>{pad}} {fps:.0f} steps/s (collection: {locs[
+                             'collection_time']:.3f}s, learning {locs['learn_time']:.3f}s)\n"""
++                          f"""---loss--\n"""
+                           f"""{'Value function loss:':>{pad}} {locs['mean_value_loss']:.4f}\n"""
+                           f"""{'Surrogate loss:':>{pad}} {locs['mean_surrogate_loss']:.4f}\n"""
+                         #   f"""{'Kld Loss:':>{pad}} {locs['mean_kld_loss']:.4f}\n"""
+@@ -282,7 +316,7 @@ class HIMOnPolicyRunner:
+                         #   f"""{'Mean reward/step:':>{pad}} {locs['mean_reward']:.2f}\n"""
+                         #   f"""{'Mean episode length/episode:':>{pad}} {locs['mean_trajectory_length']:.2f}\n""")
+ 
+-        log_string += ep_string
++        log_string += reward_string
+         log_string += (f"""{'-' * width}\n"""
+                        f"""{'Total timesteps:':>{pad}} {self.tot_timesteps}\n"""
+                        f"""{'Iteration time:':>{pad}} {iteration_time:.2f}s\n"""
+@@ -294,18 +328,20 @@ class HIMOnPolicyRunner:
+ 
+         
+     def save(self, path, infos=None):
+-        torch.save({
++        checkpoint = {
+             'model_state_dict': self.alg.actor_critic.state_dict(),
+-            'amp_state_dict': self.alg.amp.state_dict(),
+             'optimizer_state_dict': self.alg.optimizer.state_dict(),
+             'iter': self.current_learning_iteration + 1,
+             'infos': infos,
+-            }, path)
++            }
++        if self.alg.amp is not None:
++            checkpoint['amp_state_dict'] = self.alg.amp.state_dict()
++        torch.save(checkpoint, path)
+ 
+     def load(self, path, load_optimizer=True):
+         loaded_dict = torch.load(path, map_location=self.device)
+         self.alg.actor_critic.load_state_dict(loaded_dict['model_state_dict'])
+-        if 'amp_state_dict' in loaded_dict.keys():
++        if self.alg.amp is not None and 'amp_state_dict' in loaded_dict.keys():
+             self.alg.amp.load_state_dict(loaded_dict['amp_state_dict'])
+         if self.cfg["use_muon_optim"]:
+             load_optimizer = False
+@@ -345,4 +381,4 @@ class HIMOnPolicyRunner:
+     #         self.critic_obs_normalizer.eval()
+ 
+     # def add_git_repo_to_log(self, repo_file_path):
+-    #     self.git_status_repos.append(repo_file_path)
+\ No newline at end of file
++    #     self.git_status_repos.append(repo_file_path)

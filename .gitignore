@@ -2,7 +2,7 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .pytest_cache/
-logs/
+# logs/
 outputs/
 # generated_usd/
 # eval_result/

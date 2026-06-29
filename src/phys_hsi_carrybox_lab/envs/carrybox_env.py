@@ -212,7 +212,8 @@ class CarryBoxEnv(DirectRLEnv):
         self.amo_cmd_decoded_7 = self._default_amo_command(self.num_envs)
         self.last_amo_cmd_decoded_7 = self.amo_cmd_decoded_7.clone()
         self.last_last_amo_cmd_decoded_7 = self.amo_cmd_decoded_7.clone()
-        self._obs_history = torch.zeros((self.num_envs, 6, 123), device=self.device)
+        self._actor_step_obs_dim = self.cfg.observation_space // 6
+        self._obs_history = torch.zeros((self.num_envs, 6, self._actor_step_obs_dim), device=self.device)
         self._amp_obs_history = torch.zeros(
             (self.num_envs, self.cfg.num_amp_observations, self.cfg.amp_observation_space), device=self.device
         )
@@ -293,11 +294,14 @@ class CarryBoxEnv(DirectRLEnv):
         self._reset_domain_randomization(self._domain_env_ids)
         self._reward_names = (
             "action_rate",
+            "amo_cmd_rate",
+            "amo_posture_limits",
             "carryup_task",
             "dof_acc",
             "dof_pos_limits",
             "dof_vel",
             "dof_vel_limits",
+            "pickup_pose_task",
             "relocation_task",
             "standup_task",
             "torque_limits",
@@ -347,7 +351,7 @@ class CarryBoxEnv(DirectRLEnv):
         raise RuntimeError(f"Could not find any body matching {candidates}. Available bodies: {body_names}")
 
     def _make_proprio_noise_scale(self) -> torch.Tensor:
-        noise = torch.zeros(108, dtype=torch.float32, device=self.device)
+        noise = torch.zeros(79 + int(self.cfg.num_prev_action_obs), dtype=torch.float32, device=self.device)
         level = self.cfg.noise_level
         noise[0:3] = self.cfg.noise_ang_vel * level * 0.25
         noise[3:6] = self.cfg.noise_gravity * level
@@ -523,27 +527,34 @@ class CarryBoxEnv(DirectRLEnv):
         return clipped
 
     def _decode_amo_command_targets(self, cmd_norm_7: torch.Tensor) -> torch.Tensor:
+        if cmd_norm_7.shape[-1] != 7:
+            raise RuntimeError(f"Expected AMO policy command dim 7, got {cmd_norm_7.shape[-1]}.")
+
         command_ranges = self.cfg.amo.command_ranges
         positive_cmd_7 = torch.clamp(cmd_norm_7, min=0.0)
+        signed_cmd_7 = torch.clamp(cmd_norm_7, -1.0, 1.0)
         c_amo_user_7 = torch.zeros_like(cmd_norm_7)
 
         vx_min, vx_max = command_ranges["vx"]
+        vy_min, vy_max = command_ranges["vy"]
         heading_min, heading_max = command_ranges["heading"]
         torso_height_min, torso_height_max = command_ranges["torso_height"]
         torso_yaw_min, torso_yaw_max = command_ranges["torso_yaw"]
         torso_pitch_min, torso_pitch_max = command_ranges["torso_pitch"]
         torso_roll_min, torso_roll_max = command_ranges["torso_roll"]
 
-        c_amo_user_7[:, 0] = torch.where(
-            cmd_norm_7[:, 0] > 0.0,
-            torch.full_like(cmd_norm_7[:, 0], float(vx_max)),
-            torch.full_like(cmd_norm_7[:, 0], float(vx_min)),
+        c_amo_user_7[:, 0] = float(vx_min) + (float(vx_max) - float(vx_min)) * positive_cmd_7[:, 0].clamp(max=1.0)
+
+        vy_abs_max = max(abs(float(vy_min)), abs(float(vy_max)), 1e-6)
+        c_amo_user_7[:, 1] = torch.clamp(
+            vy_abs_max * signed_cmd_7[:, 1],
+            min=float(vy_min),
+            max=float(vy_max),
         )
-        c_amo_user_7[:, 1] = 0.0
 
         heading_abs_max = max(abs(float(heading_min)), abs(float(heading_max)), 1e-6)
         c_amo_user_7[:, 2] = torch.clamp(
-            heading_abs_max * cmd_norm_7[:, 2],
+            heading_abs_max * signed_cmd_7[:, 2],
             min=float(heading_min),
             max=float(heading_max),
         )
@@ -557,7 +568,7 @@ class CarryBoxEnv(DirectRLEnv):
 
         torso_yaw_abs_max = max(abs(float(torso_yaw_min)), abs(float(torso_yaw_max)), 1e-6)
         c_amo_user_7[:, 4] = torch.clamp(
-            torso_yaw_abs_max * cmd_norm_7[:, 4],
+            torso_yaw_abs_max * signed_cmd_7[:, 4],
             min=float(torso_yaw_min),
             max=float(torso_yaw_max),
         )
@@ -568,7 +579,7 @@ class CarryBoxEnv(DirectRLEnv):
         )
         torso_roll_abs_max = max(abs(float(torso_roll_min)), abs(float(torso_roll_max)), 1e-6)
         c_amo_user_7[:, 6] = torch.clamp(
-            torso_roll_abs_max * cmd_norm_7[:, 6],
+            torso_roll_abs_max * signed_cmd_7[:, 6],
             min=float(torso_roll_min),
             max=float(torso_roll_max),
         )
@@ -580,13 +591,11 @@ class CarryBoxEnv(DirectRLEnv):
         cmd_norm_7 = torch.zeros_like(c_amo_user_7)
 
         vx_min, vx_max = command_ranges["vx"]
-        vx_mid = 0.5 * (float(vx_min) + float(vx_max))
-        cmd_norm_7[:, 0] = torch.where(
-            c_amo_user_7[:, 0] > vx_mid,
-            torch.ones_like(c_amo_user_7[:, 0]),
-            torch.zeros_like(c_amo_user_7[:, 0]),
-        )
-        cmd_norm_7[:, 1] = 0.0
+        vx_range = max(float(vx_max) - float(vx_min), 1e-6)
+        cmd_norm_7[:, 0] = (c_amo_user_7[:, 0] - float(vx_min)) / vx_range
+        vy_min, vy_max = command_ranges["vy"]
+        vy_abs_max = max(abs(float(vy_min)), abs(float(vy_max)), 1e-6)
+        cmd_norm_7[:, 1] = c_amo_user_7[:, 1] / vy_abs_max
 
         heading_min, heading_max = command_ranges["heading"]
         heading_abs_max = max(abs(float(heading_min)), abs(float(heading_max)), 1e-6)
@@ -610,50 +619,104 @@ class CarryBoxEnv(DirectRLEnv):
         cmd_norm_7[:, 6] = c_amo_user_7[:, 6] / torso_roll_abs_max
         return torch.clamp(cmd_norm_7, -1.0, 1.0)
 
-    def _box_lift_height_from_platform(self) -> torch.Tensor:
-        return self.box.data.root_pos_w[:, 2] - self._box_size[:, 2] * 0.5 - self.platform.data.root_pos_w[:, 2]
+    def _normalized_amo_command_delta(self) -> torch.Tensor:
+        if not self.amo_enabled:
+            return torch.zeros((self.num_envs, 7), dtype=torch.float32, device=self.device)
 
-    def _build_rule_based_amo_command_targets(self) -> torch.Tensor:
-        c_amo_user_7 = torch.zeros((self.num_envs, 7), dtype=torch.float32, device=self.device)
-        robot_xy = self.robot.data.root_pos_w[:, :2]
-        box_xy = self.box.data.root_pos_w[:, :2]
-        goal_xy = self._goal_pos_w[:, :2]
+        command_ranges = self.cfg.amo.command_ranges
+        delta = self.amo_cmd_decoded_7 - self.last_amo_cmd_decoded_7
+        delta = delta.clone()
+        delta[:, 2] = math_utils.wrap_to_pi(delta[:, 2])
 
-        robot2box_xy = box_xy - robot_xy
-        robot2goal_xy = goal_xy - robot_xy
-        robot2box_dist = torch.norm(robot2box_xy, dim=-1)
-        robot2goal_dist = torch.norm(robot2goal_xy, dim=-1)
-        heading_to_box = torch.atan2(robot2box_xy[:, 1], robot2box_xy[:, 0])
-        heading_to_goal = torch.atan2(robot2goal_xy[:, 1], robot2goal_xy[:, 0])
+        def _range_scale(key: str) -> float:
+            lo, hi = command_ranges[key]
+            return max(abs(float(hi) - float(lo)), 1e-6)
 
-        box_lifted = self._box_lift_height_from_platform() > float(self.cfg.amo.rule_lift_height)
-        near_box = robot2box_dist <= self.cfg.thresh_robot2object
-        pickup_mask = near_box & (~box_lifted)
-        carry_mask = box_lifted
-        putdown_mask = box_lifted & (robot2goal_dist <= self.cfg.thresh_robot2goal)
+        def _abs_scale(key: str) -> float:
+            lo, hi = command_ranges[key]
+            return max(abs(float(lo)), abs(float(hi)), 1e-6)
 
-        c_amo_user_7[:, 0] = float(self.cfg.amo.rule_loco_vx)
-        c_amo_user_7[:, 2] = heading_to_box
-        c_amo_user_7[:, 3] = float(self.cfg.amo.rule_loco_height)
-        c_amo_user_7[:, 5] = float(self.cfg.amo.rule_loco_pitch)
+        scales = torch.tensor(
+            (
+                _range_scale("vx"),
+                _abs_scale("vy"),
+                _abs_scale("heading"),
+                max(float(self.cfg.amo.torso_height_default) - float(command_ranges["torso_height"][0]), 1e-6),
+                _abs_scale("torso_yaw"),
+                _range_scale("torso_pitch"),
+                _abs_scale("torso_roll"),
+            ),
+            dtype=torch.float32,
+            device=self.device,
+        )
+        return delta / scales.unsqueeze(0)
 
-        if torch.any(pickup_mask):
-            c_amo_user_7[pickup_mask, 0] = float(self.cfg.amo.rule_pickup_vx)
-            c_amo_user_7[pickup_mask, 2] = heading_to_box[pickup_mask]
-            c_amo_user_7[pickup_mask, 3] = float(self.cfg.amo.rule_pickup_height)
-            c_amo_user_7[pickup_mask, 5] = float(self.cfg.amo.rule_pickup_pitch)
-        if torch.any(carry_mask):
-            c_amo_user_7[carry_mask, 0] = float(self.cfg.amo.rule_carry_vx)
-            c_amo_user_7[carry_mask, 2] = heading_to_goal[carry_mask]
-            c_amo_user_7[carry_mask, 3] = float(self.cfg.amo.rule_carry_height)
-            c_amo_user_7[carry_mask, 5] = float(self.cfg.amo.rule_carry_pitch)
-        if torch.any(putdown_mask):
-            c_amo_user_7[putdown_mask, 0] = float(self.cfg.amo.rule_putdown_vx)
-            c_amo_user_7[putdown_mask, 2] = heading_to_goal[putdown_mask]
-            c_amo_user_7[putdown_mask, 3] = float(self.cfg.amo.rule_putdown_height)
-            c_amo_user_7[putdown_mask, 5] = float(self.cfg.amo.rule_putdown_pitch)
+    def _pickup_pose_shaping(
+        self, state: dict[str, torch.Tensor], hands: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        zeros = torch.zeros(self.num_envs, dtype=torch.float32, device=self.device)
+        if not self.amo_enabled:
+            return zeros, zeros
 
-        return self._clip_amo_command_targets(c_amo_user_7)
+        near_box = state["robot2object_dist"] < self.cfg.thresh_robot2object
+        not_lifted = state["box_carry_height"] < self.cfg.pickup_lifted_height
+        active = (near_box & not_lifted).float()
+
+        box_pos = state["box_pos"]
+        box_quat = self.box.data.root_quat_w
+        local_x = torch.zeros_like(box_pos)
+        local_y = torch.zeros_like(box_pos)
+        local_x[:, 0] = 1.0
+        local_y[:, 1] = 1.0
+        box_x_axis = math_utils.quat_apply(box_quat, local_x)
+        box_y_axis = math_utils.quat_apply(box_quat, local_y)
+
+        left_hand = hands[:, 0]
+        right_hand = hands[:, 1]
+
+        def _opposed_side_dist(axis: torch.Tensor, half_extent: torch.Tensor) -> torch.Tensor:
+            offset = axis * (half_extent + float(self.cfg.pickup_grasp_margin)).unsqueeze(-1)
+            plus = box_pos + offset
+            minus = box_pos - offset
+            direct = torch.sum(torch.square(left_hand - plus), dim=-1) + torch.sum(torch.square(right_hand - minus), dim=-1)
+            swapped = torch.sum(torch.square(left_hand - minus), dim=-1) + torch.sum(torch.square(right_hand - plus), dim=-1)
+            return 0.5 * torch.minimum(direct, swapped)
+
+        grasp_x_dist = _opposed_side_dist(box_x_axis, self._box_size[:, 0] * 0.5)
+        grasp_y_dist = _opposed_side_dist(box_y_axis, self._box_size[:, 1] * 0.5)
+        grasp_dist = torch.minimum(grasp_x_dist, grasp_y_dist)
+        grasp_reward = torch.exp(-float(self.cfg.pickup_grasp_sharpness) * grasp_dist)
+
+        hand_center = hands.mean(dim=1)
+        command_ranges = self.cfg.amo.command_ranges
+        height_min, _ = command_ranges["torso_height"]
+        pitch_min, pitch_max = command_ranges["torso_pitch"]
+        height_range = max(float(self.cfg.amo.torso_height_default) - float(height_min), 1e-6)
+        pitch_range = max(float(pitch_max) - float(pitch_min), 1e-6)
+
+        height = self.amo_cmd_decoded_7[:, 3]
+        pitch = self.amo_cmd_decoded_7[:, 5]
+        height_drop_norm = torch.clamp((float(self.cfg.amo.torso_height_default) - height) / height_range, 0.0, 1.0)
+        pitch_norm = torch.clamp((pitch - float(pitch_min)) / pitch_range, 0.0, 1.0)
+
+        hand_too_high = torch.relu(hand_center[:, 2] - box_pos[:, 2] - float(self.cfg.pickup_hand_z_margin))
+        height_need = torch.clamp(hand_too_high / max(float(self.cfg.pickup_height_hint_scale), 1e-6), 0.0, 1.0)
+        height_hint = height_need * (1.0 - torch.exp(-3.0 * height_drop_norm))
+
+        hand_xy_dist = torch.norm(hand_center[:, :2] - box_pos[:, :2], dim=-1)
+        pitch_need = torch.clamp(
+            (hand_xy_dist - float(self.cfg.pickup_hand_xy_margin)) / max(float(self.cfg.pickup_pitch_hint_scale), 1e-6),
+            0.0,
+            1.0,
+        )
+        pitch_hint = pitch_need * (1.0 - torch.exp(-3.0 * pitch_norm))
+
+        pickup_pose = active * (0.70 * grasp_reward + 0.20 * height_hint + 0.10 * pitch_hint)
+
+        height_low = torch.relu(float(self.cfg.pickup_height_floor) - height) / height_range
+        pitch_high = torch.relu(pitch - float(self.cfg.pickup_pitch_ceiling)) / pitch_range
+        posture_limit_cost = active * (torch.square(height_low) + torch.square(pitch_high))
+        return pickup_pose, posture_limit_cost
 
     def _build_amo_joint_pos_target(self, actions: torch.Tensor) -> torch.Tensor:
         if self.amo_controller is None:
@@ -661,20 +724,18 @@ class CarryBoxEnv(DirectRLEnv):
 
         policy_arm_joint_names = self.cfg.amo.policy_arm_joint_names
         arm_dim = len(policy_arm_joint_names)
-        if actions.shape[-1] != arm_dim + 7:
-            raise RuntimeError(f"AMO action dim must be {arm_dim + 7}, got {actions.shape[-1]}.")
+        command_dim = 7
+        if actions.shape[-1] != arm_dim + command_dim:
+            raise RuntimeError(f"AMO action dim must be {arm_dim + command_dim}, got {actions.shape[-1]}.")
 
         policy_arm_indices29 = self._get_cached_joint_indices(policy_arm_joint_names, "_amo_policy_arm_indices29")
         arm_delta_action_14 = actions[:, :arm_dim]
         default_joint_pos = self._source_default_joint_pos.expand(self.num_envs, -1)
         policy_arm_target_14 = default_joint_pos[:, policy_arm_indices29] + self.cfg.action_scale * arm_delta_action_14
 
-        if self.cfg.amo.use_rule_based_cmd:
-            c_amo_user_7 = self._build_rule_based_amo_command_targets()
-            cmd_norm_7 = self._encode_amo_command_targets(c_amo_user_7)
-        else:
-            cmd_norm_7 = torch.clamp(actions[:, arm_dim : arm_dim + 7], -1.0, 1.0)
-            c_amo_user_7 = self._decode_amo_command_targets(cmd_norm_7)
+        policy_cmd_norm_7 = actions[:, arm_dim : arm_dim + command_dim]
+        c_amo_user_7 = self._decode_amo_command_targets(policy_cmd_norm_7)
+        cmd_norm_7 = self._encode_amo_command_targets(c_amo_user_7)
 
         self.amo_cmd_norm_7[:] = cmd_norm_7
         self.amo_cmd_decoded_7[:] = c_amo_user_7
@@ -884,7 +945,7 @@ class CarryBoxEnv(DirectRLEnv):
         _, critic_proprio = self._get_proprio_observations(add_actor_noise=False)
         _, task_obs_critic = self._get_task_observations()
         critic_obs = torch.cat((critic_proprio, task_obs_critic), dim=-1)
-        if critic_obs.shape[-1] != 126:
+        if critic_obs.shape[-1] != self.cfg.state_space:
             raise RuntimeError(f"Unexpected critic observation size: {critic_obs.shape[-1]}")
         return critic_obs
 
@@ -926,13 +987,13 @@ class CarryBoxEnv(DirectRLEnv):
         actor_proprio, critic_proprio = self._get_proprio_observations()
         task_obs_actor, task_obs_critic = self._get_task_observations()
         actor_step_obs = torch.cat((actor_proprio, task_obs_actor), dim=-1)
-        if actor_step_obs.shape[-1] != 123:
+        if actor_step_obs.shape[-1] != self._actor_step_obs_dim:
             raise RuntimeError(f"Unexpected actor one-step observation size: {actor_step_obs.shape[-1]}")
         self._obs_history = torch.cat((self._obs_history[:, 1:], actor_step_obs.unsqueeze(1)), dim=1)
         policy_obs = self._obs_history.reshape(self.num_envs, -1)
 
         critic_obs = torch.cat((critic_proprio, task_obs_critic), dim=-1)
-        if critic_obs.shape[-1] != 126:
+        if critic_obs.shape[-1] != self.cfg.state_space:
             raise RuntimeError(f"Unexpected critic observation size: {critic_obs.shape[-1]}")
         return {"policy": self._clip_obs(policy_obs), "critic": self._clip_obs(critic_obs)}
 
@@ -998,6 +1059,7 @@ class CarryBoxEnv(DirectRLEnv):
         carryup = 0.7 * hand_reward + 2.0 * lift_reward
         carryup = torch.where(state["robot2object_dist"] > self.cfg.thresh_robot2object, torch.zeros_like(carryup), carryup)
         carryup = torch.where(state["object2goal_dist_xyz"] < self.cfg.thresh_object2goal, torch.full_like(carryup, 2.7), carryup)
+        pickup_pose, amo_posture_limit_cost = self._pickup_pose_shaping(state, hands)
 
         relocation = 0.5 * self._heading_reward(state["heading"], state["root_pos"][:, :2], state["goal_pos"][:, :2])
         goal_speed = torch.exp(-5.0 * torch.square(self.cfg.target_speed_carry - speed_goal))
@@ -1036,16 +1098,22 @@ class CarryBoxEnv(DirectRLEnv):
         computed_torque = self._computed_torque
         dt = self.step_dt
         action_rate_delta = self._actions - self._previous_actions
+        amo_cmd_rate_cost = torch.zeros(self.num_envs, dtype=torch.float32, device=self.device)
         if self.amo_enabled:
             action_rate_delta = action_rate_delta[:, : len(self.cfg.amo.policy_arm_joint_names)]
+            amo_cmd_delta = self._normalized_amo_command_delta()
+            amo_cmd_rate_cost = torch.sum(torch.square(amo_cmd_delta), dim=-1)
         dof_pos_limit_cost = -(dof_pos - self._dof_pos_limits[..., 0]).clip(max=0.0)
         dof_pos_limit_cost += (dof_pos - self._dof_pos_limits[..., 1]).clip(min=0.0)
         reward_terms = {
             "walk_task": self.cfg.reward_walk * walk * dt,
             "carryup_task": self.cfg.reward_carryup * carryup * dt,
+            "pickup_pose_task": self.cfg.reward_pickup_pose * pickup_pose * dt,
             "relocation_task": self.cfg.reward_relocation * relocation * dt,
             "standup_task": self.cfg.reward_standup * standup * dt,
             "action_rate": self.cfg.reward_action_rate * torch.sum(torch.square(action_rate_delta), dim=-1) * dt,
+            "amo_cmd_rate": self.cfg.reward_amo_cmd_rate * amo_cmd_rate_cost * dt,
+            "amo_posture_limits": self.cfg.reward_amo_posture_limits * amo_posture_limit_cost * dt,
             "dof_acc": self.cfg.reward_dof_acc * torch.sum(torch.square((self._last_dof_vel - dof_vel) / dt), dim=-1) * dt,
             "dof_pos_limits": self.cfg.reward_dof_pos_limits * torch.sum(dof_pos_limit_cost, dim=-1) * dt,
             "dof_vel": self.cfg.reward_dof_vel * torch.sum(torch.square(dof_vel), dim=-1) * dt,
@@ -1070,7 +1138,11 @@ class CarryBoxEnv(DirectRLEnv):
         self.extras["log"]["success"] = state["success"].float().mean()
         if self.amo_enabled:
             self.extras["log"]["amo_cmd_vx"] = self.amo_cmd_decoded_7[:, 0].mean()
+            self.extras["log"]["amo_cmd_heading"] = self.amo_cmd_decoded_7[:, 2].mean()
             self.extras["log"]["amo_cmd_height"] = self.amo_cmd_decoded_7[:, 3].mean()
+            self.extras["log"]["amo_cmd_torso_pitch"] = self.amo_cmd_decoded_7[:, 5].mean()
+            self.extras["log"]["amo_cmd_rate_cost"] = amo_cmd_rate_cost.mean()
+            self.extras["log"]["pickup_pose"] = pickup_pose.mean()
             self._amo_target_cache_valid = False
         return reward
 

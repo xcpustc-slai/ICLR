@@ -7,6 +7,11 @@ import os
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(line_buffering=True)
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(line_buffering=True)
+
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 SOURCE_DIR = PROJECT_DIR / "src"
 if str(SOURCE_DIR) not in sys.path:
@@ -51,22 +56,6 @@ def _fd_target(fd: int) -> str:
         return "unknown"
 
 
-def _enable_carrybox_rule_based_amo(env_cfg: CarryBoxEnvCfg) -> None:
-    env_cfg.amo.use_rule_based_cmd = True
-    env_cfg.amo.rule_loco_vx = 0.5
-    env_cfg.amo.rule_loco_height = 0.75
-    env_cfg.amo.rule_loco_pitch = 0.0
-    env_cfg.amo.rule_pickup_vx = 0.0
-    env_cfg.amo.rule_pickup_height = 0.43
-    env_cfg.amo.rule_pickup_pitch = 0.0
-    env_cfg.amo.rule_carry_vx = 0.5
-    env_cfg.amo.rule_carry_height = 0.70
-    env_cfg.amo.rule_carry_pitch = 0.0
-    env_cfg.amo.rule_putdown_vx = 0.0
-    env_cfg.amo.rule_putdown_height = 0.43
-    env_cfg.amo.rule_putdown_pitch = 0.0
-
-
 def _print_startup_banner(train_cfg: CarryBoxTrainCfg, env_cfg: CarryBoxEnvCfg, log_dir: str, max_iterations: int) -> None:
     num_envs = env_cfg.scene.num_envs
     num_steps = train_cfg.num_steps_per_env
@@ -80,6 +69,7 @@ def _print_startup_banner(train_cfg: CarryBoxTrainCfg, env_cfg: CarryBoxEnvCfg, 
     print(f"robot_urdf: {PHYS_HSI_G1_URDF}", flush=True)
     print(f"generated_usd_dir: {GENERATED_USD_ROOT / 'g1_29dof_lab'}", flush=True)
     print(f"log_dir: {log_dir}", flush=True)
+    print(f"ckpt_dir: {Path(log_dir) / 'ckpt'}", flush=True)
     print(f"stdout: {_fd_target(1)}", flush=True)
     print(f"stderr: {_fd_target(2)}", flush=True)
     print(f"device: {env_cfg.sim.device}", flush=True)
@@ -99,7 +89,6 @@ def _print_startup_banner(train_cfg: CarryBoxTrainCfg, env_cfg: CarryBoxEnvCfg, 
     print(f"control_dt: {env_cfg.sim.dt * env_cfg.decimation}", flush=True)
     print(f"target_speed_loco: {env_cfg.target_speed_loco}", flush=True)
     print(f"target_speed_carry: {env_cfg.target_speed_carry}", flush=True)
-    print(f"amo_rule_based_cmd: {env_cfg.amo.use_rule_based_cmd}", flush=True)
     print(f"num_envs: {num_envs}", flush=True)
     print(f"num_steps_per_env: {num_steps}", flush=True)
     print(f"max_iterations: {max_iterations}", flush=True)
@@ -115,14 +104,12 @@ def main() -> None:
     env_cfg.seed = train_cfg.seed
     env_cfg.mode = args_cli.mode
     env_cfg.amp_len = args_cli.amp_len
-    if env_cfg.mode == "amo":
-        _enable_carrybox_rule_based_amo(env_cfg)
     sync_carrybox_mode_cfg(env_cfg)
     if args_cli.device is not None:
         env_cfg.sim.device = args_cli.device
 
     max_iterations = args_cli.max_iterations or train_cfg.max_iterations
-    log_dir = source_log_dir(train_cfg)
+    log_dir = source_log_dir(train_cfg, env_cfg, max_iterations)
     _print_startup_banner(train_cfg, env_cfg, log_dir, max_iterations)
 
     env = gym.make("PhysHSI-CarryBox-Direct-v0", cfg=env_cfg)

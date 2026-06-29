@@ -196,33 +196,20 @@ class CarryBoxAMOCfg:
     gait_frequency = 1.3
     in_place_vx_threshold = 0.1
     torso_height_default = 0.75
+    torso_height_min = 0.15
     ang_vel_scale = 0.25
     dof_vel_scale = 0.05
 
-    use_rule_based_cmd = False
-    rule_loco_vx = 0.5
-    rule_loco_height = 0.75
-    rule_loco_pitch = 0.0
-    rule_pickup_vx = 0.0
-    rule_pickup_height = 0.43
-    rule_pickup_pitch = 0.0
-    rule_carry_vx = 0.5
-    rule_carry_height = 0.70
-    rule_carry_pitch = 0.0
-    rule_putdown_vx = 0.0
-    rule_putdown_height = 0.43
-    rule_putdown_pitch = 0.0
-    rule_lift_height = 0.05
-
     command_ranges = {
         "vx": (0.0, 0.5),
-        "vy": (0.0, 0.0),
+        "vy": (-0.5, 0.5),
         "heading": (-math.pi, math.pi),
-        "torso_height": (0.0, 0.75),
+        "torso_height": (torso_height_min, torso_height_default),
         "torso_yaw": (-0.5, 0.5),
-        "torso_pitch": (0.0, 1.57),
+        "torso_pitch": (0.0, 1.0),
         "torso_roll": (-0.25, 0.25),
     }
+    policy_command_action_names = ("vx", "vy", "heading", "height", "torso_yaw", "torso_pitch", "torso_roll")
 
     amo23_joint_names = (
         "left_hip_pitch_joint",
@@ -336,6 +323,8 @@ class CarryBoxEnvCfg(DirectRLEnvCfg):
     target_box_height = 0.72
     baseline_target_speed_loco = 0.85
     baseline_target_speed_carry = 0.85
+    amo_target_speed_loco = 0.5
+    amo_target_speed_carry = 0.5
     target_speed_loco = 0.85
     target_speed_carry = 0.85
     tracking_sigma = 0.25
@@ -405,9 +394,12 @@ class CarryBoxEnvCfg(DirectRLEnvCfg):
 
     reward_walk = 1.0
     reward_carryup = 1.0
+    reward_pickup_pose = 0.4
     reward_relocation = 1.0
     reward_standup = 0.2
     reward_action_rate = -0.03
+    reward_amo_cmd_rate = -0.01
+    reward_amo_posture_limits = -0.05
     reward_dof_acc = -1.0e-7
     reward_dof_vel = -2.0e-4
     reward_dof_pos_limits = -5.0
@@ -417,6 +409,15 @@ class CarryBoxEnvCfg(DirectRLEnvCfg):
     soft_dof_pos_limit = 0.9
     soft_dof_vel_limit = 0.8
     soft_torque_limit = 0.95
+    pickup_lifted_height = 0.05
+    pickup_grasp_margin = 0.04
+    pickup_grasp_sharpness = 8.0
+    pickup_hand_z_margin = 0.05
+    pickup_hand_xy_margin = 0.12
+    pickup_height_hint_scale = 0.25
+    pickup_pitch_hint_scale = 0.35
+    pickup_height_floor = 0.25
+    pickup_pitch_ceiling = 0.85
 
     sim: SimulationCfg = SimulationCfg(
         dt=0.005,
@@ -526,6 +527,7 @@ def sync_carrybox_mode_cfg(cfg: CarryBoxEnvCfg) -> CarryBoxEnvCfg:
         cfg.delay = True
         cfg.target_speed_loco = float(cfg.baseline_target_speed_loco)
         cfg.target_speed_carry = float(cfg.baseline_target_speed_carry)
+        cfg.num_prev_action_obs = int(cfg.baseline_num_actions)
     else:
         cfg.action_space = int(cfg.amo_num_actions)
         cfg.decimation = int(cfg.amo.control_decimation)
@@ -541,14 +543,15 @@ def sync_carrybox_mode_cfg(cfg: CarryBoxEnvCfg) -> CarryBoxEnvCfg:
         cfg.randomize_kd = bool(cfg.amo_randomize_kd)
         cfg.randomize_initial_joint_pos = bool(cfg.amo_randomize_initial_joint_pos)
         cfg.delay = bool(cfg.amo_delay)
-        cfg.target_speed_loco = float(cfg.amo.rule_loco_vx)
-        cfg.target_speed_carry = float(cfg.amo.rule_carry_vx)
+        cfg.target_speed_loco = float(cfg.amo_target_speed_loco)
+        cfg.target_speed_carry = float(cfg.amo_target_speed_carry)
+        cfg.num_prev_action_obs = len(cfg.amo.policy_arm_joint_names) + len(cfg.amo.policy_command_action_names)
 
     cfg.sim.render_interval = cfg.decimation
     cfg.contact_sensor.update_period = cfg.sim.dt
     cfg.amp_observation_space = _amp_one_step_observation_size(int(cfg.amp_len))
-    cfg.observation_space = 738
-    cfg.state_space = 126
+    cfg.observation_space = 6 * (94 + int(cfg.num_prev_action_obs))
+    cfg.state_space = 97 + int(cfg.num_prev_action_obs)
     return cfg
 
 
@@ -581,7 +584,7 @@ class CarryBoxTrainCfg:
     experiment_name = "amp_carrybox"
     run_name = "carrybox_coef0.25"
     log_dir = "logs/amp_carrybox"
-    save_interval = 500
+    save_interval = 1000
     console_log = True
     silent_mode = False
 

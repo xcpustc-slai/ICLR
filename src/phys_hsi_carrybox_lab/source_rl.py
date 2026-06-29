@@ -11,7 +11,7 @@ from pathlib import Path
 
 import torch
 
-from .assets import VENDORED_RSL_RL_ROOT
+from .assets import PROJECT_ROOT, VENDORED_RSL_RL_ROOT
 
 
 def _path_is_relative_to(path: Path, parent: Path) -> bool:
@@ -188,8 +188,22 @@ def source_train_cfg(train_cfg, env_cfg) -> dict:
     }
 
 
-def source_log_dir(train_cfg) -> str:
+def _format_iteration_count(iterations: int) -> str:
+    if iterations % 1000 == 0:
+        return f"{iterations // 1000}k"
+    return str(iterations)
+
+
+def source_log_dir(train_cfg, env_cfg=None, max_iterations: int | None = None, suffix: str | None = None) -> str:
     from datetime import datetime
 
-    run_name = datetime.now().strftime("%b%d_%H-%M-%S") + f"_{train_cfg.run_name}"
-    return str(Path(train_cfg.log_dir).resolve() / run_name)
+    timestamp = datetime.now().strftime("%b%d_%H-%M-%S")
+    if env_cfg is None:
+        run_name = f"{timestamp}_{train_cfg.run_name}"
+        return str(Path(train_cfg.log_dir).resolve() / run_name)
+
+    iteration_label = _format_iteration_count(int(max_iterations or train_cfg.max_iterations))
+    run_name = f"{timestamp}_{env_cfg.mode}_{env_cfg.scene.num_envs}_{iteration_label}"
+    if suffix:
+        run_name += f"_{suffix}"
+    return str((PROJECT_ROOT / "logs" / f"{env_cfg.mode}_train" / run_name).resolve())

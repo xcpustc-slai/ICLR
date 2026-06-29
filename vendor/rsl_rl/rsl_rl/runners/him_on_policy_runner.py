@@ -101,6 +101,14 @@ class HIMOnPolicyRunner:
         self.git_status_repos = [rsl_rl.__file__]
 
         _, _ = self.env.reset()
+
+    def _checkpoint_dir(self):
+        return os.path.join(self.log_dir, "ckpt")
+
+    def _checkpoint_path(self, iteration):
+        checkpoint_dir = self._checkpoint_dir()
+        os.makedirs(checkpoint_dir, exist_ok=True)
+        return os.path.join(checkpoint_dir, 'model_{}.pt'.format(iteration))
     
     def learn(self, num_learning_iterations, init_at_random_ep_len=False):
         # initialize writer
@@ -194,8 +202,8 @@ class HIMOnPolicyRunner:
             learn_time = stop - start
             if self.log_dir is not None:
                 self.log(locals())
-            if it % self.save_interval == 0:
-                self.save(os.path.join(self.log_dir, 'model_{}.pt'.format(it)))
+            if self.log_dir is not None and it % self.save_interval == 0:
+                self.save(self._checkpoint_path(it))
             ep_infos.clear()
             if it == start_iter:
                 # obtain all the diff files
@@ -206,7 +214,8 @@ class HIMOnPolicyRunner:
                         self.writer.save_file(path)
             self.current_learning_iteration = it
         
-        self.save(os.path.join(self.log_dir, 'model_{}.pt'.format(self.current_learning_iteration)))
+        if self.log_dir is not None:
+            self.save(self._checkpoint_path(self.current_learning_iteration))
 
     def log(self, locs, width=80, pad=35):
         self.tot_timesteps += self.num_steps_per_env * self.env.num_envs
@@ -214,9 +223,11 @@ class HIMOnPolicyRunner:
         iteration_time = locs['collection_time'] + locs['learn_time']
 
         episode_values = {}
-        reward_order = ("walk_task", "carryup_task", "relocation_task", "standup_task")
+        reward_order = ("walk_task", "carryup_task", "pickup_pose_task", "relocation_task", "standup_task")
         penalty_order = (
             "action_rate",
+            "amo_cmd_rate",
+            "amo_posture_limits",
             "dof_acc",
             "dof_pos_limits",
             "dof_vel",

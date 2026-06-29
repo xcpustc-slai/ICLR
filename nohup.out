@@ -1,0 +1,11 @@
+usage: train_carrybox.py [-h] [--num_envs NUM_ENVS]
+                         [--max_iterations MAX_ITERATIONS]
+                         [--mode {baseline,amo}] [--amp_len {17,29}]
+                         [--headless] [--livestream {0,1,2}]
+                         [--enable_cameras] [--xr] [--device DEVICE]
+                         [--verbose] [--info] [--experience EXPERIENCE]
+                         [--rendering_mode {quality,balanced,performance}]
+                         [--kit_args KIT_ARGS] [--anim_recording_enabled]
+                         [--anim_recording_start_time ANIM_RECORDING_START_TIME]
+                         [--anim_recording_stop_time ANIM_RECORDING_STOP_TIME]
+train_carrybox.py: error: unrecognized arguments: ./0629_2322_amo_env4096_iter10k.txt

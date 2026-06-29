@@ -1,0 +1,607 @@
+nohup: ignoring input
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/xcp/workspace/IsaacLab/apps/isaaclab.python.headless.kit
+================================================================================
+PhysHSI CarryBox Isaac Lab training
+command: scripts/train_carrybox.py --mode amo --num_envs 4096 --max_iterations 10000 --headless
+cwd: /home/xcp/workspace/ICLR
+project_root: /home/xcp/workspace/ICLR
+source_root: /home/xcp/workspace/PhysHSI-main_pure
+vendored_rsl_rl: /home/xcp/workspace/ICLR/vendor/rsl_rl
+robot_urdf: /home/xcp/workspace/ICLR/assets/robots/g1/urdf/g1_29dof_lab.urdf
+generated_usd_dir: /home/xcp/workspace/ICLR/generated_usd/g1_29dof_lab
+log_dir: /home/xcp/workspace/ICLR/logs/amo_train/Jun29_23-23-41_amo_4096_10k
+ckpt_dir: /home/xcp/workspace/ICLR/logs/amo_train/Jun29_23-23-41_amo_4096_10k/ckpt
+stdout: /home/xcp/workspace/ICLR/0629_2322_amo_env4096_iter10k.txt
+stderr: /home/xcp/workspace/ICLR/0629_2322_amo_env4096_iter10k.txt
+device: cuda:0
+seed: 1
+mode: amo
+action_dim: 21
+robot_dof_dim: 29
+obs_dim: 690
+privileged_obs_dim: 118
+amp_len: 29
+amp_obs_dim: 600
+amp_enabled: False
+use_motionlib: False
+reset_mode: default
+sim_dt: 0.002
+decimation: 10
+control_dt: 0.02
+target_speed_loco: 0.5
+target_speed_carry: 0.5
+num_envs: 4096
+num_steps_per_env: 100
+max_iterations: 10000
+samples_per_iteration: 409600
+planned_total_samples: 4096000000
+================================================================================
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-06-29_23-23-41.log[0m
+[36m======================================================================================[0m
+
+[33m23:23:41 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 1
+	Physics step-size     : 0.002
+	Rendering step-size   : 0.02
+	Environment step-size : 0.02
+Loading user config located at: '/home/xcp/miniconda3/envs/d3/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/xcp/miniconda3/envs/d3/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260629_232338.log
+2026-06-29T15:23:38Z [56ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-06-29T15:23:38Z [376ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-06-29T15:23:38Z [381ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 570.211.01    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 4090          | Yes: 0 |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | ea6fb235.. |
+|     |                                  |        |     |            | 1         |            |
+|=============================================================================================|
+| OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 6.8.0-110-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101004 (1.21.1.4)
+| Processor: Intel(R) Core(TM) i9-14900KF
+| Bare Metal Cores: 24 | Bare Metal Logical Cores: 48
+| Available Cores:  32 
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 144669 | Free Memory: 110706
+| Total Page/Swap (MB): 30750 | Free Page/Swap: 30749
+|---------------------------------------------------------------------------------------------|
+2026-06-29T15:23:41Z [3,195ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-06-29T15:23:41Z [3,204ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 570.211.01    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 4090          | Yes: 0 |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | ea6fb235.. |
+|     |                                  |        |     |            | 1         |            |
+|=============================================================================================|
+| OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 6.8.0-110-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101004 (1.21.1.4)
+| Processor: Intel(R) Core(TM) i9-14900KF
+| Bare Metal Cores: 24 | Bare Metal Logical Cores: 48
+| Available Cores:  32 
+|---------------------------------------------------------------------------[33m23:24:11 [interactive_scene.py] WARNING: Collision filtering can only be automatically enabled when replicate_physics=True and using GPU simulation. Please call scene.filter_collisions(global_prim_paths) to filter collisions across environments.[0m
+[INFO]: Time taken for scene creation : 30.019118 seconds
+[INFO]: Time taken for scene creation : 30.309044 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 4096
+	Environment spacing   : 10.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : ['/World/ground']
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 31.889158 seconds
+[INFO]: Completed setting up the environment...
+Actor MLP: Sequential(
+  (0): Linear(in_features=690, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=256, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=256, out_features=21, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=118, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=256, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=256, out_features=1, bias=True)
+)
+################################################################################
+                      [1m Learning iteration 0/10000 [0m                      
+
+                       Computation: 32710 steps/s (collection: 11.576s, learning 0.946s)
+                       Mean reward: -8.11
+               Mean episode length: 86.46
+---loss--
+               Value function loss: 1.3969
+                    Surrogate loss: 0.0350
+             Mean action noise std: 0.99
+---reward--
+walk_task: 0.0317
+carryup_task: 0.0000
+pickup_pose_task: 0.0000
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.0452
+amo_cmd_rate: -0.0023
+amo_posture_limits: -0.0000
+dof_acc: -0.0266
+dof_pos_limits: -0.0208
+dof_vel: -0.0111
+dof_vel_limits: -0.0000
+torque_limits: -0.1799
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 409600
+                    Iteration time: 12.52s
+                        Total time: 12.52s
+                               ETA: 125221.5s
+
+Storing git diff for 'ICLR' in: /home/xcp/workspace/ICLR/logs/amo_train/Jun29_23-23-41_amo_4096_10k/git/ICLR.diff
+################################################################################
+                      [1m Learning iteration 1/10000 [0m                      
+
+                       Computation: 33577 steps/s (collection: 11.287s, learning 0.912s)
+                       Mean reward: -17.42
+               Mean episode length: 191.16
+---loss--
+               Value function loss: 1.1866
+                    Surrogate loss: 0.0201
+             Mean action noise std: 0.98
+---reward--
+walk_task: 0.0883
+carryup_task: 0.0003
+pickup_pose_task: 0.0000
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.1356
+amo_cmd_rate: -0.0070
+amo_posture_limits: -0.0000
+dof_acc: -0.0784
+dof_pos_limits: -0.0658
+dof_vel: -0.0319
+dof_vel_limits: -0.0000
+torque_limits: -0.5230
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 819200
+                    Iteration time: 12.20s
+                        Total time: 24.72s
+                               ETA: 123591.6s
+
+################################################################################
+                      [1m Learning iteration 2/10000 [0m                      
+
+                       Computation: 33324 steps/s (collection: 11.383s, learning 0.908s)
+                       Mean reward: -25.59
+               Mean episode length: 289.28
+---loss--
+               Value function loss: 0.9568
+                    Surrogate loss: 0.0196
+             Mean action noise std: 0.97
+---reward--
+walk_task: 0.1449
+carryup_task: 0.0018
+pickup_pose_task: 0.0001
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.2211
+amo_cmd_rate: -0.0116
+amo_posture_limits: -0.0000
+dof_acc: -0.1272
+dof_pos_limits: -0.1049
+dof_vel: -0.0515
+dof_vel_limits: -0.0000
+torque_limits: -0.8234
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 1228800
+                    Iteration time: 12.29s
+                        Total time: 37.01s
+                               ETA: 123348.4s
+
+################################################################################
+                      [1m Learning iteration 3/10000 [0m                      
+
+                       Computation: 33313 steps/s (collection: 11.382s, learning 0.914s)
+                       Mean reward: -33.20
+               Mean episode length: 382.06
+---loss--
+               Value function loss: 0.7151
+                    Surrogate loss: 0.0228
+             Mean action noise std: 0.96
+---reward--
+walk_task: 0.1931
+carryup_task: 0.0028
+pickup_pose_task: 0.0001
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3038
+amo_cmd_rate: -0.0160
+amo_posture_limits: -0.0000
+dof_acc: -0.1750
+dof_pos_limits: -0.1448
+dof_vel: -0.0708
+dof_vel_limits: -0.0001
+torque_limits: -1.1224
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 1638400
+                    Iteration time: 12.30s
+                        Total time: 49.31s
+                               ETA: 123231.1s
+
+################################################################################
+                      [1m Learning iteration 4/10000 [0m                      
+
+                       Computation: 33454 steps/s (collection: 11.335s, learning 0.909s)
+                       Mean reward: -40.96
+               Mean episode length: 473.58
+---loss--
+               Value function loss: 0.5314
+                    Surrogate loss: 0.0185
+             Mean action noise std: 0.95
+---reward--
+walk_task: 0.2440
+carryup_task: 0.0015
+pickup_pose_task: 0.0001
+relocation_task: 0.0006
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3896
+amo_cmd_rate: -0.0207
+amo_posture_limits: -0.0000
+dof_acc: -0.2257
+dof_pos_limits: -0.1809
+dof_vel: -0.0915
+dof_vel_limits: -0.0001
+torque_limits: -1.4119
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 2048000
+                    Iteration time: 12.24s
+                        Total time: 61.55s
+                               ETA: 123052.0s
+
+################################################################################
+                      [1m Learning iteration 5/10000 [0m                      
+
+                       Computation: 33512 steps/s (collection: 11.316s, learning 0.906s)
+                       Mean reward: -48.71
+               Mean episode length: 585.81
+---loss--
+               Value function loss: 0.3927
+                    Surrogate loss: 0.0210
+             Mean action noise std: 0.93
+---reward--
+walk_task: 0.2920
+carryup_task: 0.0059
+pickup_pose_task: 0.0003
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4552
+amo_cmd_rate: -0.0244
+amo_posture_limits: -0.0000
+dof_acc: -0.2640
+dof_pos_limits: -0.2074
+dof_vel: -0.1064
+dof_vel_limits: -0.0001
+torque_limits: -1.5902
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 2457600
+                    Iteration time: 12.22s
+                        Total time: 73.77s
+                               ETA: 122893.4s
+
+################################################################################
+                      [1m Learning iteration 6/10000 [0m                      
+
+                       Computation: 33301 steps/s (collection: 11.350s, learning 0.950s)
+                       Mean reward: -53.27
+               Mean episode length: 658.32
+---loss--
+               Value function loss: 0.2802
+                    Surrogate loss: 0.0191
+             Mean action noise std: 0.92
+---reward--
+walk_task: 0.3215
+carryup_task: 0.0110
+pickup_pose_task: 0.0005
+relocation_task: 0.0001
+standup_task: 0.0000
+--penalty--
+action_rate: -0.5342
+amo_cmd_rate: -0.0291
+amo_posture_limits: -0.0000
+dof_acc: -0.3099
+dof_pos_limits: -0.2432
+dof_vel: -0.1249
+dof_vel_limits: -0.0001
+torque_limits: -1.8365
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 2867200
+                    Iteration time: 12.30s
+                        Total time: 86.07s
+                               ETA: 122887.0s
+
+################################################################################
+                      [1m Learning iteration 7/10000 [0m                      
+
+                       Computation: 33342 steps/s (collection: 11.378s, learning 0.906s)
+                       Mean reward: -59.89
+               Mean episode length: 764.67
+---loss--
+               Value function loss: 0.2029
+                    Surrogate loss: 0.0110
+             Mean action noise std: 0.91
+---reward--
+walk_task: 0.3890
+carryup_task: 0.0102
+pickup_pose_task: 0.0006
+relocation_task: 0.0015
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6013
+amo_cmd_rate: -0.0329
+amo_posture_limits: -0.0000
+dof_acc: -0.3490
+dof_pos_limits: -0.2625
+dof_vel: -0.1404
+dof_vel_limits: -0.0001
+torque_limits: -2.0261
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 3276800
+                    Iteration time: 12.28s
+                        Total time: 98.36s
+                               ETA: 122860.5s
+
+################################################################################
+                      [1m Learning iteration 8/10000 [0m                      
+
+                       Computation: 32765 steps/s (collection: 11.587s, learning 0.914s)
+                       Mean reward: -68.18
+               Mean episode length: 867.02
+---loss--
+               Value function loss: 0.1289
+                    Surrogate loss: 0.0139
+             Mean action noise std: 0.89
+---reward--
+walk_task: 0.3851
+carryup_task: 0.0061
+pickup_pose_task: 0.0002
+relocation_task: 0.0005
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6626
+amo_cmd_rate: -0.0367
+amo_posture_limits: -0.0000
+dof_acc: -0.3862
+dof_pos_limits: -0.2963
+dof_vel: -0.1551
+dof_vel_limits: -0.0001
+torque_limits: -2.1856
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 3686400
+                    Iteration time: 12.50s
+                        Total time: 110.86s
+                               ETA: 123077.4s
+
+################################################################################
+                      [1m Learning iteration 9/10000 [0m                      
+
+                       Computation: 33253 steps/s (collection: 11.403s, learning 0.915s)
+                       Mean reward: -72.43
+               Mean episode length: 967.95
+---loss--
+               Value function loss: 0.1045
+                    Surrogate loss: 0.0141
+             Mean action noise std: 0.88
+---reward--
+walk_task: 0.4137
+carryup_task: 0.0107
+pickup_pose_task: 0.0006
+relocation_task: 0.0006
+standup_task: 0.0000
+--penalty--
+action_rate: -0.7304
+amo_cmd_rate: -0.0409
+amo_posture_limits: -0.0000
+dof_acc: -0.4264
+dof_pos_limits: -0.3193
+dof_vel: -0.1711
+dof_vel_limits: -0.0001
+torque_limits: -2.3699
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 4096000
+                    Iteration time: 12.32s
+                        Total time: 123.18s
+                               ETA: 123064.9s
+
+################################################################################
+                     [1m Learning iteration 10/10000 [0m                      
+
+                       Computation: 33572 steps/s (collection: 11.298s, learning 0.902s)
+                       Mean reward: -70.43
+               Mean episode length: 975.53
+---loss--
+               Value function loss: 0.0633
+                    Surrogate loss: 0.0070
+             Mean action noise std: 0.86
+---reward--
+walk_task: 0.4376
+carryup_task: 0.0119
+pickup_pose_task: 0.0007
+relocation_task: 0.0011
+standup_task: 0.0000
+--penalty--
+action_rate: -0.7534
+amo_cmd_rate: -0.0429
+amo_posture_limits: -0.0000
+dof_acc: -0.4425
+dof_pos_limits: -0.3095
+dof_vel: -0.1777
+dof_vel_limits: -0.0001
+torque_limits: -2.3879
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 4505600
+                    Iteration time: 12.20s
+                        Total time: 135.38s
+                               ETA: 122946.2s
+
+################################################################################
+                     [1m Learning iteration 11/10000 [0m                      
+
+                       Computation: 33320 steps/s (collection: 11.378s, learning 0.914s)
+                       Mean reward: -69.21
+               Mean episode length: 999.85
+---loss--
+               Value function loss: 0.0514
+                    Surrogate loss: 0.0021
+             Mean action noise std: 0.85
+---reward--
+walk_task: 0.4284
+carryup_task: 0.0102
+pickup_pose_task: 0.0004
+relocation_task: 0.0007
+standup_task: 0.0000
+--penalty--
+action_rate: -0.7360
+amo_cmd_rate: -0.0428
+amo_posture_limits: -0.0000
+dof_acc: -0.4342
+dof_pos_limits: -0.3005
+dof_vel: -0.1738
+dof_vel_limits: -0.0001
+torque_limits: -2.2146
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 4915200
+                    Iteration time: 12.29s
+                        Total time: 147.67s
+                               ETA: 122922.2s
+
+################################################################################
+                     [1m Learning iteration 12/10000 [0m                      
+
+                       Computation: 33181 steps/s (collection: 11.441s, learning 0.903s)
+                       Mean reward: -62.84
+               Mean episode length: 973.77
+---loss--
+               Value function loss: 0.0291
+                    Surrogate loss: -0.0043
+             Mean action noise std: 0.83
+---reward--
+walk_task: 0.4266
+carryup_task: 0.0174
+pickup_pose_task: 0.0007
+relocation_task: 0.0018
+standup_task: 0.0000
+--penalty--
+action_rate: -0.7170
+amo_cmd_rate: -0.0427
+amo_posture_limits: -0.0000
+dof_acc: -0.4255
+dof_pos_limits: -0.2641
+dof_vel: -0.1705
+dof_vel_limits: -0.0001
+torque_limits: -2.0623
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 5324800
+                    Iteration time: 12.34s
+                        Total time: 160.01s
+                               ETA: 122939.5s
+
+################################################################################
+                     [1m Learning iteration 13/10000 [0m                      
+
+                       Computation: 33270 steps/s (collection: 11.372s, learning 0.939s)
+                       Mean reward: -57.81
+               Mean episode length: 983.04
+---loss--
+               Value function loss: 0.0227
+                    Surrogate loss: -0.0079
+             Mean action noise std: 0.82
+---reward--
+walk_task: 0.4245
+carryup_task: 0.0098
+pickup_pose_task: 0.0005
+relocation_task: 0.0011
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6992
+amo_cmd_rate: -0.0425
+amo_posture_limits: -0.0000
+dof_acc: -0.4161
+dof_pos_limits: -0.2459
+dof_vel: -0.1667
+dof_vel_limits: -0.0001
+torque_limits: -1.9171
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 5734400
+                    Iteration time: 12.31s
+                        Total time: 172.32s
+                               ETA: 122928.9s
+
+################################################################################
+                     [1m Learning iteration 14/10000 [0m                      
+
+                       Computation: 33335 steps/s (collection: 11.377s, learning 0.910s)
+                       Mean reward: -52.48
+               Mean episode length: 947.10
+---loss--
+               Value function loss: 0.0235
+                    Surrogate loss: -0.0102
+             Mean action noise std: 0.80
+---reward--
+walk_task: 0.4348
+carryup_task: 0.0170
+pickup_pose_task: 0.0009
+relocation_task: 0.0006
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6805
+amo_cmd_rate: -0.0424
+amo_posture_limits: -0.0000
+dof_acc: -0.4080
+dof_pos_limits: -0.2213
+dof_vel: -0.1635
+dof_vel_limits: -0.0001
+torque_limits: -1.7893
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 6144000
+                    Iteration time: 12.29s
+                        Total time: 184.61s
+                               ETA: 122902.1s
+

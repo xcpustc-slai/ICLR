@@ -1,0 +1,16 @@
+--- git status ---
+On branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	0627_resume_amo_model8000_to10000.pid
+	0627_resume_amo_model8000_to10000.txt
+	logs/amo_train/Jun27_21-42-56_carrybox_coef0.25_resume_model_8000/
+	scripts/resume_carrybox.py
+
+nothing added to commit but untracked files present (use "git add" to track) 
+
+
+--- git diff ---

@@ -1,0 +1,1085 @@
+--- git status ---
+On branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   generated_usd/g1_29dof_lab/configuration/g1_29dof_phys_hsi_lab_base.usd
+	modified:   generated_usd/g1_29dof_lab/configuration/g1_29dof_phys_hsi_lab_physics.usd
+	modified:   generated_usd/g1_29dof_lab/g1_29dof_phys_hsi_lab.usd
+	modified:   scripts/eval_carrybox.py
+	modified:   scripts/train_carrybox.py
+	modified:   src/phys_hsi_carrybox_lab/envs/carrybox_env.py
+	modified:   src/phys_hsi_carrybox_lab/envs/carrybox_env_cfg.py
+	modified:   src/phys_hsi_carrybox_lab/source_rl.py
+	modified:   vendor/rsl_rl/rsl_rl/runners/him_on_policy_runner.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	0627_resume_amo_model8000_to10000.txt
+	eval_result/amo/20260628_091056.md
+	logs/amo_train/Jun27_21-42-56_carrybox_coef0.25_resume_model_8000/
+	logs/amo_train/Jun29_22-02-34_amo_1_1/
+	scripts/resume_carrybox.py
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/generated_usd/g1_29dof_lab/configuration/g1_29dof_phys_hsi_lab_base.usd b/generated_usd/g1_29dof_lab/configuration/g1_29dof_phys_hsi_lab_base.usd
+index 32d4f5b..9ac292b 100644
+Binary files a/generated_usd/g1_29dof_lab/configuration/g1_29dof_phys_hsi_lab_base.usd and b/generated_usd/g1_29dof_lab/configuration/g1_29dof_phys_hsi_lab_base.usd differ
+diff --git a/generated_usd/g1_29dof_lab/configuration/g1_29dof_phys_hsi_lab_physics.usd b/generated_usd/g1_29dof_lab/configuration/g1_29dof_phys_hsi_lab_physics.usd
+index 9c9816c..1a918a1 100644
+Binary files a/generated_usd/g1_29dof_lab/configuration/g1_29dof_phys_hsi_lab_physics.usd and b/generated_usd/g1_29dof_lab/configuration/g1_29dof_phys_hsi_lab_physics.usd differ
+diff --git a/generated_usd/g1_29dof_lab/g1_29dof_phys_hsi_lab.usd b/generated_usd/g1_29dof_lab/g1_29dof_phys_hsi_lab.usd
+index 03c764c..22eec5a 100644
+Binary files a/generated_usd/g1_29dof_lab/g1_29dof_phys_hsi_lab.usd and b/generated_usd/g1_29dof_lab/g1_29dof_phys_hsi_lab.usd differ
+diff --git a/scripts/eval_carrybox.py b/scripts/eval_carrybox.py
+index 3bbf6a1..45af5e0 100644
+--- a/scripts/eval_carrybox.py
++++ b/scripts/eval_carrybox.py
+@@ -44,6 +44,15 @@ from phys_hsi_carrybox_lab.policy import load_policy_from_checkpoint
+ 
+ 
+ STAGE_NAMES = ("walk", "carryUp", "carryWith", "putDown")
++AMO_COMMAND_COMPONENTS = (
++    ("vx", 0),
++    ("vy", 1),
++    ("heading", 2),
++    ("height", 3),
++    ("torso_yaw", 4),
++    ("torso_pitch", 5),
++    ("torso_roll", 6),
++)
+ DIAGNOSTIC_KEYS = (
+     "min_robot2object_dist",
+     "max_box_height",
+@@ -53,14 +62,52 @@ DIAGNOSTIC_KEYS = (
+     "min_robot2goal_dist",
+     "max_action_abs",
+ )
++HAND_DIAGNOSTIC_KEYS = (
++    "rubber_hand_path_length_mean",
++    "rubber_hand_walk_path_length_mean",
++    "rubber_hand_pos_range_mean",
++    "rubber_hand_max_speed",
++    "near_box_hand_sample_count",
++    "near_box_hand_center_dist_mean",
++    "near_box_hand_center_dist_min",
++    "near_box_hand_min_dist_mean",
++    "near_box_hand_min_dist_min",
++)
+ AMO_DIAGNOSTIC_KEYS = (
+     "max_arm_action_abs",
+     "max_policy_lower_cmd_abs",
++    "policy_cmd_delta_height_min",
++    "policy_cmd_delta_height_mean",
++    "policy_cmd_delta_height_max",
++    "policy_cmd_height_min",
++    "policy_cmd_height_mean",
++    "policy_cmd_height_max",
++    "policy_cmd_height_drop_max",
++    "executed_cmd_vx_min",
++    "executed_cmd_vx_mean",
++    "executed_cmd_vx_max",
++    "executed_cmd_heading_min",
++    "executed_cmd_heading_mean",
++    "executed_cmd_heading_max",
++    "executed_cmd_height_min",
++    "executed_cmd_height_mean",
++    "executed_cmd_height_max",
++    "executed_cmd_height_drop_max",
++    "torso_height_min",
++    "torso_height_mean",
++    "torso_height_max",
++    "torso_height_drop_max",
++    "base_height_min",
++    "base_height_mean",
++    "base_height_max",
++    "base_height_drop_max",
++    "robot_heading_min",
++    "robot_heading_mean",
++    "robot_heading_max",
++    "executed_heading_error_abs_mean",
++    "executed_heading_error_abs_max",
+     "max_amo_raw_action_abs",
+-    "amo_cmd_vx_min",
+-    "amo_cmd_vx_max",
+-    "amo_cmd_height_min",
+-    "amo_cmd_height_max",
++    "amo_lower_target_delta_abs_max",
+ )
+ 
+ 
+@@ -72,28 +119,10 @@ def _yes(value: bool) -> str:
+     return "success" if value else "fail"
+ 
+ 
+-def _enable_carrybox_rule_based_amo(env_cfg: CarryBoxEnvCfg) -> None:
+-    env_cfg.amo.use_rule_based_cmd = True
+-    env_cfg.amo.rule_loco_vx = 0.5
+-    env_cfg.amo.rule_loco_height = 0.75
+-    env_cfg.amo.rule_loco_pitch = 0.0
+-    env_cfg.amo.rule_pickup_vx = 0.0
+-    env_cfg.amo.rule_pickup_height = 0.43
+-    env_cfg.amo.rule_pickup_pitch = 0.0
+-    env_cfg.amo.rule_carry_vx = 0.5
+-    env_cfg.amo.rule_carry_height = 0.70
+-    env_cfg.amo.rule_carry_pitch = 0.0
+-    env_cfg.amo.rule_putdown_vx = 0.0
+-    env_cfg.amo.rule_putdown_height = 0.43
+-    env_cfg.amo.rule_putdown_pitch = 0.0
+-
+-
+ def _make_cfg() -> CarryBoxEnvCfg:
+     cfg = CarryBoxEnvCfg()
+     cfg.mode = args_cli.mode
+     cfg.amp_len = args_cli.amp_len
+-    if cfg.mode == "amo":
+-        _enable_carrybox_rule_based_amo(cfg)
+     sync_carrybox_mode_cfg(cfg)
+ 
+     cfg.scene.num_envs = args_cli.num_envs
+@@ -144,19 +173,68 @@ def _capture_setting(env, env_id: int) -> dict[str, str | float]:
+     }
+ 
+ 
+-def _new_record(exp_id: int, env, env_id: int) -> dict:
++def _resolve_hand_tracking_bodies(env) -> tuple[torch.Tensor | None, list[str]]:
++    unwrapped = env.unwrapped
++    body_names = list(unwrapped.robot.data.body_names)
++    body_ids = [idx for idx, name in enumerate(body_names) if "rubber_hand" in name]
++    if not body_ids and hasattr(unwrapped, "_hand_body_ids"):
++        body_ids = [int(body_id) for body_id in unwrapped._hand_body_ids]
++    if not body_ids:
++        return None, []
++    body_ids_tensor = torch.tensor(body_ids, dtype=torch.long, device=unwrapped.device)
++    return body_ids_tensor, [body_names[body_id] for body_id in body_ids]
++
++
++def _new_hand_trace() -> dict:
++    return {
++        "prev_pos": None,
++        "min_pos": None,
++        "max_pos": None,
++        "path_length_mean": 0.0,
++        "walk_path_length_mean": 0.0,
++        "max_speed": 0.0,
++    }
++
++
++def _new_record(exp_id: int, env, env_id: int, hand_body_names: list[str]) -> dict:
+     return {
+         "exp_id": exp_id,
+         "env_id": env_id,
+         "steps": 0,
+         "stages": {name: False for name in STAGE_NAMES},
+         "diagnostics": _empty_diagnostics(env.unwrapped.cfg.mode),
++        "hand_tracking_bodies": hand_body_names,
++        "hand_trace": _new_hand_trace(),
+         "reset_reason": "not_finished",
+         "task_failure": "not_finished",
+         "setting": _capture_setting(env, env_id),
+     }
+ 
+ 
++def _init_series(diagnostics: dict[str, float], name: str) -> None:
++    diagnostics[f"{name}_min"] = math.inf
++    diagnostics[f"{name}_mean"] = 0.0
++    diagnostics[f"{name}_max"] = -math.inf
++    diagnostics[f"{name}_sum"] = 0.0
++    diagnostics[f"{name}_count"] = 0.0
++
++
++def _update_series(diagnostics: dict[str, float], name: str, value: float) -> None:
++    value = float(value)
++    if not math.isfinite(value):
++        return
++    diagnostics[f"{name}_min"] = min(diagnostics[f"{name}_min"], value)
++    diagnostics[f"{name}_max"] = max(diagnostics[f"{name}_max"], value)
++    diagnostics[f"{name}_sum"] += value
++    diagnostics[f"{name}_count"] += 1.0
++
++
++def _finalize_series(diagnostics: dict[str, float], name: str) -> None:
++    count = diagnostics.get(f"{name}_count", 0.0)
++    if count > 0:
++        diagnostics[f"{name}_mean"] = diagnostics[f"{name}_sum"] / count
++
++
+ def _empty_diagnostics(mode: str) -> dict[str, float]:
+     diagnostics = {
+         "min_robot2object_dist": math.inf,
+@@ -166,23 +244,168 @@ def _empty_diagnostics(mode: str) -> dict[str, float]:
+         "min_object2goal_dist_xyz": math.inf,
+         "min_robot2goal_dist": math.inf,
+         "max_action_abs": 0.0,
++        "rubber_hand_path_length_mean": 0.0,
++        "rubber_hand_walk_path_length_mean": 0.0,
++        "rubber_hand_pos_range_mean": 0.0,
++        "rubber_hand_max_speed": 0.0,
++        "near_box_hand_sample_count": 0.0,
+     }
++    _init_series(diagnostics, "near_box_hand_center_dist")
++    _init_series(diagnostics, "near_box_hand_min_dist")
+     if mode == "amo":
++        for name in ("torso_height", "base_height", "robot_heading", "executed_heading_error_abs"):
++            _init_series(diagnostics, name)
++        _init_series(diagnostics, "policy_cmd_delta_height")
++        for component_name, _ in AMO_COMMAND_COMPONENTS:
++            _init_series(diagnostics, f"policy_lower_action_{component_name}")
++            _init_series(diagnostics, f"policy_cmd_{component_name}")
++            _init_series(diagnostics, f"executed_cmd_{component_name}")
+         diagnostics.update(
+             {
+                 "max_arm_action_abs": 0.0,
+                 "max_policy_lower_cmd_abs": 0.0,
+                 "max_amo_raw_action_abs": 0.0,
+-                "amo_cmd_vx_min": math.inf,
+-                "amo_cmd_vx_max": -math.inf,
+-                "amo_cmd_height_min": math.inf,
+-                "amo_cmd_height_max": -math.inf,
++                "policy_cmd_height_drop_max": 0.0,
++                "executed_cmd_height_drop_max": 0.0,
++                "torso_height_initial": math.nan,
++                "torso_height_drop_max": 0.0,
++                "base_height_initial": math.nan,
++                "base_height_drop_max": 0.0,
++                "amo_lower_target_delta_abs_max": 0.0,
+             }
+         )
+     return diagnostics
+ 
+ 
+-def _update_diagnostics(record: dict, env, env_id: int, state: dict[str, torch.Tensor], actions: torch.Tensor) -> None:
++def _update_hand_diagnostics(
++    record: dict,
++    env,
++    env_id: int,
++    state: dict[str, torch.Tensor],
++    hand_body_ids: torch.Tensor | None,
++) -> None:
++    if hand_body_ids is None:
++        return
++    unwrapped = env.unwrapped
++    diagnostics = record["diagnostics"]
++    hand_pos = unwrapped.robot.data.body_link_pos_w[env_id, hand_body_ids].detach().clone()
++    if hand_pos.numel() == 0:
++        return
++
++    trace = record["hand_trace"]
++    if trace["min_pos"] is None:
++        trace["min_pos"] = hand_pos.clone()
++        trace["max_pos"] = hand_pos.clone()
++    else:
++        trace["min_pos"] = torch.minimum(trace["min_pos"], hand_pos)
++        trace["max_pos"] = torch.maximum(trace["max_pos"], hand_pos)
++
++    prev_pos = trace["prev_pos"]
++    if prev_pos is not None:
++        delta = torch.norm(hand_pos - prev_pos, dim=-1)
++        mean_delta = delta.mean().item()
++        trace["path_length_mean"] += mean_delta
++        trace["max_speed"] = max(trace["max_speed"], delta.max().item() / max(unwrapped.step_dt, 1e-6))
++        if state["robot2object_dist"][env_id].item() >= unwrapped.cfg.thresh_robot2object:
++            trace["walk_path_length_mean"] += mean_delta
++    trace["prev_pos"] = hand_pos
++
++    if state["robot2object_dist"][env_id].item() <= unwrapped.cfg.thresh_robot2object:
++        box_pos = state["box_pos"][env_id]
++        center_dist = torch.norm(hand_pos.mean(dim=0) - box_pos).item()
++        min_dist = torch.norm(hand_pos - box_pos.unsqueeze(0), dim=-1).min().item()
++        _update_series(diagnostics, "near_box_hand_center_dist", center_dist)
++        _update_series(diagnostics, "near_box_hand_min_dist", min_dist)
++
++
++def _update_amo_diagnostics(
++    record: dict,
++    env,
++    env_id: int,
++    state: dict[str, torch.Tensor],
++    actions: torch.Tensor,
++) -> None:
++    unwrapped = env.unwrapped
++    diagnostics = record["diagnostics"]
++    arm_dim = len(unwrapped.cfg.amo.policy_arm_joint_names)
++    diagnostics["max_arm_action_abs"] = max(
++        diagnostics["max_arm_action_abs"], actions[env_id, :arm_dim].abs().max().item()
++    )
++    lower_dim = 7
++    lower_cmd_action = actions[env_id : env_id + 1, arm_dim : arm_dim + lower_dim]
++    diagnostics["max_policy_lower_cmd_abs"] = max(
++        diagnostics["max_policy_lower_cmd_abs"], lower_cmd_action.abs().max().item()
++    )
++
++    policy_cmd = unwrapped._decode_amo_command_targets(lower_cmd_action)[0]
++    for component_name, component_idx in AMO_COMMAND_COMPONENTS:
++        _update_series(
++            diagnostics,
++            f"policy_lower_action_{component_name}",
++            lower_cmd_action[0, component_idx].item(),
++        )
++        _update_series(diagnostics, f"policy_cmd_{component_name}", policy_cmd[component_idx].item())
++    policy_cmd_height = policy_cmd[3].item()
++    policy_cmd_delta_height = float(unwrapped.cfg.amo.torso_height_default) - policy_cmd_height
++    _update_series(diagnostics, "policy_cmd_delta_height", policy_cmd_delta_height)
++    diagnostics["policy_cmd_height_drop_max"] = max(
++        diagnostics["policy_cmd_height_drop_max"], policy_cmd_delta_height
++    )
++
++    executed_cmd = unwrapped.amo_cmd_decoded_7[env_id]
++    for component_name, component_idx in AMO_COMMAND_COMPONENTS:
++        _update_series(diagnostics, f"executed_cmd_{component_name}", executed_cmd[component_idx].item())
++    executed_height = executed_cmd[3].item()
++    diagnostics["executed_cmd_height_drop_max"] = max(
++        diagnostics["executed_cmd_height_drop_max"], float(unwrapped.cfg.amo.torso_height_default) - executed_height
++    )
++    robot_heading = state["heading"][env_id].item()
++    heading_error_abs = torch.atan2(
++        torch.sin(state["heading"][env_id] - executed_cmd[2]),
++        torch.cos(state["heading"][env_id] - executed_cmd[2]),
++    ).abs().item()
++    _update_series(diagnostics, "robot_heading", robot_heading)
++    _update_series(diagnostics, "executed_heading_error_abs", heading_error_abs)
++
++    torso_height = unwrapped.robot.data.body_link_pos_w[env_id, unwrapped._torso_body_id, 2].item()
++    base_height = unwrapped.robot.data.root_pos_w[env_id, 2].item()
++    if math.isnan(diagnostics["torso_height_initial"]):
++        diagnostics["torso_height_initial"] = torso_height
++    if math.isnan(diagnostics["base_height_initial"]):
++        diagnostics["base_height_initial"] = base_height
++    _update_series(diagnostics, "torso_height", torso_height)
++    _update_series(diagnostics, "base_height", base_height)
++    diagnostics["torso_height_drop_max"] = max(
++        diagnostics["torso_height_drop_max"], diagnostics["torso_height_initial"] - torso_height
++    )
++    diagnostics["base_height_drop_max"] = max(
++        diagnostics["base_height_drop_max"], diagnostics["base_height_initial"] - base_height
++    )
++
++    amo_debug = getattr(unwrapped, "amo_debug_dict", None)
++    if not amo_debug:
++        return
++    if "amo_raw_action_15" in amo_debug:
++        diagnostics["max_amo_raw_action_abs"] = max(
++            diagnostics["max_amo_raw_action_abs"], amo_debug["amo_raw_action_15"][env_id].abs().max().item()
++        )
++    if unwrapped.amo_controller is not None and "joint_pos_target_29" in amo_debug:
++        lower_indices = unwrapped.amo_controller.amo23_indices[:15]
++        default_lower = unwrapped._source_default_joint_pos[0, lower_indices]
++        lower_target = amo_debug["joint_pos_target_29"][env_id, lower_indices]
++        diagnostics["amo_lower_target_delta_abs_max"] = max(
++            diagnostics["amo_lower_target_delta_abs_max"], (lower_target - default_lower).abs().max().item()
++        )
++
++
++def _update_diagnostics(
++    record: dict,
++    env,
++    env_id: int,
++    state: dict[str, torch.Tensor],
++    actions: torch.Tensor,
++    hand_body_ids: torch.Tensor | None,
++) -> None:
+     diagnostics = record["diagnostics"]
+     diagnostics["min_robot2object_dist"] = min(
+         diagnostics["min_robot2object_dist"], state["robot2object_dist"][env_id].item()
+@@ -199,28 +422,12 @@ def _update_diagnostics(record: dict, env, env_id: int, state: dict[str, torch.T
+         diagnostics["min_robot2goal_dist"], state["robot2goal_dist"][env_id].item()
+     )
+     diagnostics["max_action_abs"] = max(diagnostics["max_action_abs"], actions[env_id].abs().max().item())
++    _update_hand_diagnostics(record, env, env_id, state, hand_body_ids)
+ 
+     unwrapped = env.unwrapped
+     if unwrapped.cfg.mode != "amo":
+         return
+-
+-    arm_dim = len(unwrapped.cfg.amo.policy_arm_joint_names)
+-    diagnostics["max_arm_action_abs"] = max(
+-        diagnostics["max_arm_action_abs"], actions[env_id, :arm_dim].abs().max().item()
+-    )
+-    diagnostics["max_policy_lower_cmd_abs"] = max(
+-        diagnostics["max_policy_lower_cmd_abs"], actions[env_id, arm_dim : arm_dim + 7].abs().max().item()
+-    )
+-    cmd = unwrapped.amo_cmd_decoded_7[env_id]
+-    diagnostics["amo_cmd_vx_min"] = min(diagnostics["amo_cmd_vx_min"], cmd[0].item())
+-    diagnostics["amo_cmd_vx_max"] = max(diagnostics["amo_cmd_vx_max"], cmd[0].item())
+-    diagnostics["amo_cmd_height_min"] = min(diagnostics["amo_cmd_height_min"], cmd[3].item())
+-    diagnostics["amo_cmd_height_max"] = max(diagnostics["amo_cmd_height_max"], cmd[3].item())
+-    amo_debug = getattr(unwrapped, "amo_debug_dict", None)
+-    if amo_debug and "amo_raw_action_15" in amo_debug:
+-        diagnostics["max_amo_raw_action_abs"] = max(
+-            diagnostics["max_amo_raw_action_abs"], amo_debug["amo_raw_action_15"][env_id].abs().max().item()
+-        )
++    _update_amo_diagnostics(record, env, env_id, state, actions)
+ 
+ 
+ def _update_stages(record: dict, env, env_id: int, state: dict[str, torch.Tensor]) -> None:
+@@ -258,7 +465,41 @@ def _reset_reason(env, env_id: int, terminated: torch.Tensor, truncated: torch.T
+     return "success"
+ 
+ 
++def _finalize_diagnostics(record: dict) -> None:
++    if record.get("_diagnostics_finalized", False):
++        return
++    diagnostics = record["diagnostics"]
++    for name in ("near_box_hand_center_dist", "near_box_hand_min_dist"):
++        _finalize_series(diagnostics, name)
++    diagnostics["near_box_hand_sample_count"] = diagnostics.get("near_box_hand_center_dist_count", 0.0)
++    for name in (
++        "policy_cmd_delta_height",
++        "torso_height",
++        "base_height",
++        "robot_heading",
++        "executed_heading_error_abs",
++    ):
++        if f"{name}_count" in diagnostics:
++            _finalize_series(diagnostics, name)
++    for component_name, _ in AMO_COMMAND_COMPONENTS:
++        for prefix in ("policy_lower_action", "policy_cmd", "executed_cmd"):
++            name = f"{prefix}_{component_name}"
++            if f"{name}_count" in diagnostics:
++                _finalize_series(diagnostics, name)
++
++    trace = record.get("hand_trace", {})
++    diagnostics["rubber_hand_path_length_mean"] = float(trace.get("path_length_mean", 0.0))
++    diagnostics["rubber_hand_walk_path_length_mean"] = float(trace.get("walk_path_length_mean", 0.0))
++    diagnostics["rubber_hand_max_speed"] = float(trace.get("max_speed", 0.0))
++    min_pos = trace.get("min_pos")
++    max_pos = trace.get("max_pos")
++    if min_pos is not None and max_pos is not None:
++        diagnostics["rubber_hand_pos_range_mean"] = torch.norm(max_pos - min_pos, dim=-1).mean().item()
++    record["_diagnostics_finalized"] = True
++
++
+ def _complete_record(record: dict, reason: str) -> None:
++    _finalize_diagnostics(record)
+     record["reset_reason"] = reason
+     record["task_failure"] = _task_failure(record)
+ 
+@@ -285,14 +526,136 @@ def _diagnostic_summary(records: list[dict], keys: tuple[str, ...]) -> list[tupl
+     return rows
+ 
+ 
++def _metric_values(records: list[dict], key: str) -> list[float]:
++    return [_finite(record["diagnostics"][key]) for record in records if key in record["diagnostics"]]
++
++
++def _metric_mean(records: list[dict], key: str) -> float:
++    values = _metric_values(records, key)
++    return sum(values) / len(values) if values else 0.0
++
++
++def _metric_min(records: list[dict], key: str) -> float:
++    values = _metric_values(records, key)
++    return min(values) if values else 0.0
++
++
++def _metric_max(records: list[dict], key: str) -> float:
++    values = _metric_values(records, key)
++    return max(values) if values else 0.0
++
++
+ def _format_diagnostics(record: dict, mode: str) -> str:
+     diagnostics = record["diagnostics"]
+-    keys = list(DIAGNOSTIC_KEYS)
++    keys = list(DIAGNOSTIC_KEYS) + list(HAND_DIAGNOSTIC_KEYS)
+     if mode == "amo":
+         keys += list(AMO_DIAGNOSTIC_KEYS)
+     return ", ".join(f"{key}={_finite(diagnostics[key]):.3f}" for key in keys if key in diagnostics)
+ 
+ 
++def _triplet(records: list[dict], prefix: str) -> str:
++    return (
++        f"{_metric_mean(records, prefix + '_mean'):.3f} / "
++        f"{_metric_min(records, prefix + '_min'):.3f} / "
++        f"{_metric_max(records, prefix + '_max'):.3f}"
++    )
++
++
++def _actor_output_lines(records: list[dict], cfg: CarryBoxEnvCfg) -> list[str]:
++    if cfg.mode != "amo":
++        return []
++    lines = [
++        "",
++        "## Actor/AMO Command Output",
++        "- table format: `mean / min / max` over completed eval episodes.",
++        "- `policy_lower_action`: actor raw lower 7D output before decode.",
++        "- lower 7D order: `vx, vy, heading, height, torso_yaw, torso_pitch, torso_roll`.",
++        "- `policy_cmd`: actor lower 7D decoded into the AMO command.",
++        "- `executed_cmd`: command actually sent into FrozenAMO.",
++        "- component `heading` is the global walking heading target; `torso_yaw` is a separate torso command.",
++        "",
++        "### Policy Lower 7D",
++        "| Component | Raw Action | Decoded Effect |",
++        "|---|---:|---:|",
++    ]
++    for component_name, _ in AMO_COMMAND_COMPONENTS:
++        lines.append(
++            f"| {component_name} | "
++            f"{_triplet(records, f'policy_lower_action_{component_name}')} | "
++            f"{_triplet(records, f'policy_cmd_{component_name}')} |"
++        )
++    lines += [
++        "",
++        "### Decoded/Executed AMO Command",
++        "| Component | Policy Decoded Cmd | Executed AMO Cmd |",
++        "|---|---:|---:|",
++    ]
++    for component_name, _ in AMO_COMMAND_COMPONENTS:
++        lines.append(
++            f"| {component_name} | "
++            f"{_triplet(records, f'policy_cmd_{component_name}')} | "
++            f"{_triplet(records, f'executed_cmd_{component_name}')} |"
++        )
++    lines += [
++        "",
++        "### Heading Tracking",
++        f"- robot_heading: `{_triplet(records, 'robot_heading')}`",
++        f"- executed_heading_error_abs: `{_triplet(records, 'executed_heading_error_abs')}`",
++    ]
++    return lines
++
++
++def _amo_diagnosis_lines(records: list[dict], cfg: CarryBoxEnvCfg) -> list[str]:
++    if cfg.mode != "amo":
++        return []
++
++    default_height = float(cfg.amo.torso_height_default)
++    policy_min = _metric_min(records, "policy_cmd_height_min")
++    executed_min = _metric_min(records, "executed_cmd_height_min")
++    torso_drop = _metric_mean(records, "torso_height_drop_max")
++    base_drop = _metric_mean(records, "base_height_drop_max")
++    policy_drop = default_height - policy_min
++    executed_drop = default_height - executed_min
++
++    lines = [
++        "",
++        "## AMO Command Diagnosis",
++        "- `policy_cmd_delta_height_*`: decoded height drop from default 0.75.",
++        "- `policy_cmd_height_*`: decoded policy height command, whether or not it is executed.",
++        "- `executed_cmd_height_*`: actual height command sent into FrozenAMO.",
++        "- `torso_height_*` / `base_height_*`: measured robot body height after AMO and PD control.",
++    ]
++    lines.append("- current command source: policy lower 7D.")
++
++    if policy_drop < 0.05:
++        heuristic = "policy did not request a meaningful squat."
++    elif executed_drop < 0.05:
++        heuristic = "policy requested lower height, but the command reaching FrozenAMO stayed high."
++    elif max(torso_drop, base_drop) < 0.05:
++        heuristic = "lower height reached FrozenAMO, but the measured body height barely dropped."
++    else:
++        heuristic = "lower height reached FrozenAMO and the body height dropped; failure is likely after squat execution."
++    lines.append(
++        f"- heuristic: {heuristic} "
++        f"(policy_drop={policy_drop:.3f}, executed_drop={executed_drop:.3f}, "
++        f"torso_drop_mean={torso_drop:.3f}, base_drop_mean={base_drop:.3f})"
++    )
++    return lines
++
++
++def _hand_diagnosis_lines(records: list[dict]) -> list[str]:
++    body_names = records[0].get("hand_tracking_bodies", []) if records else []
++    return [
++        "",
++        "## Hand Motion Diagnosis",
++        f"- tracked_bodies: `{', '.join(body_names) if body_names else 'none'}`",
++        "- `rubber_hand_path_length_mean`: average 3D path length of tracked hand links during the episode.",
++        "- `rubber_hand_walk_path_length_mean`: same metric while the robot is still walking toward the box.",
++        "- `rubber_hand_pos_range_mean`: average 3D bounding-box range of tracked hand links; larger values mean larger arm swing.",
++        "- `near_box_hand_*_dist_*`: hand-to-box distance after the robot reaches the box region; valid only when `near_box_hand_sample_count > 0`.",
++    ]
++
++
+ def _write_report(path: Path, checkpoint: str, loaded: dict, records: list[dict], cfg: CarryBoxEnvCfg, max_steps: int) -> None:
+     iteration = loaded.get("iter", loaded.get("iteration", loaded.get("current_learning_iteration", "unknown")))
+     rates = _stage_rates(records)
+@@ -320,7 +683,7 @@ def _write_report(path: Path, checkpoint: str, loaded: dict, records: list[dict]
+         f"- reset_mode: `{cfg.reset_mode}`",
+         f"- use_amp: `{cfg.use_amp}`",
+         f"- use_motionlib: `{cfg.use_motionlib}`",
+-        f"- amo_rule_based_cmd: `{cfg.amo.use_rule_based_cmd}`",
++        f"- hand_tracking_bodies: `{', '.join(records[0].get('hand_tracking_bodies', [])) if records else 'none'}`",
+         f"- domain_randomization: `{cfg.domain_randomization}`",
+         f"- task_noise: `{cfg.add_task_noise}`",
+         f"- randomize_box_size: `{cfg.randomize_box_size}`",
+@@ -344,10 +707,14 @@ def _write_report(path: Path, checkpoint: str, loaded: dict, records: list[dict]
+         "| Metric | Mean | Min | Max |",
+         "|---|---:|---:|---:|",
+     ]
+-    diagnostic_keys = DIAGNOSTIC_KEYS + (AMO_DIAGNOSTIC_KEYS if cfg.mode == "amo" else ())
++    diagnostic_keys = DIAGNOSTIC_KEYS + HAND_DIAGNOSTIC_KEYS + (AMO_DIAGNOSTIC_KEYS if cfg.mode == "amo" else ())
+     for key, mean_value, min_value, max_value in _diagnostic_summary(records, diagnostic_keys):
+         lines.append(f"| {key} | {mean_value:.3f} | {min_value:.3f} | {max_value:.3f} |")
+ 
++    lines += _actor_output_lines(records, cfg)
++    lines += _amo_diagnosis_lines(records, cfg)
++    lines += _hand_diagnosis_lines(records)
++
+     lines += [
+         "",
+         "## Reset Reasons",
+@@ -393,6 +760,7 @@ def main() -> None:
+     env = gym.make("PhysHSI-CarryBox-Direct-v0", cfg=cfg)
+     env.unwrapped.cfg.reset_mode = "default"
+     policy, loaded = _load_eval_policy(args_cli.checkpoint, env)
++    hand_body_ids, hand_body_names = _resolve_hand_tracking_bodies(env)
+     launched = min(args_cli.episodes, env.unwrapped.num_envs)
+     if launched < args_cli.episodes:
+         print(
+@@ -412,7 +780,7 @@ def main() -> None:
+     active_exp = [-1 for _ in range(env.unwrapped.num_envs)]
+     for env_id in range(launched):
+         active_exp[env_id] = env_id
+-        records.append(_new_record(env_id + 1, env, env_id))
++        records.append(_new_record(env_id + 1, env, env_id, hand_body_names))
+ 
+     completed: set[int] = set()
+     for _ in range(max_steps):
+@@ -429,7 +797,7 @@ def main() -> None:
+                 continue
+             record = records[exp_idx]
+             record["steps"] += 1
+-            _update_diagnostics(record, env, env_id, state, actions)
++            _update_diagnostics(record, env, env_id, state, actions, hand_body_ids)
+             if not bool(done[env_id].item()):
+                 _update_stages(record, env, env_id, state)
+                 if record["stages"]["putDown"]:
+diff --git a/scripts/train_carrybox.py b/scripts/train_carrybox.py
+index 3cc190d..1496eb1 100644
+--- a/scripts/train_carrybox.py
++++ b/scripts/train_carrybox.py
+@@ -7,6 +7,11 @@ import os
+ import sys
+ from pathlib import Path
+ 
++if hasattr(sys.stdout, "reconfigure"):
++    sys.stdout.reconfigure(line_buffering=True)
++if hasattr(sys.stderr, "reconfigure"):
++    sys.stderr.reconfigure(line_buffering=True)
++
+ PROJECT_DIR = Path(__file__).resolve().parents[1]
+ SOURCE_DIR = PROJECT_DIR / "src"
+ if str(SOURCE_DIR) not in sys.path:
+@@ -51,22 +56,6 @@ def _fd_target(fd: int) -> str:
+         return "unknown"
+ 
+ 
+-def _enable_carrybox_rule_based_amo(env_cfg: CarryBoxEnvCfg) -> None:
+-    env_cfg.amo.use_rule_based_cmd = True
+-    env_cfg.amo.rule_loco_vx = 0.5
+-    env_cfg.amo.rule_loco_height = 0.75
+-    env_cfg.amo.rule_loco_pitch = 0.0
+-    env_cfg.amo.rule_pickup_vx = 0.0
+-    env_cfg.amo.rule_pickup_height = 0.43
+-    env_cfg.amo.rule_pickup_pitch = 0.0
+-    env_cfg.amo.rule_carry_vx = 0.5
+-    env_cfg.amo.rule_carry_height = 0.70
+-    env_cfg.amo.rule_carry_pitch = 0.0
+-    env_cfg.amo.rule_putdown_vx = 0.0
+-    env_cfg.amo.rule_putdown_height = 0.43
+-    env_cfg.amo.rule_putdown_pitch = 0.0
+-
+-
+ def _print_startup_banner(train_cfg: CarryBoxTrainCfg, env_cfg: CarryBoxEnvCfg, log_dir: str, max_iterations: int) -> None:
+     num_envs = env_cfg.scene.num_envs
+     num_steps = train_cfg.num_steps_per_env
+@@ -80,6 +69,7 @@ def _print_startup_banner(train_cfg: CarryBoxTrainCfg, env_cfg: CarryBoxEnvCfg,
+     print(f"robot_urdf: {PHYS_HSI_G1_URDF}", flush=True)
+     print(f"generated_usd_dir: {GENERATED_USD_ROOT / 'g1_29dof_lab'}", flush=True)
+     print(f"log_dir: {log_dir}", flush=True)
++    print(f"ckpt_dir: {Path(log_dir) / 'ckpt'}", flush=True)
+     print(f"stdout: {_fd_target(1)}", flush=True)
+     print(f"stderr: {_fd_target(2)}", flush=True)
+     print(f"device: {env_cfg.sim.device}", flush=True)
+@@ -99,7 +89,6 @@ def _print_startup_banner(train_cfg: CarryBoxTrainCfg, env_cfg: CarryBoxEnvCfg,
+     print(f"control_dt: {env_cfg.sim.dt * env_cfg.decimation}", flush=True)
+     print(f"target_speed_loco: {env_cfg.target_speed_loco}", flush=True)
+     print(f"target_speed_carry: {env_cfg.target_speed_carry}", flush=True)
+-    print(f"amo_rule_based_cmd: {env_cfg.amo.use_rule_based_cmd}", flush=True)
+     print(f"num_envs: {num_envs}", flush=True)
+     print(f"num_steps_per_env: {num_steps}", flush=True)
+     print(f"max_iterations: {max_iterations}", flush=True)
+@@ -115,14 +104,12 @@ def main() -> None:
+     env_cfg.seed = train_cfg.seed
+     env_cfg.mode = args_cli.mode
+     env_cfg.amp_len = args_cli.amp_len
+-    if env_cfg.mode == "amo":
+-        _enable_carrybox_rule_based_amo(env_cfg)
+     sync_carrybox_mode_cfg(env_cfg)
+     if args_cli.device is not None:
+         env_cfg.sim.device = args_cli.device
+ 
+     max_iterations = args_cli.max_iterations or train_cfg.max_iterations
+-    log_dir = source_log_dir(train_cfg)
++    log_dir = source_log_dir(train_cfg, env_cfg, max_iterations)
+     _print_startup_banner(train_cfg, env_cfg, log_dir, max_iterations)
+ 
+     env = gym.make("PhysHSI-CarryBox-Direct-v0", cfg=env_cfg)
+diff --git a/src/phys_hsi_carrybox_lab/envs/carrybox_env.py b/src/phys_hsi_carrybox_lab/envs/carrybox_env.py
+index ad10bf8..3fc2496 100644
+--- a/src/phys_hsi_carrybox_lab/envs/carrybox_env.py
++++ b/src/phys_hsi_carrybox_lab/envs/carrybox_env.py
+@@ -212,7 +212,8 @@ class CarryBoxEnv(DirectRLEnv):
+         self.amo_cmd_decoded_7 = self._default_amo_command(self.num_envs)
+         self.last_amo_cmd_decoded_7 = self.amo_cmd_decoded_7.clone()
+         self.last_last_amo_cmd_decoded_7 = self.amo_cmd_decoded_7.clone()
+-        self._obs_history = torch.zeros((self.num_envs, 6, 123), device=self.device)
++        self._actor_step_obs_dim = self.cfg.observation_space // 6
++        self._obs_history = torch.zeros((self.num_envs, 6, self._actor_step_obs_dim), device=self.device)
+         self._amp_obs_history = torch.zeros(
+             (self.num_envs, self.cfg.num_amp_observations, self.cfg.amp_observation_space), device=self.device
+         )
+@@ -347,7 +348,7 @@ class CarryBoxEnv(DirectRLEnv):
+         raise RuntimeError(f"Could not find any body matching {candidates}. Available bodies: {body_names}")
+ 
+     def _make_proprio_noise_scale(self) -> torch.Tensor:
+-        noise = torch.zeros(108, dtype=torch.float32, device=self.device)
++        noise = torch.zeros(79 + int(self.cfg.num_prev_action_obs), dtype=torch.float32, device=self.device)
+         level = self.cfg.noise_level
+         noise[0:3] = self.cfg.noise_ang_vel * level * 0.25
+         noise[3:6] = self.cfg.noise_gravity * level
+@@ -523,27 +524,34 @@ class CarryBoxEnv(DirectRLEnv):
+         return clipped
+ 
+     def _decode_amo_command_targets(self, cmd_norm_7: torch.Tensor) -> torch.Tensor:
++        if cmd_norm_7.shape[-1] != 7:
++            raise RuntimeError(f"Expected AMO policy command dim 7, got {cmd_norm_7.shape[-1]}.")
++
+         command_ranges = self.cfg.amo.command_ranges
+         positive_cmd_7 = torch.clamp(cmd_norm_7, min=0.0)
++        signed_cmd_7 = torch.clamp(cmd_norm_7, -1.0, 1.0)
+         c_amo_user_7 = torch.zeros_like(cmd_norm_7)
+ 
+         vx_min, vx_max = command_ranges["vx"]
++        vy_min, vy_max = command_ranges["vy"]
+         heading_min, heading_max = command_ranges["heading"]
+         torso_height_min, torso_height_max = command_ranges["torso_height"]
+         torso_yaw_min, torso_yaw_max = command_ranges["torso_yaw"]
+         torso_pitch_min, torso_pitch_max = command_ranges["torso_pitch"]
+         torso_roll_min, torso_roll_max = command_ranges["torso_roll"]
+ 
+-        c_amo_user_7[:, 0] = torch.where(
+-            cmd_norm_7[:, 0] > 0.0,
+-            torch.full_like(cmd_norm_7[:, 0], float(vx_max)),
+-            torch.full_like(cmd_norm_7[:, 0], float(vx_min)),
++        c_amo_user_7[:, 0] = float(vx_min) + (float(vx_max) - float(vx_min)) * positive_cmd_7[:, 0].clamp(max=1.0)
++
++        vy_abs_max = max(abs(float(vy_min)), abs(float(vy_max)), 1e-6)
++        c_amo_user_7[:, 1] = torch.clamp(
++            vy_abs_max * signed_cmd_7[:, 1],
++            min=float(vy_min),
++            max=float(vy_max),
+         )
+-        c_amo_user_7[:, 1] = 0.0
+ 
+         heading_abs_max = max(abs(float(heading_min)), abs(float(heading_max)), 1e-6)
+         c_amo_user_7[:, 2] = torch.clamp(
+-            heading_abs_max * cmd_norm_7[:, 2],
++            heading_abs_max * signed_cmd_7[:, 2],
+             min=float(heading_min),
+             max=float(heading_max),
+         )
+@@ -557,7 +565,7 @@ class CarryBoxEnv(DirectRLEnv):
+ 
+         torso_yaw_abs_max = max(abs(float(torso_yaw_min)), abs(float(torso_yaw_max)), 1e-6)
+         c_amo_user_7[:, 4] = torch.clamp(
+-            torso_yaw_abs_max * cmd_norm_7[:, 4],
++            torso_yaw_abs_max * signed_cmd_7[:, 4],
+             min=float(torso_yaw_min),
+             max=float(torso_yaw_max),
+         )
+@@ -568,7 +576,7 @@ class CarryBoxEnv(DirectRLEnv):
+         )
+         torso_roll_abs_max = max(abs(float(torso_roll_min)), abs(float(torso_roll_max)), 1e-6)
+         c_amo_user_7[:, 6] = torch.clamp(
+-            torso_roll_abs_max * cmd_norm_7[:, 6],
++            torso_roll_abs_max * signed_cmd_7[:, 6],
+             min=float(torso_roll_min),
+             max=float(torso_roll_max),
+         )
+@@ -580,13 +588,11 @@ class CarryBoxEnv(DirectRLEnv):
+         cmd_norm_7 = torch.zeros_like(c_amo_user_7)
+ 
+         vx_min, vx_max = command_ranges["vx"]
+-        vx_mid = 0.5 * (float(vx_min) + float(vx_max))
+-        cmd_norm_7[:, 0] = torch.where(
+-            c_amo_user_7[:, 0] > vx_mid,
+-            torch.ones_like(c_amo_user_7[:, 0]),
+-            torch.zeros_like(c_amo_user_7[:, 0]),
+-        )
+-        cmd_norm_7[:, 1] = 0.0
++        vx_range = max(float(vx_max) - float(vx_min), 1e-6)
++        cmd_norm_7[:, 0] = (c_amo_user_7[:, 0] - float(vx_min)) / vx_range
++        vy_min, vy_max = command_ranges["vy"]
++        vy_abs_max = max(abs(float(vy_min)), abs(float(vy_max)), 1e-6)
++        cmd_norm_7[:, 1] = c_amo_user_7[:, 1] / vy_abs_max
+ 
+         heading_min, heading_max = command_ranges["heading"]
+         heading_abs_max = max(abs(float(heading_min)), abs(float(heading_max)), 1e-6)
+@@ -610,71 +616,24 @@ class CarryBoxEnv(DirectRLEnv):
+         cmd_norm_7[:, 6] = c_amo_user_7[:, 6] / torso_roll_abs_max
+         return torch.clamp(cmd_norm_7, -1.0, 1.0)
+ 
+-    def _box_lift_height_from_platform(self) -> torch.Tensor:
+-        return self.box.data.root_pos_w[:, 2] - self._box_size[:, 2] * 0.5 - self.platform.data.root_pos_w[:, 2]
+-
+-    def _build_rule_based_amo_command_targets(self) -> torch.Tensor:
+-        c_amo_user_7 = torch.zeros((self.num_envs, 7), dtype=torch.float32, device=self.device)
+-        robot_xy = self.robot.data.root_pos_w[:, :2]
+-        box_xy = self.box.data.root_pos_w[:, :2]
+-        goal_xy = self._goal_pos_w[:, :2]
+-
+-        robot2box_xy = box_xy - robot_xy
+-        robot2goal_xy = goal_xy - robot_xy
+-        robot2box_dist = torch.norm(robot2box_xy, dim=-1)
+-        robot2goal_dist = torch.norm(robot2goal_xy, dim=-1)
+-        heading_to_box = torch.atan2(robot2box_xy[:, 1], robot2box_xy[:, 0])
+-        heading_to_goal = torch.atan2(robot2goal_xy[:, 1], robot2goal_xy[:, 0])
+-
+-        box_lifted = self._box_lift_height_from_platform() > float(self.cfg.amo.rule_lift_height)
+-        near_box = robot2box_dist <= self.cfg.thresh_robot2object
+-        pickup_mask = near_box & (~box_lifted)
+-        carry_mask = box_lifted
+-        putdown_mask = box_lifted & (robot2goal_dist <= self.cfg.thresh_robot2goal)
+-
+-        c_amo_user_7[:, 0] = float(self.cfg.amo.rule_loco_vx)
+-        c_amo_user_7[:, 2] = heading_to_box
+-        c_amo_user_7[:, 3] = float(self.cfg.amo.rule_loco_height)
+-        c_amo_user_7[:, 5] = float(self.cfg.amo.rule_loco_pitch)
+-
+-        if torch.any(pickup_mask):
+-            c_amo_user_7[pickup_mask, 0] = float(self.cfg.amo.rule_pickup_vx)
+-            c_amo_user_7[pickup_mask, 2] = heading_to_box[pickup_mask]
+-            c_amo_user_7[pickup_mask, 3] = float(self.cfg.amo.rule_pickup_height)
+-            c_amo_user_7[pickup_mask, 5] = float(self.cfg.amo.rule_pickup_pitch)
+-        if torch.any(carry_mask):
+-            c_amo_user_7[carry_mask, 0] = float(self.cfg.amo.rule_carry_vx)
+-            c_amo_user_7[carry_mask, 2] = heading_to_goal[carry_mask]
+-            c_amo_user_7[carry_mask, 3] = float(self.cfg.amo.rule_carry_height)
+-            c_amo_user_7[carry_mask, 5] = float(self.cfg.amo.rule_carry_pitch)
+-        if torch.any(putdown_mask):
+-            c_amo_user_7[putdown_mask, 0] = float(self.cfg.amo.rule_putdown_vx)
+-            c_amo_user_7[putdown_mask, 2] = heading_to_goal[putdown_mask]
+-            c_amo_user_7[putdown_mask, 3] = float(self.cfg.amo.rule_putdown_height)
+-            c_amo_user_7[putdown_mask, 5] = float(self.cfg.amo.rule_putdown_pitch)
+-
+-        return self._clip_amo_command_targets(c_amo_user_7)
+-
+     def _build_amo_joint_pos_target(self, actions: torch.Tensor) -> torch.Tensor:
+         if self.amo_controller is None:
+             raise RuntimeError("mode=amo requires a FrozenAMOController.")
+ 
+         policy_arm_joint_names = self.cfg.amo.policy_arm_joint_names
+         arm_dim = len(policy_arm_joint_names)
+-        if actions.shape[-1] != arm_dim + 7:
+-            raise RuntimeError(f"AMO action dim must be {arm_dim + 7}, got {actions.shape[-1]}.")
++        command_dim = 7
++        if actions.shape[-1] != arm_dim + command_dim:
++            raise RuntimeError(f"AMO action dim must be {arm_dim + command_dim}, got {actions.shape[-1]}.")
+ 
+         policy_arm_indices29 = self._get_cached_joint_indices(policy_arm_joint_names, "_amo_policy_arm_indices29")
+         arm_delta_action_14 = actions[:, :arm_dim]
+         default_joint_pos = self._source_default_joint_pos.expand(self.num_envs, -1)
+         policy_arm_target_14 = default_joint_pos[:, policy_arm_indices29] + self.cfg.action_scale * arm_delta_action_14
+ 
+-        if self.cfg.amo.use_rule_based_cmd:
+-            c_amo_user_7 = self._build_rule_based_amo_command_targets()
+-            cmd_norm_7 = self._encode_amo_command_targets(c_amo_user_7)
+-        else:
+-            cmd_norm_7 = torch.clamp(actions[:, arm_dim : arm_dim + 7], -1.0, 1.0)
+-            c_amo_user_7 = self._decode_amo_command_targets(cmd_norm_7)
++        policy_cmd_norm_7 = actions[:, arm_dim : arm_dim + command_dim]
++        c_amo_user_7 = self._decode_amo_command_targets(policy_cmd_norm_7)
++        cmd_norm_7 = self._encode_amo_command_targets(c_amo_user_7)
+ 
+         self.amo_cmd_norm_7[:] = cmd_norm_7
+         self.amo_cmd_decoded_7[:] = c_amo_user_7
+@@ -884,7 +843,7 @@ class CarryBoxEnv(DirectRLEnv):
+         _, critic_proprio = self._get_proprio_observations(add_actor_noise=False)
+         _, task_obs_critic = self._get_task_observations()
+         critic_obs = torch.cat((critic_proprio, task_obs_critic), dim=-1)
+-        if critic_obs.shape[-1] != 126:
++        if critic_obs.shape[-1] != self.cfg.state_space:
+             raise RuntimeError(f"Unexpected critic observation size: {critic_obs.shape[-1]}")
+         return critic_obs
+ 
+@@ -926,13 +885,13 @@ class CarryBoxEnv(DirectRLEnv):
+         actor_proprio, critic_proprio = self._get_proprio_observations()
+         task_obs_actor, task_obs_critic = self._get_task_observations()
+         actor_step_obs = torch.cat((actor_proprio, task_obs_actor), dim=-1)
+-        if actor_step_obs.shape[-1] != 123:
++        if actor_step_obs.shape[-1] != self._actor_step_obs_dim:
+             raise RuntimeError(f"Unexpected actor one-step observation size: {actor_step_obs.shape[-1]}")
+         self._obs_history = torch.cat((self._obs_history[:, 1:], actor_step_obs.unsqueeze(1)), dim=1)
+         policy_obs = self._obs_history.reshape(self.num_envs, -1)
+ 
+         critic_obs = torch.cat((critic_proprio, task_obs_critic), dim=-1)
+-        if critic_obs.shape[-1] != 126:
++        if critic_obs.shape[-1] != self.cfg.state_space:
+             raise RuntimeError(f"Unexpected critic observation size: {critic_obs.shape[-1]}")
+         return {"policy": self._clip_obs(policy_obs), "critic": self._clip_obs(critic_obs)}
+ 
+diff --git a/src/phys_hsi_carrybox_lab/envs/carrybox_env_cfg.py b/src/phys_hsi_carrybox_lab/envs/carrybox_env_cfg.py
+index 0fe01e5..e564f69 100644
+--- a/src/phys_hsi_carrybox_lab/envs/carrybox_env_cfg.py
++++ b/src/phys_hsi_carrybox_lab/envs/carrybox_env_cfg.py
+@@ -196,33 +196,20 @@ class CarryBoxAMOCfg:
+     gait_frequency = 1.3
+     in_place_vx_threshold = 0.1
+     torso_height_default = 0.75
++    torso_height_min = 0.15
+     ang_vel_scale = 0.25
+     dof_vel_scale = 0.05
+ 
+-    use_rule_based_cmd = False
+-    rule_loco_vx = 0.5
+-    rule_loco_height = 0.75
+-    rule_loco_pitch = 0.0
+-    rule_pickup_vx = 0.0
+-    rule_pickup_height = 0.43
+-    rule_pickup_pitch = 0.0
+-    rule_carry_vx = 0.5
+-    rule_carry_height = 0.70
+-    rule_carry_pitch = 0.0
+-    rule_putdown_vx = 0.0
+-    rule_putdown_height = 0.43
+-    rule_putdown_pitch = 0.0
+-    rule_lift_height = 0.05
+-
+     command_ranges = {
+         "vx": (0.0, 0.5),
+-        "vy": (0.0, 0.0),
++        "vy": (-0.5, 0.5),
+         "heading": (-math.pi, math.pi),
+-        "torso_height": (0.0, 0.75),
++        "torso_height": (torso_height_min, torso_height_default),
+         "torso_yaw": (-0.5, 0.5),
+-        "torso_pitch": (0.0, 1.57),
++        "torso_pitch": (0.0, 1.0),
+         "torso_roll": (-0.25, 0.25),
+     }
++    policy_command_action_names = ("vx", "vy", "heading", "height", "torso_yaw", "torso_pitch", "torso_roll")
+ 
+     amo23_joint_names = (
+         "left_hip_pitch_joint",
+@@ -526,6 +513,7 @@ def sync_carrybox_mode_cfg(cfg: CarryBoxEnvCfg) -> CarryBoxEnvCfg:
+         cfg.delay = True
+         cfg.target_speed_loco = float(cfg.baseline_target_speed_loco)
+         cfg.target_speed_carry = float(cfg.baseline_target_speed_carry)
++        cfg.num_prev_action_obs = int(cfg.baseline_num_actions)
+     else:
+         cfg.action_space = int(cfg.amo_num_actions)
+         cfg.decimation = int(cfg.amo.control_decimation)
+@@ -541,14 +529,15 @@ def sync_carrybox_mode_cfg(cfg: CarryBoxEnvCfg) -> CarryBoxEnvCfg:
+         cfg.randomize_kd = bool(cfg.amo_randomize_kd)
+         cfg.randomize_initial_joint_pos = bool(cfg.amo_randomize_initial_joint_pos)
+         cfg.delay = bool(cfg.amo_delay)
+-        cfg.target_speed_loco = float(cfg.amo.rule_loco_vx)
+-        cfg.target_speed_carry = float(cfg.amo.rule_carry_vx)
++        cfg.target_speed_loco = 0.85
++        cfg.target_speed_carry = 0.85
++        cfg.num_prev_action_obs = len(cfg.amo.policy_arm_joint_names) + len(cfg.amo.policy_command_action_names)
+ 
+     cfg.sim.render_interval = cfg.decimation
+     cfg.contact_sensor.update_period = cfg.sim.dt
+     cfg.amp_observation_space = _amp_one_step_observation_size(int(cfg.amp_len))
+-    cfg.observation_space = 738
+-    cfg.state_space = 126
++    cfg.observation_space = 6 * (94 + int(cfg.num_prev_action_obs))
++    cfg.state_space = 97 + int(cfg.num_prev_action_obs)
+     return cfg
+ 
+ 
+@@ -581,7 +570,7 @@ class CarryBoxTrainCfg:
+     experiment_name = "amp_carrybox"
+     run_name = "carrybox_coef0.25"
+     log_dir = "logs/amp_carrybox"
+-    save_interval = 500
++    save_interval = 1000
+     console_log = True
+     silent_mode = False
+ 
+diff --git a/src/phys_hsi_carrybox_lab/source_rl.py b/src/phys_hsi_carrybox_lab/source_rl.py
+index 2662646..4b7dc8c 100644
+--- a/src/phys_hsi_carrybox_lab/source_rl.py
++++ b/src/phys_hsi_carrybox_lab/source_rl.py
+@@ -11,7 +11,7 @@ from pathlib import Path
+ 
+ import torch
+ 
+-from .assets import VENDORED_RSL_RL_ROOT
++from .assets import PROJECT_ROOT, VENDORED_RSL_RL_ROOT
+ 
+ 
+ def _path_is_relative_to(path: Path, parent: Path) -> bool:
+@@ -188,8 +188,22 @@ def source_train_cfg(train_cfg, env_cfg) -> dict:
+     }
+ 
+ 
+-def source_log_dir(train_cfg) -> str:
++def _format_iteration_count(iterations: int) -> str:
++    if iterations % 1000 == 0:
++        return f"{iterations // 1000}k"
++    return str(iterations)
++
++
++def source_log_dir(train_cfg, env_cfg=None, max_iterations: int | None = None, suffix: str | None = None) -> str:
+     from datetime import datetime
+ 
+-    run_name = datetime.now().strftime("%b%d_%H-%M-%S") + f"_{train_cfg.run_name}"
+-    return str(Path(train_cfg.log_dir).resolve() / run_name)
++    timestamp = datetime.now().strftime("%b%d_%H-%M-%S")
++    if env_cfg is None:
++        run_name = f"{timestamp}_{train_cfg.run_name}"
++        return str(Path(train_cfg.log_dir).resolve() / run_name)
++
++    iteration_label = _format_iteration_count(int(max_iterations or train_cfg.max_iterations))
++    run_name = f"{timestamp}_{env_cfg.mode}_{env_cfg.scene.num_envs}_{iteration_label}"
++    if suffix:
++        run_name += f"_{suffix}"
++    return str((PROJECT_ROOT / "logs" / f"{env_cfg.mode}_train" / run_name).resolve())
+diff --git a/vendor/rsl_rl/rsl_rl/runners/him_on_policy_runner.py b/vendor/rsl_rl/rsl_rl/runners/him_on_policy_runner.py
+index 744ada0..298b0e0 100644
+--- a/vendor/rsl_rl/rsl_rl/runners/him_on_policy_runner.py
++++ b/vendor/rsl_rl/rsl_rl/runners/him_on_policy_runner.py
+@@ -101,6 +101,14 @@ class HIMOnPolicyRunner:
+         self.git_status_repos = [rsl_rl.__file__]
+ 
+         _, _ = self.env.reset()
++
++    def _checkpoint_dir(self):
++        return os.path.join(self.log_dir, "ckpt")
++
++    def _checkpoint_path(self, iteration):
++        checkpoint_dir = self._checkpoint_dir()
++        os.makedirs(checkpoint_dir, exist_ok=True)
++        return os.path.join(checkpoint_dir, 'model_{}.pt'.format(iteration))
+     
+     def learn(self, num_learning_iterations, init_at_random_ep_len=False):
+         # initialize writer
+@@ -194,8 +202,8 @@ class HIMOnPolicyRunner:
+             learn_time = stop - start
+             if self.log_dir is not None:
+                 self.log(locals())
+-            if it % self.save_interval == 0:
+-                self.save(os.path.join(self.log_dir, 'model_{}.pt'.format(it)))
++            if self.log_dir is not None and it % self.save_interval == 0:
++                self.save(self._checkpoint_path(it))
+             ep_infos.clear()
+             if it == start_iter:
+                 # obtain all the diff files
+@@ -206,7 +214,8 @@ class HIMOnPolicyRunner:
+                         self.writer.save_file(path)
+             self.current_learning_iteration = it
+         
+-        self.save(os.path.join(self.log_dir, 'model_{}.pt'.format(self.current_learning_iteration)))
++        if self.log_dir is not None:
++            self.save(self._checkpoint_path(self.current_learning_iteration))
+ 
+     def log(self, locs, width=80, pad=35):
+         self.tot_timesteps += self.num_steps_per_env * self.env.num_envs

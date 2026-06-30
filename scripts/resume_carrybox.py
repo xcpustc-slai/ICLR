@@ -24,8 +24,10 @@ parser.add_argument("--checkpoint", type=str, required=True, help="Checkpoint to
 parser.add_argument("--num_envs", type=int, default=None)
 parser.add_argument("--total_iterations", type=int, default=10000, help="Absolute target iteration after resume.")
 parser.add_argument("--extra_iterations", type=int, default=None, help="Override target_iterations with an explicit count.")
+parser.add_argument("--save_interval", type=int, default=None)
 parser.add_argument("--mode", choices=("baseline", "amo"), default="amo")
 parser.add_argument("--amp_len", type=int, choices=(17, 29), default=29)
+parser.add_argument("--pickup_only", action="store_true", help="Resume with the pickup-only reset/reward configuration.")
 parser.add_argument("--log_dir", type=str, default=None, help="New log directory for the resumed run.")
 parser.add_argument("--no_load_optimizer", action="store_true", help="Load only model weights, not optimizer state.")
 parser.add_argument("--no_init_random_ep_len", action="store_true", help="Do not randomize episode lengths at resume startup.")
@@ -123,6 +125,7 @@ def _print_startup_banner(
     print(f"device: {env_cfg.sim.device}", flush=True)
     print(f"seed: {train_cfg.seed}", flush=True)
     print(f"mode: {env_cfg.mode}", flush=True)
+    print(f"pickup_only: {env_cfg.pickup_only}", flush=True)
     print(f"action_dim: {env_cfg.action_space}", flush=True)
     print(f"robot_dof_dim: {env_cfg.num_dofs}", flush=True)
     print(f"obs_dim: {env_cfg.observation_space}", flush=True)
@@ -139,6 +142,7 @@ def _print_startup_banner(
     print(f"target_speed_carry: {env_cfg.target_speed_carry}", flush=True)
     print(f"num_envs: {num_envs}", flush=True)
     print(f"num_steps_per_env: {num_steps}", flush=True)
+    print(f"save_interval: {train_cfg.save_interval}", flush=True)
     print(f"samples_per_iteration: {num_envs * num_steps}", flush=True)
     print(f"planned_resume_samples: {num_envs * num_steps * extra_iterations}", flush=True)
     print("=" * 80, flush=True)
@@ -156,6 +160,7 @@ def main() -> None:
     env_cfg.seed = train_cfg.seed
     env_cfg.mode = args_cli.mode
     env_cfg.amp_len = args_cli.amp_len
+    env_cfg.pickup_only = bool(args_cli.pickup_only)
     sync_carrybox_mode_cfg(env_cfg)
     if checkpoint_info["action_dim"] is not None and checkpoint_info["action_dim"] != env_cfg.action_space:
         raise ValueError(
@@ -165,6 +170,8 @@ def main() -> None:
         )
     if args_cli.device is not None:
         env_cfg.sim.device = args_cli.device
+    if args_cli.save_interval is not None:
+        train_cfg.save_interval = int(args_cli.save_interval)
 
     resume_iteration = int(checkpoint_info["iteration"])
     if args_cli.extra_iterations is None:

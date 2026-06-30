@@ -301,6 +301,8 @@ class CarryBoxEnv(DirectRLEnv):
             "dof_pos_limits",
             "dof_vel",
             "dof_vel_limits",
+            "pickup_height_cmd_task",
+            "pickup_pitch_cmd_task",
             "pickup_pose_task",
             "relocation_task",
             "standup_task",
@@ -653,10 +655,10 @@ class CarryBoxEnv(DirectRLEnv):
 
     def _pickup_pose_shaping(
         self, state: dict[str, torch.Tensor], hands: torch.Tensor
-    ) -> tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         zeros = torch.zeros(self.num_envs, dtype=torch.float32, device=self.device)
         if not self.amo_enabled:
-            return zeros, zeros
+            return zeros, zeros, zeros, zeros
 
         near_box = state["robot2object_dist"] < self.cfg.thresh_robot2object
         not_lifted = state["box_carry_height"] < self.cfg.pickup_lifted_height
@@ -711,12 +713,16 @@ class CarryBoxEnv(DirectRLEnv):
         )
         pitch_hint = pitch_need * (1.0 - torch.exp(-3.0 * pitch_norm))
 
+        height_cue = torch.clamp(height_drop_norm / max(float(self.cfg.pickup_height_cue_norm), 1e-6), 0.0, 1.0)
+        pitch_cue = torch.clamp(pitch_norm / max(float(self.cfg.pickup_pitch_cue_norm), 1e-6), 0.0, 1.0)
         pickup_pose = active * (0.70 * grasp_reward + 0.20 * height_hint + 0.10 * pitch_hint)
+        pickup_height_cmd = active * height_cue
+        pickup_pitch_cmd = active * pitch_cue
 
         height_low = torch.relu(float(self.cfg.pickup_height_floor) - height) / height_range
         pitch_high = torch.relu(pitch - float(self.cfg.pickup_pitch_ceiling)) / pitch_range
         posture_limit_cost = active * (torch.square(height_low) + torch.square(pitch_high))
-        return pickup_pose, posture_limit_cost
+        return pickup_pose, posture_limit_cost, pickup_height_cmd, pickup_pitch_cmd
 
     def _build_amo_joint_pos_target(self, actions: torch.Tensor) -> torch.Tensor:
         if self.amo_controller is None:
@@ -1059,7 +1065,7 @@ class CarryBoxEnv(DirectRLEnv):
         carryup = 0.7 * hand_reward + 2.0 * lift_reward
         carryup = torch.where(state["robot2object_dist"] > self.cfg.thresh_robot2object, torch.zeros_like(carryup), carryup)
         carryup = torch.where(state["object2goal_dist_xyz"] < self.cfg.thresh_object2goal, torch.full_like(carryup, 2.7), carryup)
-        pickup_pose, amo_posture_limit_cost = self._pickup_pose_shaping(state, hands)
+        pickup_pose, amo_posture_limit_cost, pickup_height_cmd, pickup_pitch_cmd = self._pickup_pose_shaping(state, hands)
 
         relocation = 0.5 * self._heading_reward(state["heading"], state["root_pos"][:, :2], state["goal_pos"][:, :2])
         goal_speed = torch.exp(-5.0 * torch.square(self.cfg.target_speed_carry - speed_goal))
@@ -1109,6 +1115,8 @@ class CarryBoxEnv(DirectRLEnv):
             "walk_task": self.cfg.reward_walk * walk * dt,
             "carryup_task": self.cfg.reward_carryup * carryup * dt,
             "pickup_pose_task": self.cfg.reward_pickup_pose * pickup_pose * dt,
+            "pickup_height_cmd_task": self.cfg.reward_pickup_height_cmd * pickup_height_cmd * dt,
+            "pickup_pitch_cmd_task": self.cfg.reward_pickup_pitch_cmd * pickup_pitch_cmd * dt,
             "relocation_task": self.cfg.reward_relocation * relocation * dt,
             "standup_task": self.cfg.reward_standup * standup * dt,
             "action_rate": self.cfg.reward_action_rate * torch.sum(torch.square(action_rate_delta), dim=-1) * dt,
@@ -1143,6 +1151,8 @@ class CarryBoxEnv(DirectRLEnv):
             self.extras["log"]["amo_cmd_torso_pitch"] = self.amo_cmd_decoded_7[:, 5].mean()
             self.extras["log"]["amo_cmd_rate_cost"] = amo_cmd_rate_cost.mean()
             self.extras["log"]["pickup_pose"] = pickup_pose.mean()
+            self.extras["log"]["pickup_height_cmd"] = pickup_height_cmd.mean()
+            self.extras["log"]["pickup_pitch_cmd"] = pickup_pitch_cmd.mean()
             self._amo_target_cache_valid = False
         return reward
 
@@ -1491,6 +1501,35 @@ class CarryBoxEnv(DirectRLEnv):
         platform_state[:, 3:7] = torch.tensor((1.0, 0.0, 0.0, 0.0), dtype=torch.float32, device=self.device)
         platform_state[:, 7:] = 0.0
 
+        if self.cfg.pickup_only:
+            root_pos = self.robot.data.root_pos_w[env_ids]
+            root_quat = self.robot.data.root_quat_w[env_ids]
+            forward_local = torch.zeros((len(env_ids), 3), dtype=torch.float32, device=self.device)
+            lateral_local = torch.zeros_like(forward_local)
+            forward_local[:, 0] = 1.0
+            lateral_local[:, 1] = 1.0
+            forward = math_utils.quat_apply(root_quat, forward_local)
+            lateral = math_utils.quat_apply(root_quat, lateral_local)
+            lateral_offset = self._rand(
+                -float(self.cfg.pickup_only_box_lateral_range),
+                float(self.cfg.pickup_only_box_lateral_range),
+                (len(env_ids), 1),
+            )
+            box_xy = (
+                root_pos[:, :2]
+                + forward[:, :2] * float(self.cfg.pickup_only_box_distance)
+                + lateral[:, :2] * lateral_offset
+            )
+            box_half_height = self._box_size[env_ids, 2:3] * 0.5
+            box_state[:, :3] = torch.cat((box_xy, box_half_height + 0.01), dim=-1)
+            yaw = self._rand(-0.25, 0.25, (len(env_ids),))
+            box_state[:, 3:7] = math_utils.quat_from_angle_axis(yaw, self._z_axis.expand(len(env_ids), -1))
+            platform_state[:, :3] = box_state[:, :3]
+            platform_state[:, 2] -= box_half_height.squeeze(-1) + PLATFORM_HEIGHT * 0.5
+            self.box.write_root_state_to_sim(box_state, env_ids)
+            self.platform.write_root_state_to_sim(platform_state, env_ids)
+            return
+
         random_chunks = [self._reset_default_env_ids]
         random_chunks += [self._reset_ref_env_ids[s] for s in ("loco",) if s in self._reset_ref_env_ids]
         random_env_ids = torch.cat(random_chunks) if sum(len(ids) for ids in random_chunks) else torch.empty(0, dtype=torch.long, device=self.device)
@@ -1536,6 +1575,19 @@ class CarryBoxEnv(DirectRLEnv):
         target_state = self.target_platform.data.default_root_state[env_ids].clone()
         target_state[:, 3:7] = torch.tensor((1.0, 0.0, 0.0, 0.0), dtype=torch.float32, device=self.device)
         target_state[:, 7:] = 0.0
+
+        if self.cfg.pickup_only:
+            root_quat = self.robot.data.root_quat_w[env_ids]
+            forward_local = torch.zeros((len(env_ids), 3), dtype=torch.float32, device=self.device)
+            forward_local[:, 0] = 1.0
+            forward = math_utils.quat_apply(root_quat, forward_local)
+            goal_pos = self.box.data.root_pos_w[env_ids] + forward * float(self.cfg.pickup_only_goal_distance)
+            goal_pos[:, 2] = self._box_size[env_ids, 2] * 0.5 + PLATFORM_HEIGHT
+            self._goal_pos_w[env_ids] = goal_pos
+            target_state[:, :3] = goal_pos
+            target_state[:, 2] -= self._box_size[env_ids, 2] * 0.5 + PLATFORM_HEIGHT * 0.5
+            self.target_platform.write_root_state_to_sim(target_state, env_ids)
+            return
 
         def set_random_goals(curr_env_ids: torch.Tensor, around_robot: bool) -> None:
             local = torch.searchsorted(env_ids, curr_env_ids)

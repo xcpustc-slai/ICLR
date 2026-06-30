@@ -10,3 +10,13 @@ python scripts/play_carrybox.py --num_envs 1 --steps 100000 --real-time  --check
 # play use physhsi's script
 python ../PhysHSI-main_pure/legged_gym/legged_gym/scripts/play.py --task carrybox --resume_path /home/xcp/Documents/PhysHSI-main/legged_gym/logs/amp_carrybox/Jun12_04-54-40_carrybox_coef0.25/model_19999.pt
 python ../PhysHSI-main_pure/legged_gym/legged_gym/scripts/play.py --task carrybox --resume_path /home/xcp/workspace/d3/logs/amp_carrybox/Jun15_10-09-12_carrybox_coef0.25/model_9999.pt
+____________new for mode =amo__________
+python scripts/train_carrybox.py --mode amo --num_envs 3 --max_iterations 10000 --amp_len 29 --headless
+
+/home/xcp/workspace/ICLR/logs/amp_carrybox/Jun26_17-19-10_carrybox_coef0.25/model_7500.pt
+
+
+nohup python scripts/train_carrybox.py --mode amo --num_envs 4096 --max_iterations 10000 --headless > ./0629_2322_amo_env4096_iter10k.txt 2>&1 &
+# LAB newest
+
+python scripts/eval_carrybox.py --mode amo --pickup_only --amp_len 17 --checkpoint /home/xcp/workspace/ICLR/logs/amo_train/Jun30_00-25-49_amo_pickup_1024_150/ckpt/model_149.pt --num_envs 20 --episodes 20

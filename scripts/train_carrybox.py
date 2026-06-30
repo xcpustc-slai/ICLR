@@ -22,8 +22,14 @@ from isaaclab.app import AppLauncher
 parser = argparse.ArgumentParser(description="Train the migrated PhysHSI CarryBox task.")
 parser.add_argument("--num_envs", type=int, default=None)
 parser.add_argument("--max_iterations", type=int, default=None)
+parser.add_argument("--save_interval", type=int, default=None)
 parser.add_argument("--mode", choices=("baseline", "amo"), default="baseline")
 parser.add_argument("--amp_len", type=int, choices=(17, 29), default=29)
+parser.add_argument("--pickup_only", action="store_true", help="Start near the box and train only the pickup phase.")
+parser.add_argument("--disable_amp", action="store_true", help="Disable AMP while keeping the rest of the selected mode config.")
+parser.add_argument("--episode_length_s", type=float, default=None, help="Override episode length in seconds.")
+parser.add_argument("--pickup_rsi", action="store_true", help="Use pickUp reference-state initialization in pickup-only mode.")
+parser.add_argument("--run_suffix", type=str, default=None, help="Append a suffix to the generated log run name.")
 AppLauncher.add_app_launcher_args(parser)
 args_cli = parser.parse_args()
 
@@ -75,6 +81,9 @@ def _print_startup_banner(train_cfg: CarryBoxTrainCfg, env_cfg: CarryBoxEnvCfg, 
     print(f"device: {env_cfg.sim.device}", flush=True)
     print(f"seed: {train_cfg.seed}", flush=True)
     print(f"mode: {env_cfg.mode}", flush=True)
+    print(f"pickup_only: {env_cfg.pickup_only}", flush=True)
+    print(f"pickup_only_use_rsi: {env_cfg.pickup_only_use_rsi}", flush=True)
+    print(f"disable_amp: {env_cfg.disable_amp}", flush=True)
     print(f"action_dim: {env_cfg.action_space}", flush=True)
     print(f"robot_dof_dim: {env_cfg.num_dofs}", flush=True)
     print(f"obs_dim: {env_cfg.observation_space}", flush=True)
@@ -84,6 +93,9 @@ def _print_startup_banner(train_cfg: CarryBoxTrainCfg, env_cfg: CarryBoxEnvCfg, 
     print(f"amp_enabled: {env_cfg.use_amp}", flush=True)
     print(f"use_motionlib: {env_cfg.use_motionlib}", flush=True)
     print(f"reset_mode: {env_cfg.reset_mode}", flush=True)
+    print(f"hybrid_init_prob: {env_cfg.hybrid_init_prob}", flush=True)
+    print(f"skill_init_prob: {env_cfg.skill_init_prob}", flush=True)
+    print(f"episode_length_s: {env_cfg.episode_length_s}", flush=True)
     print(f"sim_dt: {env_cfg.sim.dt}", flush=True)
     print(f"decimation: {env_cfg.decimation}", flush=True)
     print(f"control_dt: {env_cfg.sim.dt * env_cfg.decimation}", flush=True)
@@ -92,6 +104,7 @@ def _print_startup_banner(train_cfg: CarryBoxTrainCfg, env_cfg: CarryBoxEnvCfg, 
     print(f"num_envs: {num_envs}", flush=True)
     print(f"num_steps_per_env: {num_steps}", flush=True)
     print(f"max_iterations: {max_iterations}", flush=True)
+    print(f"save_interval: {train_cfg.save_interval}", flush=True)
     print(f"samples_per_iteration: {num_envs * num_steps}", flush=True)
     print(f"planned_total_samples: {num_envs * num_steps * max_iterations}", flush=True)
     print("=" * 80, flush=True)
@@ -104,12 +117,26 @@ def main() -> None:
     env_cfg.seed = train_cfg.seed
     env_cfg.mode = args_cli.mode
     env_cfg.amp_len = args_cli.amp_len
+    env_cfg.pickup_only = bool(args_cli.pickup_only)
+    env_cfg.disable_amp = bool(args_cli.disable_amp)
+    env_cfg.pickup_only_use_rsi = bool(args_cli.pickup_rsi)
+    if args_cli.episode_length_s is not None:
+        env_cfg.pickup_only_episode_length_s = float(args_cli.episode_length_s) if env_cfg.pickup_only else 0.0
+        if not env_cfg.pickup_only:
+            env_cfg.episode_length_s = float(args_cli.episode_length_s)
     sync_carrybox_mode_cfg(env_cfg)
+    if args_cli.pickup_rsi:
+        if not env_cfg.pickup_only:
+            raise ValueError("--pickup_rsi requires --pickup_only.")
+        if not env_cfg.use_motionlib:
+            raise ValueError("--pickup_rsi requires a mode/config with use_motionlib=True.")
     if args_cli.device is not None:
         env_cfg.sim.device = args_cli.device
+    if args_cli.save_interval is not None:
+        train_cfg.save_interval = int(args_cli.save_interval)
 
     max_iterations = args_cli.max_iterations or train_cfg.max_iterations
-    log_dir = source_log_dir(train_cfg, env_cfg, max_iterations)
+    log_dir = source_log_dir(train_cfg, env_cfg, max_iterations, suffix=args_cli.run_suffix)
     _print_startup_banner(train_cfg, env_cfg, log_dir, max_iterations)
 
     env = gym.make("PhysHSI-CarryBox-Direct-v0", cfg=env_cfg)

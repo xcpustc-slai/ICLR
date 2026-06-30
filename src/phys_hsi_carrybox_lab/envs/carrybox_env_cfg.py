@@ -314,6 +314,10 @@ class CarryBoxEnvCfg(DirectRLEnvCfg):
     skill_init_prob = (0.8, 0.2, 0.2, 0.0)
     add_task_noise = True
     use_amp = True
+    disable_amp = False
+    pickup_only = False
+    pickup_only_use_rsi = False
+    pickup_only_episode_length_s = 0.0
 
     thresh_robot2object = 0.7
     thresh_robot2goal = 0.65
@@ -395,6 +399,8 @@ class CarryBoxEnvCfg(DirectRLEnvCfg):
     reward_walk = 1.0
     reward_carryup = 1.0
     reward_pickup_pose = 0.4
+    reward_pickup_height_cmd = 0.0
+    reward_pickup_pitch_cmd = 0.0
     reward_relocation = 1.0
     reward_standup = 0.2
     reward_action_rate = -0.03
@@ -409,6 +415,16 @@ class CarryBoxEnvCfg(DirectRLEnvCfg):
     soft_dof_pos_limit = 0.9
     soft_dof_vel_limit = 0.8
     soft_torque_limit = 0.95
+    pickup_only_box_distance = 0.55
+    pickup_only_box_lateral_range = 0.08
+    pickup_only_goal_distance = 1.2
+    pickup_only_reward_walk = 0.0
+    pickup_only_reward_carryup = 1.0
+    pickup_only_reward_pickup_pose = 2.0
+    pickup_only_reward_pickup_height_cmd = 1.2
+    pickup_only_reward_pickup_pitch_cmd = 0.8
+    pickup_only_reward_relocation = 0.0
+    pickup_only_reward_standup = 0.0
     pickup_lifted_height = 0.05
     pickup_grasp_margin = 0.04
     pickup_grasp_sharpness = 8.0
@@ -416,6 +432,8 @@ class CarryBoxEnvCfg(DirectRLEnvCfg):
     pickup_hand_xy_margin = 0.12
     pickup_height_hint_scale = 0.25
     pickup_pitch_hint_scale = 0.35
+    pickup_height_cue_norm = 0.45
+    pickup_pitch_cue_norm = 0.50
     pickup_height_floor = 0.25
     pickup_pitch_ceiling = 0.85
 
@@ -516,7 +534,7 @@ def sync_carrybox_mode_cfg(cfg: CarryBoxEnvCfg) -> CarryBoxEnvCfg:
         cfg.decimation = int(cfg.baseline_decimation)
         cfg.sim.dt = float(cfg.baseline_sim_dt)
         cfg.amp_len = 29
-        cfg.use_amp = True
+        cfg.use_amp = not bool(getattr(cfg, "disable_amp", False))
         cfg.use_motionlib = True
         cfg.reset_mode = "hybrid"
         cfg.randomize_actuation_offset = True
@@ -546,6 +564,26 @@ def sync_carrybox_mode_cfg(cfg: CarryBoxEnvCfg) -> CarryBoxEnvCfg:
         cfg.target_speed_loco = float(cfg.amo_target_speed_loco)
         cfg.target_speed_carry = float(cfg.amo_target_speed_carry)
         cfg.num_prev_action_obs = len(cfg.amo.policy_arm_joint_names) + len(cfg.amo.policy_command_action_names)
+
+    if bool(getattr(cfg, "pickup_only", False)):
+        pickup_episode_length = float(getattr(cfg, "pickup_only_episode_length_s", 0.0))
+        if pickup_episode_length > 0.0:
+            cfg.episode_length_s = pickup_episode_length
+        cfg.reset_mode = "default"
+        if bool(getattr(cfg, "pickup_only_use_rsi", False)):
+            if not bool(getattr(cfg, "use_motionlib", False)):
+                raise ValueError("pickup_only_use_rsi=True requires use_motionlib=True.")
+            cfg.reset_mode = "hybrid"
+            cfg.hybrid_init_prob = 1.0
+            cfg.skill_init_prob = (0.0, 1.0, 0.0, 0.0)
+        cfg.add_task_noise = False
+        cfg.reward_walk = float(cfg.pickup_only_reward_walk)
+        cfg.reward_carryup = float(cfg.pickup_only_reward_carryup)
+        cfg.reward_pickup_pose = float(cfg.pickup_only_reward_pickup_pose)
+        cfg.reward_pickup_height_cmd = float(cfg.pickup_only_reward_pickup_height_cmd)
+        cfg.reward_pickup_pitch_cmd = float(cfg.pickup_only_reward_pickup_pitch_cmd)
+        cfg.reward_relocation = float(cfg.pickup_only_reward_relocation)
+        cfg.reward_standup = float(cfg.pickup_only_reward_standup)
 
     cfg.sim.render_interval = cfg.decimation
     cfg.contact_sensor.update_period = cfg.sim.dt

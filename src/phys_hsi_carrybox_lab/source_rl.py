@@ -203,7 +203,10 @@ def source_log_dir(train_cfg, env_cfg=None, max_iterations: int | None = None, s
         return str(Path(train_cfg.log_dir).resolve() / run_name)
 
     iteration_label = _format_iteration_count(int(max_iterations or train_cfg.max_iterations))
-    run_name = f"{timestamp}_{env_cfg.mode}_{env_cfg.scene.num_envs}_{iteration_label}"
+    mode_label = env_cfg.mode
+    if getattr(env_cfg, "pickup_only", False):
+        mode_label = f"{mode_label}_pickup"
+    run_name = f"{timestamp}_{mode_label}_{env_cfg.scene.num_envs}_{iteration_label}"
     if suffix:
         run_name += f"_{suffix}"
     return str((PROJECT_ROOT / "logs" / f"{env_cfg.mode}_train" / run_name).resolve())

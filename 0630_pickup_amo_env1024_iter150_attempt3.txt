@@ -1,0 +1,5236 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/xcp/workspace/IsaacLab/apps/isaaclab.python.headless.kit
+================================================================================
+PhysHSI CarryBox Isaac Lab training
+command: scripts/train_carrybox.py --mode amo --pickup_only --num_envs 1024 --max_iterations 150 --save_interval 25 --headless
+cwd: /home/xcp/workspace/ICLR
+project_root: /home/xcp/workspace/ICLR
+source_root: /home/xcp/workspace/PhysHSI-main_pure
+vendored_rsl_rl: /home/xcp/workspace/ICLR/vendor/rsl_rl
+robot_urdf: /home/xcp/workspace/ICLR/assets/robots/g1/urdf/g1_29dof_lab.urdf
+generated_usd_dir: /home/xcp/workspace/ICLR/generated_usd/g1_29dof_lab
+log_dir: /home/xcp/workspace/ICLR/logs/amo_train/Jun30_00-25-49_amo_pickup_1024_150
+ckpt_dir: /home/xcp/workspace/ICLR/logs/amo_train/Jun30_00-25-49_amo_pickup_1024_150/ckpt
+stdout: /home/xcp/workspace/ICLR/0630_pickup_amo_env1024_iter150_attempt3.txt
+stderr: /home/xcp/workspace/ICLR/0630_pickup_amo_env1024_iter150_attempt3.txt
+device: cuda:0
+seed: 1
+mode: amo
+pickup_only: True
+action_dim: 21
+robot_dof_dim: 29
+obs_dim: 690
+privileged_obs_dim: 118
+amp_len: 29
+amp_obs_dim: 600
+amp_enabled: False
+use_motionlib: False
+reset_mode: default
+sim_dt: 0.002
+decimation: 10
+control_dt: 0.02
+target_speed_loco: 0.5
+target_speed_carry: 0.5
+num_envs: 1024
+num_steps_per_env: 100
+max_iterations: 150
+save_interval: 25
+samples_per_iteration: 102400
+planned_total_samples: 15360000
+================================================================================
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-06-30_00-25-49.log[0m
+[36m======================================================================================[0m
+
+[33m00:25:49 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 1
+	Physics step-size     : 0.002
+	Rendering step-size   : 0.02
+	Environment step-size : 0.02
+Loading user config located at: '/home/xcp/miniconda3/envs/d3/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/xcp/miniconda3/envs/d3/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260630_002546.log
+2026-06-29T16:25:46Z [76ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-06-29T16:25:46Z [410ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-06-29T16:25:46Z [416ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 570.211.01    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 4090          | Yes: 0 |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | ea6fb235.. |
+|     |                                  |        |     |            | 1         |            |
+|=============================================================================================|
+| OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 6.8.0-110-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101004 (1.21.1.4)
+| Processor: Intel(R) Core(TM) i9-14900KF
+| Bare Metal Cores: 24 | Bare Metal Logical Cores: 48
+| Available Cores:  32 
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 144669 | Free Memory: 100557
+| Total Page/Swap (MB): 30750 | Free Page/Swap: 30749
+|---------------------------------------------------------------------------------------------|
+2026-06-29T16:25:49Z [3,255ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-06-29T16:25:49Z [3,264ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.
+2026-06-29T16:25:49Z [3,318ms] [Warning] [omni.kvdb.plugin] Disabling key-value database because another kit process is locking it
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 570.211.01    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 4090          | Yes: 0 |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | ea6fb235.. |
+|     |                                  |        |     |            | 1         |            |
+|=============================================================================================|
+| OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 6.8.0-110-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101004 (1.21.1.4)
+| Processor: Intel(R) Core(TM) i9-14900KF
+| Bare Metal Cores: 24 [33m00:26:05 [interactive_scene.py] WARNING: Collision filtering can only be automatically enabled when replicate_physics=True and using GPU simulation. Please call scene.filter_collisions(global_prim_paths) to filter collisions across environments.[0m
+[INFO]: Time taken for scene creation : 15.480015 seconds
+[INFO]: Time taken for scene creation : 15.588623 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 1024
+	Environment spacing   : 10.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : ['/World/ground']
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 8.100871 seconds
+[INFO]: Completed setting up the environment...
+Actor MLP: Sequential(
+  (0): Linear(in_features=690, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=256, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=256, out_features=21, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=118, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=256, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=256, out_features=1, bias=True)
+)
+################################################################################
+                       [1m Learning iteration 0/150 [0m                       
+
+                       Computation: 7143 steps/s (collection: 13.980s, learning 0.355s)
+                       Mean reward: -4.77
+               Mean episode length: 62.16
+---loss--
+               Value function loss: 0.8547
+                    Surrogate loss: 0.0264
+             Mean action noise std: 0.99
+---reward--
+walk_task: 0.0000
+carryup_task: 0.0495
+pickup_pose_task: 0.0233
+pickup_height_cmd_task: 0.0412
+pickup_pitch_cmd_task: 0.0273
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.0735
+amo_cmd_rate: -0.0038
+amo_posture_limits: -0.0000
+dof_acc: -0.0428
+dof_pos_limits: -0.0410
+dof_vel: -0.0180
+dof_vel_limits: -0.0000
+torque_limits: -0.3283
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 102400
+                    Iteration time: 14.34s
+                        Total time: 14.34s
+                               ETA: 2150.3s
+
+Storing git diff for 'ICLR' in: /home/xcp/workspace/ICLR/logs/amo_train/Jun30_00-25-49_amo_pickup_1024_150/git/ICLR.diff
+################################################################################
+                       [1m Learning iteration 1/150 [0m                       
+
+                       Computation: 6929 steps/s (collection: 14.427s, learning 0.349s)
+                       Mean reward: -12.05
+               Mean episode length: 160.05
+---loss--
+               Value function loss: 0.9632
+                    Surrogate loss: 0.0109
+             Mean action noise std: 0.99
+---reward--
+walk_task: 0.0000
+carryup_task: 0.1033
+pickup_pose_task: 0.0436
+pickup_height_cmd_task: 0.0775
+pickup_pitch_cmd_task: 0.0521
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.1613
+amo_cmd_rate: -0.0085
+amo_posture_limits: -0.0001
+dof_acc: -0.0942
+dof_pos_limits: -0.0846
+dof_vel: -0.0389
+dof_vel_limits: -0.0000
+torque_limits: -0.6603
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 204800
+                    Iteration time: 14.78s
+                        Total time: 29.11s
+                               ETA: 2168.8s
+
+################################################################################
+                       [1m Learning iteration 2/150 [0m                       
+
+                       Computation: 6833 steps/s (collection: 14.650s, learning 0.335s)
+                       Mean reward: -21.11
+               Mean episode length: 259.82
+---loss--
+               Value function loss: 0.9507
+                    Surrogate loss: 0.0111
+             Mean action noise std: 0.98
+---reward--
+walk_task: 0.0000
+carryup_task: 0.1394
+pickup_pose_task: 0.0570
+pickup_height_cmd_task: 0.0999
+pickup_pitch_cmd_task: 0.0635
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.2487
+amo_cmd_rate: -0.0130
+amo_posture_limits: -0.0001
+dof_acc: -0.1426
+dof_pos_limits: -0.1344
+dof_vel: -0.0585
+dof_vel_limits: -0.0001
+torque_limits: -0.9651
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 307200
+                    Iteration time: 14.98s
+                        Total time: 44.10s
+                               ETA: 2175.4s
+
+################################################################################
+                       [1m Learning iteration 3/150 [0m                       
+
+                       Computation: 7446 steps/s (collection: 13.432s, learning 0.320s)
+                       Mean reward: -26.14
+               Mean episode length: 329.84
+---loss--
+               Value function loss: 0.9078
+                    Surrogate loss: 0.0111
+             Mean action noise std: 0.97
+---reward--
+walk_task: 0.0000
+carryup_task: 0.1780
+pickup_pose_task: 0.0702
+pickup_height_cmd_task: 0.1238
+pickup_pitch_cmd_task: 0.0784
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3500
+amo_cmd_rate: -0.0187
+amo_posture_limits: -0.0001
+dof_acc: -0.2054
+dof_pos_limits: -0.1860
+dof_vel: -0.0843
+dof_vel_limits: -0.0001
+torque_limits: -1.3817
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 409600
+                    Iteration time: 13.75s
+                        Total time: 57.85s
+                               ETA: 2125.9s
+
+################################################################################
+                       [1m Learning iteration 4/150 [0m                       
+
+                       Computation: 7131 steps/s (collection: 14.031s, learning 0.327s)
+                       Mean reward: -35.80
+               Mean episode length: 430.12
+---loss--
+               Value function loss: 0.7778
+                    Surrogate loss: 0.0125
+             Mean action noise std: 0.96
+---reward--
+walk_task: 0.0000
+carryup_task: 0.1548
+pickup_pose_task: 0.0624
+pickup_height_cmd_task: 0.1103
+pickup_pitch_cmd_task: 0.0692
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4028
+amo_cmd_rate: -0.0216
+amo_posture_limits: -0.0001
+dof_acc: -0.2327
+dof_pos_limits: -0.2172
+dof_vel: -0.0944
+dof_vel_limits: -0.0001
+torque_limits: -1.5058
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 512000
+                    Iteration time: 14.36s
+                        Total time: 72.21s
+                               ETA: 2108.4s
+
+################################################################################
+                       [1m Learning iteration 5/150 [0m                       
+
+                       Computation: 7022 steps/s (collection: 14.247s, learning 0.336s)
+                       Mean reward: -43.12
+               Mean episode length: 529.88
+---loss--
+               Value function loss: 0.6544
+                    Surrogate loss: 0.0182
+             Mean action noise std: 0.96
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2298
+pickup_pose_task: 0.0738
+pickup_height_cmd_task: 0.1309
+pickup_pitch_cmd_task: 0.0822
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4903
+amo_cmd_rate: -0.0264
+amo_posture_limits: -0.0001
+dof_acc: -0.2841
+dof_pos_limits: -0.2568
+dof_vel: -0.1156
+dof_vel_limits: -0.0001
+torque_limits: -1.8347
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 614400
+                    Iteration time: 14.58s
+                        Total time: 86.79s
+                               ETA: 2097.4s
+
+################################################################################
+                       [1m Learning iteration 6/150 [0m                       
+
+                       Computation: 7489 steps/s (collection: 13.374s, learning 0.300s)
+                       Mean reward: -50.18
+               Mean episode length: 615.05
+---loss--
+               Value function loss: 0.5828
+                    Surrogate loss: 0.0132
+             Mean action noise std: 0.95
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2397
+pickup_pose_task: 0.0835
+pickup_height_cmd_task: 0.1456
+pickup_pitch_cmd_task: 0.0911
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.5598
+amo_cmd_rate: -0.0304
+amo_posture_limits: -0.0001
+dof_acc: -0.3253
+dof_pos_limits: -0.2838
+dof_vel: -0.1321
+dof_vel_limits: -0.0001
+torque_limits: -2.0188
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 716800
+                    Iteration time: 13.67s
+                        Total time: 100.46s
+                               ETA: 2066.6s
+
+################################################################################
+                       [1m Learning iteration 7/150 [0m                       
+
+                       Computation: 7049 steps/s (collection: 14.178s, learning 0.348s)
+                       Mean reward: -58.73
+               Mean episode length: 721.05
+---loss--
+               Value function loss: 0.4407
+                    Surrogate loss: 0.0133
+             Mean action noise std: 0.94
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2488
+pickup_pose_task: 0.0828
+pickup_height_cmd_task: 0.1466
+pickup_pitch_cmd_task: 0.0907
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6113
+amo_cmd_rate: -0.0333
+amo_posture_limits: -0.0001
+dof_acc: -0.3543
+dof_pos_limits: -0.3382
+dof_vel: -0.1425
+dof_vel_limits: -0.0001
+torque_limits: -2.1990
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 819200
+                    Iteration time: 14.53s
+                        Total time: 114.99s
+                               ETA: 2055.4s
+
+################################################################################
+                       [1m Learning iteration 8/150 [0m                       
+
+                       Computation: 7024 steps/s (collection: 14.234s, learning 0.344s)
+                       Mean reward: -65.94
+               Mean episode length: 799.61
+---loss--
+               Value function loss: 0.3685
+                    Surrogate loss: 0.0163
+             Mean action noise std: 0.93
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2263
+pickup_pose_task: 0.0727
+pickup_height_cmd_task: 0.1309
+pickup_pitch_cmd_task: 0.0807
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6842
+amo_cmd_rate: -0.0377
+amo_posture_limits: -0.0001
+dof_acc: -0.3994
+dof_pos_limits: -0.3616
+dof_vel: -0.1607
+dof_vel_limits: -0.0001
+torque_limits: -2.3878
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 921600
+                    Iteration time: 14.58s
+                        Total time: 129.57s
+                               ETA: 2044.3s
+
+################################################################################
+                       [1m Learning iteration 9/150 [0m                       
+
+                       Computation: 7649 steps/s (collection: 13.055s, learning 0.332s)
+                       Mean reward: -72.18
+               Mean episode length: 877.63
+---loss--
+               Value function loss: 0.2937
+                    Surrogate loss: 0.0126
+             Mean action noise std: 0.92
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2426
+pickup_pose_task: 0.0860
+pickup_height_cmd_task: 0.1477
+pickup_pitch_cmd_task: 0.0918
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.7506
+amo_cmd_rate: -0.0418
+amo_posture_limits: -0.0001
+dof_acc: -0.4325
+dof_pos_limits: -0.3922
+dof_vel: -0.1748
+dof_vel_limits: -0.0001
+torque_limits: -2.5779
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 1024000
+                    Iteration time: 13.39s
+                        Total time: 142.95s
+                               ETA: 2015.6s
+
+################################################################################
+                      [1m Learning iteration 10/150 [0m                       
+
+                       Computation: 7082 steps/s (collection: 14.130s, learning 0.328s)
+                       Mean reward: -70.30
+               Mean episode length: 904.27
+---loss--
+               Value function loss: 0.2268
+                    Surrogate loss: 0.0095
+             Mean action noise std: 0.91
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2846
+pickup_pose_task: 0.0909
+pickup_height_cmd_task: 0.1611
+pickup_pitch_cmd_task: 0.1004
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.7793
+amo_cmd_rate: -0.0435
+amo_posture_limits: -0.0001
+dof_acc: -0.4500
+dof_pos_limits: -0.3920
+dof_vel: -0.1811
+dof_vel_limits: -0.0001
+torque_limits: -2.6129
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 1126400
+                    Iteration time: 14.46s
+                        Total time: 157.41s
+                               ETA: 2003.4s
+
+################################################################################
+                      [1m Learning iteration 11/150 [0m                       
+
+                       Computation: 7055 steps/s (collection: 14.188s, learning 0.326s)
+                       Mean reward: -71.16
+               Mean episode length: 934.42
+---loss--
+               Value function loss: 0.1748
+                    Surrogate loss: 0.0092
+             Mean action noise std: 0.90
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2355
+pickup_pose_task: 0.0770
+pickup_height_cmd_task: 0.1349
+pickup_pitch_cmd_task: 0.0845
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.7679
+amo_cmd_rate: -0.0439
+amo_posture_limits: -0.0001
+dof_acc: -0.4487
+dof_pos_limits: -0.3616
+dof_vel: -0.1808
+dof_vel_limits: -0.0001
+torque_limits: -2.5162
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 1228800
+                    Iteration time: 14.51s
+                        Total time: 171.93s
+                               ETA: 1991.5s
+
+################################################################################
+                      [1m Learning iteration 12/150 [0m                       
+
+                       Computation: 7463 steps/s (collection: 13.405s, learning 0.315s)
+                       Mean reward: -71.95
+               Mean episode length: 967.33
+---loss--
+               Value function loss: 0.1330
+                    Surrogate loss: 0.0039
+             Mean action noise std: 0.89
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2012
+pickup_pose_task: 0.0683
+pickup_height_cmd_task: 0.1213
+pickup_pitch_cmd_task: 0.0743
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.7583
+amo_cmd_rate: -0.0435
+amo_posture_limits: -0.0001
+dof_acc: -0.4422
+dof_pos_limits: -0.3626
+dof_vel: -0.1778
+dof_vel_limits: -0.0001
+torque_limits: -2.4390
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 1331200
+                    Iteration time: 13.72s
+                        Total time: 185.65s
+                               ETA: 1970.7s
+
+################################################################################
+                      [1m Learning iteration 13/150 [0m                       
+
+                       Computation: 7070 steps/s (collection: 14.152s, learning 0.331s)
+                       Mean reward: -65.39
+               Mean episode length: 908.73
+---loss--
+               Value function loss: 0.1033
+                    Surrogate loss: 0.0038
+             Mean action noise std: 0.88
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2042
+pickup_pose_task: 0.0791
+pickup_height_cmd_task: 0.1396
+pickup_pitch_cmd_task: 0.0857
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.7461
+amo_cmd_rate: -0.0436
+amo_posture_limits: -0.0001
+dof_acc: -0.4370
+dof_pos_limits: -0.3426
+dof_vel: -0.1760
+dof_vel_limits: -0.0001
+torque_limits: -2.3183
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 1433600
+                    Iteration time: 14.48s
+                        Total time: 200.13s
+                               ETA: 1958.4s
+
+################################################################################
+                      [1m Learning iteration 14/150 [0m                       
+
+                       Computation: 7076 steps/s (collection: 14.141s, learning 0.330s)
+                       Mean reward: -61.92
+               Mean episode length: 902.31
+---loss--
+               Value function loss: 0.0835
+                    Surrogate loss: 0.0016
+             Mean action noise std: 0.87
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2672
+pickup_pose_task: 0.0846
+pickup_height_cmd_task: 0.1428
+pickup_pitch_cmd_task: 0.0878
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.7331
+amo_cmd_rate: -0.0436
+amo_posture_limits: -0.0001
+dof_acc: -0.4320
+dof_pos_limits: -0.3410
+dof_vel: -0.1733
+dof_vel_limits: -0.0001
+torque_limits: -2.2016
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 1536000
+                    Iteration time: 14.47s
+                        Total time: 214.60s
+                               ETA: 1945.7s
+
+################################################################################
+                      [1m Learning iteration 15/150 [0m                       
+
+                       Computation: 7418 steps/s (collection: 13.507s, learning 0.297s)
+                       Mean reward: -60.56
+               Mean episode length: 923.13
+---loss--
+               Value function loss: 0.0915
+                    Surrogate loss: 0.0055
+             Mean action noise std: 0.87
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2434
+pickup_pose_task: 0.0771
+pickup_height_cmd_task: 0.1348
+pickup_pitch_cmd_task: 0.0813
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.7205
+amo_cmd_rate: -0.0438
+amo_posture_limits: -0.0001
+dof_acc: -0.4259
+dof_pos_limits: -0.2947
+dof_vel: -0.1708
+dof_vel_limits: -0.0001
+torque_limits: -2.0913
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 1638400
+                    Iteration time: 13.80s
+                        Total time: 228.40s
+                               ETA: 1927.2s
+
+################################################################################
+                      [1m Learning iteration 16/150 [0m                       
+
+                       Computation: 7009 steps/s (collection: 14.269s, learning 0.340s)
+                       Mean reward: -58.63
+               Mean episode length: 951.65
+---loss--
+               Value function loss: 0.0676
+                    Surrogate loss: -0.0029
+             Mean action noise std: 0.86
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2487
+pickup_pose_task: 0.0736
+pickup_height_cmd_task: 0.1299
+pickup_pitch_cmd_task: 0.0810
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.7127
+amo_cmd_rate: -0.0437
+amo_posture_limits: -0.0001
+dof_acc: -0.4216
+dof_pos_limits: -0.2763
+dof_vel: -0.1687
+dof_vel_limits: -0.0001
+torque_limits: -1.9974
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 1740800
+                    Iteration time: 14.61s
+                        Total time: 243.01s
+                               ETA: 1915.5s
+
+################################################################################
+                      [1m Learning iteration 17/150 [0m                       
+
+                       Computation: 7156 steps/s (collection: 13.999s, learning 0.310s)
+                       Mean reward: -59.46
+               Mean episode length: 963.81
+---loss--
+               Value function loss: 0.0521
+                    Surrogate loss: -0.0069
+             Mean action noise std: 0.85
+---reward--
+walk_task: 0.0000
+carryup_task: 0.1941
+pickup_pose_task: 0.0667
+pickup_height_cmd_task: 0.1169
+pickup_pitch_cmd_task: 0.0733
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6984
+amo_cmd_rate: -0.0434
+amo_posture_limits: -0.0001
+dof_acc: -0.4155
+dof_pos_limits: -0.2881
+dof_vel: -0.1660
+dof_vel_limits: -0.0001
+torque_limits: -1.9248
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 1843200
+                    Iteration time: 14.31s
+                        Total time: 257.32s
+                               ETA: 1901.3s
+
+################################################################################
+                      [1m Learning iteration 18/150 [0m                       
+
+                       Computation: 7518 steps/s (collection: 13.282s, learning 0.338s)
+                       Mean reward: -56.78
+               Mean episode length: 971.78
+---loss--
+               Value function loss: 0.0401
+                    Surrogate loss: -0.0116
+             Mean action noise std: 0.84
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2623
+pickup_pose_task: 0.0719
+pickup_height_cmd_task: 0.1252
+pickup_pitch_cmd_task: 0.0753
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6881
+amo_cmd_rate: -0.0431
+amo_posture_limits: -0.0001
+dof_acc: -0.4107
+dof_pos_limits: -0.2657
+dof_vel: -0.1645
+dof_vel_limits: -0.0001
+torque_limits: -1.8266
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 1945600
+                    Iteration time: 13.62s
+                        Total time: 270.94s
+                               ETA: 1882.3s
+
+################################################################################
+                      [1m Learning iteration 19/150 [0m                       
+
+                       Computation: 7083 steps/s (collection: 14.114s, learning 0.343s)
+                       Mean reward: -52.08
+               Mean episode length: 921.72
+---loss--
+               Value function loss: 0.0422
+                    Surrogate loss: -0.0125
+             Mean action noise std: 0.83
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3148
+pickup_pose_task: 0.0818
+pickup_height_cmd_task: 0.1324
+pickup_pitch_cmd_task: 0.0856
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6750
+amo_cmd_rate: -0.0437
+amo_posture_limits: -0.0001
+dof_acc: -0.4021
+dof_pos_limits: -0.2615
+dof_vel: -0.1611
+dof_vel_limits: -0.0001
+torque_limits: -1.7858
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 2048000
+                    Iteration time: 14.46s
+                        Total time: 285.40s
+                               ETA: 1869.4s
+
+################################################################################
+                      [1m Learning iteration 20/150 [0m                       
+
+                       Computation: 7040 steps/s (collection: 14.201s, learning 0.344s)
+                       Mean reward: -50.56
+               Mean episode length: 948.25
+---loss--
+               Value function loss: 0.0343
+                    Surrogate loss: -0.0152
+             Mean action noise std: 0.82
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2781
+pickup_pose_task: 0.0787
+pickup_height_cmd_task: 0.1293
+pickup_pitch_cmd_task: 0.0835
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6653
+amo_cmd_rate: -0.0435
+amo_posture_limits: -0.0001
+dof_acc: -0.3996
+dof_pos_limits: -0.2355
+dof_vel: -0.1592
+dof_vel_limits: -0.0001
+torque_limits: -1.6736
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 2150400
+                    Iteration time: 14.54s
+                        Total time: 299.94s
+                               ETA: 1856.8s
+
+################################################################################
+                      [1m Learning iteration 21/150 [0m                       
+
+                       Computation: 7071 steps/s (collection: 14.181s, learning 0.299s)
+                       Mean reward: -49.65
+               Mean episode length: 958.26
+---loss--
+               Value function loss: 0.0355
+                    Surrogate loss: -0.0158
+             Mean action noise std: 0.81
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2082
+pickup_pose_task: 0.0678
+pickup_height_cmd_task: 0.1136
+pickup_pitch_cmd_task: 0.0731
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6562
+amo_cmd_rate: -0.0434
+amo_posture_limits: -0.0001
+dof_acc: -0.3944
+dof_pos_limits: -0.2032
+dof_vel: -0.1576
+dof_vel_limits: -0.0001
+torque_limits: -1.5869
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 2252800
+                    Iteration time: 14.48s
+                        Total time: 314.42s
+                               ETA: 1843.7s
+
+################################################################################
+                      [1m Learning iteration 22/150 [0m                       
+
+                       Computation: 7432 steps/s (collection: 13.469s, learning 0.309s)
+                       Mean reward: -47.07
+               Mean episode length: 947.08
+---loss--
+               Value function loss: 0.0358
+                    Surrogate loss: -0.0157
+             Mean action noise std: 0.79
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2769
+pickup_pose_task: 0.0782
+pickup_height_cmd_task: 0.1256
+pickup_pitch_cmd_task: 0.0809
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6364
+amo_cmd_rate: -0.0434
+amo_posture_limits: -0.0001
+dof_acc: -0.3834
+dof_pos_limits: -0.2068
+dof_vel: -0.1539
+dof_vel_limits: -0.0001
+torque_limits: -1.5231
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 2355200
+                    Iteration time: 13.78s
+                        Total time: 328.20s
+                               ETA: 1826.5s
+
+################################################################################
+                      [1m Learning iteration 23/150 [0m                       
+
+                       Computation: 7073 steps/s (collection: 14.168s, learning 0.308s)
+                       Mean reward: -40.65
+               Mean episode length: 900.09
+---loss--
+               Value function loss: 0.0427
+                    Surrogate loss: -0.0153
+             Mean action noise std: 0.78
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3790
+pickup_pose_task: 0.0887
+pickup_height_cmd_task: 0.1413
+pickup_pitch_cmd_task: 0.0947
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6274
+amo_cmd_rate: -0.0432
+amo_posture_limits: -0.0001
+dof_acc: -0.3785
+dof_pos_limits: -0.2100
+dof_vel: -0.1512
+dof_vel_limits: -0.0000
+torque_limits: -1.4518
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 2457600
+                    Iteration time: 14.48s
+                        Total time: 342.68s
+                               ETA: 1813.3s
+
+################################################################################
+                      [1m Learning iteration 24/150 [0m                       
+
+                       Computation: 7102 steps/s (collection: 14.088s, learning 0.331s)
+                       Mean reward: -39.89
+               Mean episode length: 881.60
+---loss--
+               Value function loss: 0.0389
+                    Surrogate loss: -0.0181
+             Mean action noise std: 0.77
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3063
+pickup_pose_task: 0.0777
+pickup_height_cmd_task: 0.1229
+pickup_pitch_cmd_task: 0.0775
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6159
+amo_cmd_rate: -0.0432
+amo_posture_limits: -0.0001
+dof_acc: -0.3727
+dof_pos_limits: -0.1892
+dof_vel: -0.1487
+dof_vel_limits: -0.0000
+torque_limits: -1.3882
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 2560000
+                    Iteration time: 14.42s
+                        Total time: 357.10s
+                               ETA: 1799.8s
+
+################################################################################
+                      [1m Learning iteration 25/150 [0m                       
+
+                       Computation: 7385 steps/s (collection: 13.505s, learning 0.361s)
+                       Mean reward: -39.41
+               Mean episode length: 923.54
+---loss--
+               Value function loss: 0.0378
+                    Surrogate loss: -0.0164
+             Mean action noise std: 0.76
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2476
+pickup_pose_task: 0.0719
+pickup_height_cmd_task: 0.1147
+pickup_pitch_cmd_task: 0.0751
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.6037
+amo_cmd_rate: -0.0434
+amo_posture_limits: -0.0001
+dof_acc: -0.3660
+dof_pos_limits: -0.1649
+dof_vel: -0.1462
+dof_vel_limits: -0.0000
+torque_limits: -1.2964
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 2662400
+                    Iteration time: 13.87s
+                        Total time: 370.96s
+                               ETA: 1783.5s
+
+################################################################################
+                      [1m Learning iteration 26/150 [0m                       
+
+                       Computation: 6972 steps/s (collection: 14.339s, learning 0.347s)
+                       Mean reward: -38.01
+               Mean episode length: 940.42
+---loss--
+               Value function loss: 0.0358
+                    Surrogate loss: -0.0185
+             Mean action noise std: 0.75
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2594
+pickup_pose_task: 0.0708
+pickup_height_cmd_task: 0.1115
+pickup_pitch_cmd_task: 0.0758
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.5939
+amo_cmd_rate: -0.0434
+amo_posture_limits: -0.0001
+dof_acc: -0.3586
+dof_pos_limits: -0.1455
+dof_vel: -0.1428
+dof_vel_limits: -0.0000
+torque_limits: -1.2160
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 2764800
+                    Iteration time: 14.69s
+                        Total time: 385.65s
+                               ETA: 1771.1s
+
+################################################################################
+                      [1m Learning iteration 27/150 [0m                       
+
+                       Computation: 7018 steps/s (collection: 14.265s, learning 0.324s)
+                       Mean reward: -35.04
+               Mean episode length: 937.20
+---loss--
+               Value function loss: 0.0333
+                    Surrogate loss: -0.0184
+             Mean action noise std: 0.74
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3682
+pickup_pose_task: 0.0856
+pickup_height_cmd_task: 0.1317
+pickup_pitch_cmd_task: 0.0887
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.5798
+amo_cmd_rate: -0.0432
+amo_posture_limits: -0.0001
+dof_acc: -0.3506
+dof_pos_limits: -0.1704
+dof_vel: -0.1402
+dof_vel_limits: -0.0000
+torque_limits: -1.1836
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 2867200
+                    Iteration time: 14.59s
+                        Total time: 400.24s
+                               ETA: 1758.2s
+
+################################################################################
+                      [1m Learning iteration 28/150 [0m                       
+
+                       Computation: 5537 steps/s (collection: 18.097s, learning 0.394s)
+                       Mean reward: -36.98
+               Mean episode length: 986.42
+---loss--
+               Value function loss: 0.0293
+                    Surrogate loss: -0.0198
+             Mean action noise std: 0.74
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2512
+pickup_pose_task: 0.0532
+pickup_height_cmd_task: 0.0853
+pickup_pitch_cmd_task: 0.0585
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.5718
+amo_cmd_rate: -0.0432
+amo_posture_limits: -0.0001
+dof_acc: -0.3452
+dof_pos_limits: -0.1226
+dof_vel: -0.1370
+dof_vel_limits: -0.0000
+torque_limits: -1.0845
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 2969600
+                    Iteration time: 18.49s
+                        Total time: 418.73s
+                               ETA: 1761.5s
+
+################################################################################
+                      [1m Learning iteration 29/150 [0m                       
+
+                       Computation: 5159 steps/s (collection: 19.473s, learning 0.375s)
+                       Mean reward: -34.46
+               Mean episode length: 958.04
+---loss--
+               Value function loss: 0.0332
+                    Surrogate loss: -0.0192
+             Mean action noise std: 0.73
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2589
+pickup_pose_task: 0.0606
+pickup_height_cmd_task: 0.0950
+pickup_pitch_cmd_task: 0.0661
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.5574
+amo_cmd_rate: -0.0431
+amo_posture_limits: -0.0001
+dof_acc: -0.3382
+dof_pos_limits: -0.1253
+dof_vel: -0.1347
+dof_vel_limits: -0.0000
+torque_limits: -1.0453
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 3072000
+                    Iteration time: 19.85s
+                        Total time: 438.58s
+                               ETA: 1768.9s
+
+################################################################################
+                      [1m Learning iteration 30/150 [0m                       
+
+                       Computation: 5000 steps/s (collection: 20.106s, learning 0.373s)
+                       Mean reward: -32.31
+               Mean episode length: 974.69
+---loss--
+               Value function loss: 0.0338
+                    Surrogate loss: -0.0193
+             Mean action noise std: 0.72
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2433
+pickup_pose_task: 0.0665
+pickup_height_cmd_task: 0.1028
+pickup_pitch_cmd_task: 0.0711
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.5456
+amo_cmd_rate: -0.0430
+amo_posture_limits: -0.0001
+dof_acc: -0.3305
+dof_pos_limits: -0.1210
+dof_vel: -0.1314
+dof_vel_limits: -0.0000
+torque_limits: -0.9555
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 3174400
+                    Iteration time: 20.48s
+                        Total time: 459.06s
+                               ETA: 1777.0s
+
+################################################################################
+                      [1m Learning iteration 31/150 [0m                       
+
+                       Computation: 5017 steps/s (collection: 20.052s, learning 0.355s)
+                       Mean reward: -28.58
+               Mean episode length: 932.86
+---loss--
+               Value function loss: 0.0407
+                    Surrogate loss: -0.0192
+             Mean action noise std: 0.71
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3031
+pickup_pose_task: 0.0691
+pickup_height_cmd_task: 0.1021
+pickup_pitch_cmd_task: 0.0727
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.5327
+amo_cmd_rate: -0.0433
+amo_posture_limits: -0.0001
+dof_acc: -0.3249
+dof_pos_limits: -0.1057
+dof_vel: -0.1296
+dof_vel_limits: -0.0000
+torque_limits: -0.9243
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 3276800
+                    Iteration time: 20.41s
+                        Total time: 479.46s
+                               ETA: 1783.0s
+
+################################################################################
+                      [1m Learning iteration 32/150 [0m                       
+
+                       Computation: 5214 steps/s (collection: 19.264s, learning 0.372s)
+                       Mean reward: -28.15
+               Mean episode length: 935.86
+---loss--
+               Value function loss: 0.0371
+                    Surrogate loss: -0.0177
+             Mean action noise std: 0.71
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2605
+pickup_pose_task: 0.0636
+pickup_height_cmd_task: 0.0942
+pickup_pitch_cmd_task: 0.0667
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.5192
+amo_cmd_rate: -0.0433
+amo_posture_limits: -0.0001
+dof_acc: -0.3162
+dof_pos_limits: -0.1043
+dof_vel: -0.1264
+dof_vel_limits: -0.0000
+torque_limits: -0.8529
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 3379200
+                    Iteration time: 19.64s
+                        Total time: 499.10s
+                               ETA: 1784.7s
+
+################################################################################
+                      [1m Learning iteration 33/150 [0m                       
+
+                       Computation: 5020 steps/s (collection: 20.018s, learning 0.377s)
+                       Mean reward: -27.36
+               Mean episode length: 992.43
+---loss--
+               Value function loss: 0.0326
+                    Surrogate loss: -0.0181
+             Mean action noise std: 0.70
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2858
+pickup_pose_task: 0.0652
+pickup_height_cmd_task: 0.0979
+pickup_pitch_cmd_task: 0.0717
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.5105
+amo_cmd_rate: -0.0432
+amo_posture_limits: -0.0001
+dof_acc: -0.3115
+dof_pos_limits: -0.0994
+dof_vel: -0.1247
+dof_vel_limits: -0.0000
+torque_limits: -0.8193
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 3481600
+                    Iteration time: 20.39s
+                        Total time: 519.49s
+                               ETA: 1787.7s
+
+################################################################################
+                      [1m Learning iteration 34/150 [0m                       
+
+                       Computation: 6062 steps/s (collection: 16.594s, learning 0.297s)
+                       Mean reward: -25.31
+               Mean episode length: 941.12
+---loss--
+               Value function loss: 0.0403
+                    Surrogate loss: -0.0178
+             Mean action noise std: 0.69
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2592
+pickup_pose_task: 0.0670
+pickup_height_cmd_task: 0.0977
+pickup_pitch_cmd_task: 0.0709
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.5020
+amo_cmd_rate: -0.0432
+amo_posture_limits: -0.0001
+dof_acc: -0.3054
+dof_pos_limits: -0.1054
+dof_vel: -0.1225
+dof_vel_limits: -0.0000
+torque_limits: -0.7826
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 3584000
+                    Iteration time: 16.89s
+                        Total time: 536.38s
+                               ETA: 1777.7s
+
+################################################################################
+                      [1m Learning iteration 35/150 [0m                       
+
+                       Computation: 7406 steps/s (collection: 13.504s, learning 0.322s)
+                       Mean reward: -23.55
+               Mean episode length: 914.08
+---loss--
+               Value function loss: 0.0397
+                    Surrogate loss: -0.0164
+             Mean action noise std: 0.69
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2486
+pickup_pose_task: 0.0694
+pickup_height_cmd_task: 0.1032
+pickup_pitch_cmd_task: 0.0739
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4934
+amo_cmd_rate: -0.0433
+amo_posture_limits: -0.0001
+dof_acc: -0.2997
+dof_pos_limits: -0.0858
+dof_vel: -0.1202
+dof_vel_limits: -0.0000
+torque_limits: -0.7366
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 3686400
+                    Iteration time: 13.83s
+                        Total time: 550.21s
+                               ETA: 1757.6s
+
+################################################################################
+                      [1m Learning iteration 36/150 [0m                       
+
+                       Computation: 6940 steps/s (collection: 14.457s, learning 0.297s)
+                       Mean reward: -21.84
+               Mean episode length: 919.96
+---loss--
+               Value function loss: 0.0394
+                    Surrogate loss: -0.0179
+             Mean action noise std: 0.68
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3160
+pickup_pose_task: 0.0725
+pickup_height_cmd_task: 0.1044
+pickup_pitch_cmd_task: 0.0750
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4844
+amo_cmd_rate: -0.0433
+amo_posture_limits: -0.0001
+dof_acc: -0.2950
+dof_pos_limits: -0.0918
+dof_vel: -0.1184
+dof_vel_limits: -0.0000
+torque_limits: -0.7032
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 3788800
+                    Iteration time: 14.75s
+                        Total time: 564.97s
+                               ETA: 1740.7s
+
+################################################################################
+                      [1m Learning iteration 37/150 [0m                       
+
+                       Computation: 7097 steps/s (collection: 14.118s, learning 0.309s)
+                       Mean reward: -20.70
+               Mean episode length: 940.21
+---loss--
+               Value function loss: 0.0348
+                    Surrogate loss: -0.0183
+             Mean action noise std: 0.68
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3795
+pickup_pose_task: 0.0824
+pickup_height_cmd_task: 0.1150
+pickup_pitch_cmd_task: 0.0815
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4774
+amo_cmd_rate: -0.0432
+amo_posture_limits: -0.0001
+dof_acc: -0.2898
+dof_pos_limits: -0.0985
+dof_vel: -0.1161
+dof_vel_limits: -0.0000
+torque_limits: -0.6748
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 3891200
+                    Iteration time: 14.43s
+                        Total time: 579.39s
+                               ETA: 1722.9s
+
+################################################################################
+                      [1m Learning iteration 38/150 [0m                       
+
+                       Computation: 7371 steps/s (collection: 13.546s, learning 0.345s)
+                       Mean reward: -19.26
+               Mean episode length: 885.10
+---loss--
+               Value function loss: 0.0371
+                    Surrogate loss: -0.0163
+             Mean action noise std: 0.67
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3643
+pickup_pose_task: 0.0966
+pickup_height_cmd_task: 0.1428
+pickup_pitch_cmd_task: 0.0995
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4628
+amo_cmd_rate: -0.0436
+amo_posture_limits: -0.0001
+dof_acc: -0.2850
+dof_pos_limits: -0.1118
+dof_vel: -0.1154
+dof_vel_limits: -0.0000
+torque_limits: -0.6619
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 3993600
+                    Iteration time: 13.89s
+                        Total time: 593.28s
+                               ETA: 1703.8s
+
+################################################################################
+                      [1m Learning iteration 39/150 [0m                       
+
+                       Computation: 7123 steps/s (collection: 14.078s, learning 0.297s)
+                       Mean reward: -17.67
+               Mean episode length: 907.58
+---loss--
+               Value function loss: 0.0365
+                    Surrogate loss: -0.0165
+             Mean action noise std: 0.67
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4348
+pickup_pose_task: 0.0992
+pickup_height_cmd_task: 0.1412
+pickup_pitch_cmd_task: 0.1003
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4592
+amo_cmd_rate: -0.0436
+amo_posture_limits: -0.0001
+dof_acc: -0.2805
+dof_pos_limits: -0.1060
+dof_vel: -0.1129
+dof_vel_limits: -0.0000
+torque_limits: -0.6194
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 4096000
+                    Iteration time: 14.37s
+                        Total time: 607.66s
+                               ETA: 1686.3s
+
+################################################################################
+                      [1m Learning iteration 40/150 [0m                       
+
+                       Computation: 7048 steps/s (collection: 14.181s, learning 0.348s)
+                       Mean reward: -18.51
+               Mean episode length: 905.91
+---loss--
+               Value function loss: 0.0383
+                    Surrogate loss: -0.0165
+             Mean action noise std: 0.67
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3533
+pickup_pose_task: 0.0792
+pickup_height_cmd_task: 0.1102
+pickup_pitch_cmd_task: 0.0786
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4559
+amo_cmd_rate: -0.0437
+amo_posture_limits: -0.0001
+dof_acc: -0.2786
+dof_pos_limits: -0.0890
+dof_vel: -0.1118
+dof_vel_limits: -0.0000
+torque_limits: -0.6108
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 4198400
+                    Iteration time: 14.53s
+                        Total time: 622.19s
+                               ETA: 1669.3s
+
+################################################################################
+                      [1m Learning iteration 41/150 [0m                       
+
+                       Computation: 7437 steps/s (collection: 13.417s, learning 0.351s)
+                       Mean reward: -18.17
+               Mean episode length: 948.22
+---loss--
+               Value function loss: 0.0388
+                    Surrogate loss: -0.0170
+             Mean action noise std: 0.66
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3404
+pickup_pose_task: 0.0832
+pickup_height_cmd_task: 0.1202
+pickup_pitch_cmd_task: 0.0819
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4509
+amo_cmd_rate: -0.0436
+amo_posture_limits: -0.0001
+dof_acc: -0.2742
+dof_pos_limits: -0.0860
+dof_vel: -0.1101
+dof_vel_limits: -0.0000
+torque_limits: -0.5988
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 4300800
+                    Iteration time: 13.77s
+                        Total time: 635.95s
+                               ETA: 1650.5s
+
+################################################################################
+                      [1m Learning iteration 42/150 [0m                       
+
+                       Computation: 7005 steps/s (collection: 14.283s, learning 0.335s)
+                       Mean reward: -18.14
+               Mean episode length: 961.92
+---loss--
+               Value function loss: 0.0361
+                    Surrogate loss: -0.0165
+             Mean action noise std: 0.66
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3118
+pickup_pose_task: 0.0812
+pickup_height_cmd_task: 0.1188
+pickup_pitch_cmd_task: 0.0802
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4423
+amo_cmd_rate: -0.0438
+amo_posture_limits: -0.0001
+dof_acc: -0.2695
+dof_pos_limits: -0.0896
+dof_vel: -0.1091
+dof_vel_limits: -0.0000
+torque_limits: -0.5627
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 4403200
+                    Iteration time: 14.62s
+                        Total time: 650.57s
+                               ETA: 1634.0s
+
+################################################################################
+                      [1m Learning iteration 43/150 [0m                       
+
+                       Computation: 7168 steps/s (collection: 13.965s, learning 0.321s)
+                       Mean reward: -17.30
+               Mean episode length: 974.04
+---loss--
+               Value function loss: 0.0377
+                    Surrogate loss: -0.0161
+             Mean action noise std: 0.65
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2928
+pickup_pose_task: 0.0647
+pickup_height_cmd_task: 0.0948
+pickup_pitch_cmd_task: 0.0662
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4396
+amo_cmd_rate: -0.0435
+amo_posture_limits: -0.0001
+dof_acc: -0.2668
+dof_pos_limits: -0.0725
+dof_vel: -0.1071
+dof_vel_limits: -0.0000
+torque_limits: -0.5127
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 4505600
+                    Iteration time: 14.29s
+                        Total time: 664.86s
+                               ETA: 1616.8s
+
+################################################################################
+                      [1m Learning iteration 44/150 [0m                       
+
+                       Computation: 7581 steps/s (collection: 13.173s, learning 0.335s)
+                       Mean reward: -15.67
+               Mean episode length: 934.89
+---loss--
+               Value function loss: 0.0405
+                    Surrogate loss: -0.0157
+             Mean action noise std: 0.65
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3949
+pickup_pose_task: 0.0797
+pickup_height_cmd_task: 0.1099
+pickup_pitch_cmd_task: 0.0763
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4369
+amo_cmd_rate: -0.0437
+amo_posture_limits: -0.0001
+dof_acc: -0.2648
+dof_pos_limits: -0.0828
+dof_vel: -0.1067
+dof_vel_limits: -0.0000
+torque_limits: -0.5163
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 4608000
+                    Iteration time: 13.51s
+                        Total time: 678.36s
+                               ETA: 1597.9s
+
+################################################################################
+                      [1m Learning iteration 45/150 [0m                       
+
+                       Computation: 7049 steps/s (collection: 14.203s, learning 0.323s)
+                       Mean reward: -14.70
+               Mean episode length: 921.61
+---loss--
+               Value function loss: 0.0398
+                    Surrogate loss: -0.0152
+             Mean action noise std: 0.65
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3409
+pickup_pose_task: 0.0847
+pickup_height_cmd_task: 0.1248
+pickup_pitch_cmd_task: 0.0838
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4319
+amo_cmd_rate: -0.0439
+amo_posture_limits: -0.0001
+dof_acc: -0.2629
+dof_pos_limits: -0.0867
+dof_vel: -0.1063
+dof_vel_limits: -0.0000
+torque_limits: -0.5372
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 4710400
+                    Iteration time: 14.53s
+                        Total time: 692.89s
+                               ETA: 1581.6s
+
+################################################################################
+                      [1m Learning iteration 46/150 [0m                       
+
+                       Computation: 6983 steps/s (collection: 14.328s, learning 0.334s)
+                       Mean reward: -13.45
+               Mean episode length: 920.45
+---loss--
+               Value function loss: 0.0385
+                    Surrogate loss: -0.0150
+             Mean action noise std: 0.64
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3716
+pickup_pose_task: 0.0823
+pickup_height_cmd_task: 0.1167
+pickup_pitch_cmd_task: 0.0823
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4239
+amo_cmd_rate: -0.0440
+amo_posture_limits: -0.0001
+dof_acc: -0.2555
+dof_pos_limits: -0.0797
+dof_vel: -0.1032
+dof_vel_limits: -0.0000
+torque_limits: -0.4939
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 4812800
+                    Iteration time: 14.66s
+                        Total time: 707.55s
+                               ETA: 1565.6s
+
+################################################################################
+                      [1m Learning iteration 47/150 [0m                       
+
+                       Computation: 7025 steps/s (collection: 14.245s, learning 0.331s)
+                       Mean reward: -13.30
+               Mean episode length: 920.25
+---loss--
+               Value function loss: 0.0372
+                    Surrogate loss: -0.0154
+             Mean action noise std: 0.64
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4447
+pickup_pose_task: 0.0975
+pickup_height_cmd_task: 0.1406
+pickup_pitch_cmd_task: 0.0924
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4208
+amo_cmd_rate: -0.0441
+amo_posture_limits: -0.0001
+dof_acc: -0.2541
+dof_pos_limits: -0.0947
+dof_vel: -0.1025
+dof_vel_limits: -0.0000
+torque_limits: -0.4740
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 4915200
+                    Iteration time: 14.58s
+                        Total time: 722.13s
+                               ETA: 1549.6s
+
+################################################################################
+                      [1m Learning iteration 48/150 [0m                       
+
+                       Computation: 7445 steps/s (collection: 13.410s, learning 0.343s)
+                       Mean reward: -12.59
+               Mean episode length: 945.49
+---loss--
+               Value function loss: 0.0335
+                    Surrogate loss: -0.0151
+             Mean action noise std: 0.64
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4073
+pickup_pose_task: 0.0861
+pickup_height_cmd_task: 0.1255
+pickup_pitch_cmd_task: 0.0844
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4159
+amo_cmd_rate: -0.0440
+amo_posture_limits: -0.0001
+dof_acc: -0.2513
+dof_pos_limits: -0.0900
+dof_vel: -0.1013
+dof_vel_limits: -0.0000
+torque_limits: -0.4596
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 5017600
+                    Iteration time: 13.75s
+                        Total time: 735.88s
+                               ETA: 1531.8s
+
+################################################################################
+                      [1m Learning iteration 49/150 [0m                       
+
+                       Computation: 7211 steps/s (collection: 13.899s, learning 0.301s)
+                       Mean reward: -12.45
+               Mean episode length: 938.55
+---loss--
+               Value function loss: 0.0334
+                    Surrogate loss: -0.0153
+             Mean action noise std: 0.63
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4255
+pickup_pose_task: 0.0938
+pickup_height_cmd_task: 0.1405
+pickup_pitch_cmd_task: 0.0916
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4145
+amo_cmd_rate: -0.0441
+amo_posture_limits: -0.0001
+dof_acc: -0.2511
+dof_pos_limits: -0.0917
+dof_vel: -0.1011
+dof_vel_limits: -0.0000
+torque_limits: -0.4494
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 5120000
+                    Iteration time: 14.20s
+                        Total time: 750.08s
+                               ETA: 1515.2s
+
+################################################################################
+                      [1m Learning iteration 50/150 [0m                       
+
+                       Computation: 6987 steps/s (collection: 14.307s, learning 0.347s)
+                       Mean reward: -14.05
+               Mean episode length: 943.18
+---loss--
+               Value function loss: 0.0316
+                    Surrogate loss: -0.0151
+             Mean action noise std: 0.63
+---reward--
+walk_task: 0.0000
+carryup_task: 0.2915
+pickup_pose_task: 0.0763
+pickup_height_cmd_task: 0.1121
+pickup_pitch_cmd_task: 0.0752
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4095
+amo_cmd_rate: -0.0442
+amo_posture_limits: -0.0001
+dof_acc: -0.2467
+dof_pos_limits: -0.0770
+dof_vel: -0.0995
+dof_vel_limits: -0.0000
+torque_limits: -0.4343
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 5222400
+                    Iteration time: 14.65s
+                        Total time: 764.74s
+                               ETA: 1499.5s
+
+################################################################################
+                      [1m Learning iteration 51/150 [0m                       
+
+                       Computation: 7501 steps/s (collection: 13.353s, learning 0.298s)
+                       Mean reward: -11.20
+               Mean episode length: 968.37
+---loss--
+               Value function loss: 0.0346
+                    Surrogate loss: -0.0145
+             Mean action noise std: 0.63
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3646
+pickup_pose_task: 0.0841
+pickup_height_cmd_task: 0.1192
+pickup_pitch_cmd_task: 0.0832
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4067
+amo_cmd_rate: -0.0443
+amo_posture_limits: -0.0001
+dof_acc: -0.2448
+dof_pos_limits: -0.0730
+dof_vel: -0.0986
+dof_vel_limits: -0.0000
+torque_limits: -0.4171
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 5324800
+                    Iteration time: 13.65s
+                        Total time: 778.39s
+                               ETA: 1481.9s
+
+################################################################################
+                      [1m Learning iteration 52/150 [0m                       
+
+                       Computation: 6993 steps/s (collection: 14.347s, learning 0.296s)
+                       Mean reward: -12.41
+               Mean episode length: 921.39
+---loss--
+               Value function loss: 0.0365
+                    Surrogate loss: -0.0160
+             Mean action noise std: 0.63
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3248
+pickup_pose_task: 0.0794
+pickup_height_cmd_task: 0.1168
+pickup_pitch_cmd_task: 0.0778
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4023
+amo_cmd_rate: -0.0442
+amo_posture_limits: -0.0001
+dof_acc: -0.2409
+dof_pos_limits: -0.0829
+dof_vel: -0.0979
+dof_vel_limits: -0.0000
+torque_limits: -0.4398
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 5427200
+                    Iteration time: 14.64s
+                        Total time: 793.03s
+                               ETA: 1466.4s
+
+################################################################################
+                      [1m Learning iteration 53/150 [0m                       
+
+                       Computation: 7145 steps/s (collection: 14.033s, learning 0.298s)
+                       Mean reward: -9.75
+               Mean episode length: 913.44
+---loss--
+               Value function loss: 0.0355
+                    Surrogate loss: -0.0149
+             Mean action noise std: 0.62
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4011
+pickup_pose_task: 0.0867
+pickup_height_cmd_task: 0.1248
+pickup_pitch_cmd_task: 0.0823
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.4000
+amo_cmd_rate: -0.0446
+amo_posture_limits: -0.0001
+dof_acc: -0.2422
+dof_pos_limits: -0.0831
+dof_vel: -0.0985
+dof_vel_limits: -0.0000
+torque_limits: -0.4610
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 5529600
+                    Iteration time: 14.33s
+                        Total time: 807.36s
+                               ETA: 1450.3s
+
+################################################################################
+                      [1m Learning iteration 54/150 [0m                       
+
+                       Computation: 7282 steps/s (collection: 13.720s, learning 0.340s)
+                       Mean reward: -11.05
+               Mean episode length: 926.48
+---loss--
+               Value function loss: 0.0338
+                    Surrogate loss: -0.0154
+             Mean action noise std: 0.62
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4295
+pickup_pose_task: 0.0983
+pickup_height_cmd_task: 0.1377
+pickup_pitch_cmd_task: 0.0883
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3962
+amo_cmd_rate: -0.0444
+amo_posture_limits: -0.0001
+dof_acc: -0.2388
+dof_pos_limits: -0.0898
+dof_vel: -0.0972
+dof_vel_limits: -0.0000
+torque_limits: -0.4298
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 5632000
+                    Iteration time: 14.06s
+                        Total time: 821.42s
+                               ETA: 1433.8s
+
+################################################################################
+                      [1m Learning iteration 55/150 [0m                       
+
+                       Computation: 4937 steps/s (collection: 20.348s, learning 0.393s)
+                       Mean reward: -9.68
+               Mean episode length: 902.51
+---loss--
+               Value function loss: 0.0377
+                    Surrogate loss: -0.0134
+             Mean action noise std: 0.62
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4158
+pickup_pose_task: 0.1073
+pickup_height_cmd_task: 0.1499
+pickup_pitch_cmd_task: 0.0964
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3927
+amo_cmd_rate: -0.0449
+amo_posture_limits: -0.0001
+dof_acc: -0.2367
+dof_pos_limits: -0.0902
+dof_vel: -0.0960
+dof_vel_limits: -0.0000
+torque_limits: -0.4052
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 5734400
+                    Iteration time: 20.74s
+                        Total time: 842.16s
+                               ETA: 1428.7s
+
+################################################################################
+                      [1m Learning iteration 56/150 [0m                       
+
+                       Computation: 4919 steps/s (collection: 20.450s, learning 0.364s)
+                       Mean reward: -9.45
+               Mean episode length: 943.64
+---loss--
+               Value function loss: 0.0379
+                    Surrogate loss: -0.0141
+             Mean action noise std: 0.62
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4409
+pickup_pose_task: 0.0992
+pickup_height_cmd_task: 0.1354
+pickup_pitch_cmd_task: 0.0937
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3938
+amo_cmd_rate: -0.0445
+amo_posture_limits: -0.0001
+dof_acc: -0.2357
+dof_pos_limits: -0.0682
+dof_vel: -0.0952
+dof_vel_limits: -0.0000
+torque_limits: -0.3855
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 5836800
+                    Iteration time: 20.81s
+                        Total time: 862.98s
+                               ETA: 1423.2s
+
+################################################################################
+                      [1m Learning iteration 57/150 [0m                       
+
+                       Computation: 5030 steps/s (collection: 19.665s, learning 0.690s)
+                       Mean reward: -9.78
+               Mean episode length: 942.04
+---loss--
+               Value function loss: 0.0385
+                    Surrogate loss: -0.0135
+             Mean action noise std: 0.62
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3893
+pickup_pose_task: 0.0920
+pickup_height_cmd_task: 0.1314
+pickup_pitch_cmd_task: 0.0872
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3890
+amo_cmd_rate: -0.0445
+amo_posture_limits: -0.0001
+dof_acc: -0.2315
+dof_pos_limits: -0.0796
+dof_vel: -0.0937
+dof_vel_limits: -0.0000
+torque_limits: -0.3688
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 5939200
+                    Iteration time: 20.36s
+                        Total time: 883.33s
+                               ETA: 1416.4s
+
+################################################################################
+                      [1m Learning iteration 58/150 [0m                       
+
+                       Computation: 5251 steps/s (collection: 19.170s, learning 0.330s)
+                       Mean reward: -8.60
+               Mean episode length: 954.27
+---loss--
+               Value function loss: 0.0425
+                    Surrogate loss: -0.0134
+             Mean action noise std: 0.62
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4212
+pickup_pose_task: 0.0921
+pickup_height_cmd_task: 0.1296
+pickup_pitch_cmd_task: 0.0875
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3871
+amo_cmd_rate: -0.0446
+amo_posture_limits: -0.0001
+dof_acc: -0.2312
+dof_pos_limits: -0.0781
+dof_vel: -0.0934
+dof_vel_limits: -0.0000
+torque_limits: -0.3582
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 6041600
+                    Iteration time: 19.50s
+                        Total time: 902.83s
+                               ETA: 1407.8s
+
+################################################################################
+                      [1m Learning iteration 59/150 [0m                       
+
+                       Computation: 5089 steps/s (collection: 19.750s, learning 0.370s)
+                       Mean reward: -9.59
+               Mean episode length: 914.51
+---loss--
+               Value function loss: 0.0373
+                    Surrogate loss: -0.0158
+             Mean action noise std: 0.62
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4952
+pickup_pose_task: 0.1064
+pickup_height_cmd_task: 0.1465
+pickup_pitch_cmd_task: 0.0927
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3888
+amo_cmd_rate: -0.0445
+amo_posture_limits: -0.0001
+dof_acc: -0.2306
+dof_pos_limits: -0.0958
+dof_vel: -0.0941
+dof_vel_limits: -0.0000
+torque_limits: -0.3958
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 6144000
+                    Iteration time: 20.12s
+                        Total time: 922.95s
+                               ETA: 1399.8s
+
+################################################################################
+                      [1m Learning iteration 60/150 [0m                       
+
+                       Computation: 5024 steps/s (collection: 20.030s, learning 0.352s)
+                       Mean reward: -9.00
+               Mean episode length: 937.81
+---loss--
+               Value function loss: 0.0370
+                    Surrogate loss: -0.0155
+             Mean action noise std: 0.61
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4351
+pickup_pose_task: 0.0968
+pickup_height_cmd_task: 0.1329
+pickup_pitch_cmd_task: 0.0859
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3818
+amo_cmd_rate: -0.0443
+amo_posture_limits: -0.0001
+dof_acc: -0.2290
+dof_pos_limits: -0.0788
+dof_vel: -0.0934
+dof_vel_limits: -0.0000
+torque_limits: -0.3824
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 6246400
+                    Iteration time: 20.38s
+                        Total time: 943.33s
+                               ETA: 1391.8s
+
+################################################################################
+                      [1m Learning iteration 61/150 [0m                       
+
+                       Computation: 6908 steps/s (collection: 14.458s, learning 0.365s)
+                       Mean reward: -7.46
+               Mean episode length: 950.41
+---loss--
+               Value function loss: 0.0344
+                    Surrogate loss: -0.0135
+             Mean action noise std: 0.61
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4646
+pickup_pose_task: 0.1028
+pickup_height_cmd_task: 0.1362
+pickup_pitch_cmd_task: 0.0893
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3826
+amo_cmd_rate: -0.0449
+amo_posture_limits: -0.0001
+dof_acc: -0.2284
+dof_pos_limits: -0.0695
+dof_vel: -0.0927
+dof_vel_limits: -0.0000
+torque_limits: -0.3981
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 6348800
+                    Iteration time: 14.82s
+                        Total time: 958.15s
+                               ETA: 1375.4s
+
+################################################################################
+                      [1m Learning iteration 62/150 [0m                       
+
+                       Computation: 6992 steps/s (collection: 14.333s, learning 0.311s)
+                       Mean reward: -8.88
+               Mean episode length: 991.94
+---loss--
+               Value function loss: 0.0340
+                    Surrogate loss: -0.0137
+             Mean action noise std: 0.61
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4704
+pickup_pose_task: 0.0992
+pickup_height_cmd_task: 0.1322
+pickup_pitch_cmd_task: 0.0872
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3798
+amo_cmd_rate: -0.0446
+amo_posture_limits: -0.0001
+dof_acc: -0.2258
+dof_pos_limits: -0.0645
+dof_vel: -0.0910
+dof_vel_limits: -0.0000
+torque_limits: -0.3238
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 6451200
+                    Iteration time: 14.64s
+                        Total time: 972.80s
+                               ETA: 1358.8s
+
+################################################################################
+                      [1m Learning iteration 63/150 [0m                       
+
+                       Computation: 7081 steps/s (collection: 14.165s, learning 0.295s)
+                       Mean reward: -6.09
+               Mean episode length: 916.52
+---loss--
+               Value function loss: 0.0400
+                    Surrogate loss: -0.0120
+             Mean action noise std: 0.61
+---reward--
+walk_task: 0.0000
+carryup_task: 0.5396
+pickup_pose_task: 0.1239
+pickup_height_cmd_task: 0.1664
+pickup_pitch_cmd_task: 0.1004
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3755
+amo_cmd_rate: -0.0447
+amo_posture_limits: -0.0001
+dof_acc: -0.2264
+dof_pos_limits: -0.1020
+dof_vel: -0.0926
+dof_vel_limits: -0.0000
+torque_limits: -0.4001
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 6553600
+                    Iteration time: 14.46s
+                        Total time: 987.26s
+                               ETA: 1342.1s
+
+################################################################################
+                      [1m Learning iteration 64/150 [0m                       
+
+                       Computation: 7523 steps/s (collection: 13.276s, learning 0.334s)
+                       Mean reward: -8.62
+               Mean episode length: 956.44
+---loss--
+               Value function loss: 0.0371
+                    Surrogate loss: -0.0157
+             Mean action noise std: 0.61
+---reward--
+walk_task: 0.0000
+carryup_task: 0.3182
+pickup_pose_task: 0.0856
+pickup_height_cmd_task: 0.1191
+pickup_pitch_cmd_task: 0.0766
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3764
+amo_cmd_rate: -0.0445
+amo_posture_limits: -0.0001
+dof_acc: -0.2245
+dof_pos_limits: -0.0614
+dof_vel: -0.0907
+dof_vel_limits: -0.0000
+torque_limits: -0.3139
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 6656000
+                    Iteration time: 13.61s
+                        Total time: 1000.87s
+                               ETA: 1324.2s
+
+################################################################################
+                      [1m Learning iteration 65/150 [0m                       
+
+                       Computation: 6932 steps/s (collection: 14.427s, learning 0.343s)
+                       Mean reward: -6.32
+               Mean episode length: 945.98
+---loss--
+               Value function loss: 0.0360
+                    Surrogate loss: -0.0165
+             Mean action noise std: 0.61
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4555
+pickup_pose_task: 0.1010
+pickup_height_cmd_task: 0.1410
+pickup_pitch_cmd_task: 0.0889
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3756
+amo_cmd_rate: -0.0447
+amo_posture_limits: -0.0001
+dof_acc: -0.2242
+dof_pos_limits: -0.0723
+dof_vel: -0.0907
+dof_vel_limits: -0.0000
+torque_limits: -0.3343
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 6758400
+                    Iteration time: 14.77s
+                        Total time: 1015.64s
+                               ETA: 1308.0s
+
+################################################################################
+                      [1m Learning iteration 66/150 [0m                       
+
+                       Computation: 6910 steps/s (collection: 14.496s, learning 0.322s)
+                       Mean reward: -7.26
+               Mean episode length: 953.33
+---loss--
+               Value function loss: 0.0385
+                    Surrogate loss: -0.0141
+             Mean action noise std: 0.61
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4406
+pickup_pose_task: 0.1158
+pickup_height_cmd_task: 0.1615
+pickup_pitch_cmd_task: 0.1004
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3726
+amo_cmd_rate: -0.0448
+amo_posture_limits: -0.0001
+dof_acc: -0.2225
+dof_pos_limits: -0.0697
+dof_vel: -0.0901
+dof_vel_limits: -0.0000
+torque_limits: -0.3232
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 6860800
+                    Iteration time: 14.82s
+                        Total time: 1030.46s
+                               ETA: 1291.9s
+
+################################################################################
+                      [1m Learning iteration 67/150 [0m                       
+
+                       Computation: 7430 steps/s (collection: 13.435s, learning 0.346s)
+                       Mean reward: -6.89
+               Mean episode length: 894.58
+---loss--
+               Value function loss: 0.0408
+                    Surrogate loss: -0.0148
+             Mean action noise std: 0.60
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4287
+pickup_pose_task: 0.0988
+pickup_height_cmd_task: 0.1386
+pickup_pitch_cmd_task: 0.0836
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3733
+amo_cmd_rate: -0.0445
+amo_posture_limits: -0.0001
+dof_acc: -0.2234
+dof_pos_limits: -0.0865
+dof_vel: -0.0907
+dof_vel_limits: -0.0000
+torque_limits: -0.3582
+torques: -0.0001
+--------------------------------------------------------------------------------
+                   Total timesteps: 6963200
+                    Iteration time: 13.78s
+                        Total time: 1044.24s
+                               ETA: 1274.6s
+
+################################################################################
+                      [1m Learning iteration 68/150 [0m                       
+
+                       Computation: 7074 steps/s (collection: 14.171s, learning 0.303s)
+                       Mean reward: -5.23
+               Mean episode length: 912.83
+---loss--
+               Value function loss: 0.0437
+                    Surrogate loss: -0.0150
+             Mean action noise std: 0.60
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4762
+pickup_pose_task: 0.1062
+pickup_height_cmd_task: 0.1480
+pickup_pitch_cmd_task: 0.0858
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3695
+amo_cmd_rate: -0.0449
+amo_posture_limits: -0.0001
+dof_acc: -0.2218
+dof_pos_limits: -0.0780
+dof_vel: -0.0900
+dof_vel_limits: -0.0000
+torque_limits: -0.3371
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 7065600
+                    Iteration time: 14.47s
+                        Total time: 1058.71s
+                               ETA: 1258.2s
+
+################################################################################
+                      [1m Learning iteration 69/150 [0m                       
+
+                       Computation: 7135 steps/s (collection: 14.015s, learning 0.335s)
+                       Mean reward: -4.12
+               Mean episode length: 903.14
+---loss--
+               Value function loss: 0.0465
+                    Surrogate loss: -0.0138
+             Mean action noise std: 0.60
+---reward--
+walk_task: 0.0000
+carryup_task: 0.5547
+pickup_pose_task: 0.1224
+pickup_height_cmd_task: 0.1720
+pickup_pitch_cmd_task: 0.0997
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3675
+amo_cmd_rate: -0.0452
+amo_posture_limits: -0.0001
+dof_acc: -0.2194
+dof_pos_limits: -0.0955
+dof_vel: -0.0898
+dof_vel_limits: -0.0000
+torque_limits: -0.3987
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 7168000
+                    Iteration time: 14.35s
+                        Total time: 1073.06s
+                               ETA: 1241.7s
+
+################################################################################
+                      [1m Learning iteration 70/150 [0m                       
+
+                       Computation: 6969 steps/s (collection: 14.246s, learning 0.447s)
+                       Mean reward: -5.74
+               Mean episode length: 916.42
+---loss--
+               Value function loss: 0.0440
+                    Surrogate loss: -0.0138
+             Mean action noise std: 0.60
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4416
+pickup_pose_task: 0.1115
+pickup_height_cmd_task: 0.1604
+pickup_pitch_cmd_task: 0.0929
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3681
+amo_cmd_rate: -0.0449
+amo_posture_limits: -0.0001
+dof_acc: -0.2195
+dof_pos_limits: -0.0780
+dof_vel: -0.0891
+dof_vel_limits: -0.0000
+torque_limits: -0.3266
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 7270400
+                    Iteration time: 14.69s
+                        Total time: 1087.75s
+                               ETA: 1225.6s
+
+################################################################################
+                      [1m Learning iteration 71/150 [0m                       
+
+                       Computation: 7392 steps/s (collection: 13.504s, learning 0.348s)
+                       Mean reward: -5.16
+               Mean episode length: 897.89
+---loss--
+               Value function loss: 0.0430
+                    Surrogate loss: -0.0133
+             Mean action noise std: 0.60
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4653
+pickup_pose_task: 0.1076
+pickup_height_cmd_task: 0.1507
+pickup_pitch_cmd_task: 0.0874
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3662
+amo_cmd_rate: -0.0449
+amo_posture_limits: -0.0001
+dof_acc: -0.2184
+dof_pos_limits: -0.0842
+dof_vel: -0.0895
+dof_vel_limits: -0.0000
+torque_limits: -0.3357
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 7372800
+                    Iteration time: 13.85s
+                        Total time: 1101.61s
+                               ETA: 1208.7s
+
+################################################################################
+                      [1m Learning iteration 72/150 [0m                       
+
+                       Computation: 7105 steps/s (collection: 14.113s, learning 0.298s)
+                       Mean reward: -5.33
+               Mean episode length: 938.67
+---loss--
+               Value function loss: 0.0414
+                    Surrogate loss: -0.0126
+             Mean action noise std: 0.60
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4593
+pickup_pose_task: 0.1192
+pickup_height_cmd_task: 0.1644
+pickup_pitch_cmd_task: 0.0971
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3642
+amo_cmd_rate: -0.0449
+amo_posture_limits: -0.0001
+dof_acc: -0.2169
+dof_pos_limits: -0.0782
+dof_vel: -0.0884
+dof_vel_limits: -0.0000
+torque_limits: -0.3119
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 7475200
+                    Iteration time: 14.41s
+                        Total time: 1116.02s
+                               ETA: 1192.5s
+
+################################################################################
+                      [1m Learning iteration 73/150 [0m                       
+
+                       Computation: 6963 steps/s (collection: 14.356s, learning 0.349s)
+                       Mean reward: -4.36
+               Mean episode length: 936.71
+---loss--
+               Value function loss: 0.0408
+                    Surrogate loss: -0.0146
+             Mean action noise std: 0.60
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4684
+pickup_pose_task: 0.1141
+pickup_height_cmd_task: 0.1602
+pickup_pitch_cmd_task: 0.0948
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3630
+amo_cmd_rate: -0.0450
+amo_posture_limits: -0.0001
+dof_acc: -0.2165
+dof_pos_limits: -0.0675
+dof_vel: -0.0879
+dof_vel_limits: -0.0000
+torque_limits: -0.3041
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 7577600
+                    Iteration time: 14.70s
+                        Total time: 1130.72s
+                               ETA: 1176.6s
+
+################################################################################
+                      [1m Learning iteration 74/150 [0m                       
+
+                       Computation: 7500 steps/s (collection: 13.317s, learning 0.335s)
+                       Mean reward: -4.21
+               Mean episode length: 950.51
+---loss--
+               Value function loss: 0.0345
+                    Surrogate loss: -0.0143
+             Mean action noise std: 0.59
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4976
+pickup_pose_task: 0.1145
+pickup_height_cmd_task: 0.1536
+pickup_pitch_cmd_task: 0.0937
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3645
+amo_cmd_rate: -0.0451
+amo_posture_limits: -0.0001
+dof_acc: -0.2169
+dof_pos_limits: -0.0658
+dof_vel: -0.0876
+dof_vel_limits: -0.0000
+torque_limits: -0.2969
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 7680000
+                    Iteration time: 13.65s
+                        Total time: 1144.38s
+                               ETA: 1159.6s
+
+################################################################################
+                      [1m Learning iteration 75/150 [0m                       
+
+                       Computation: 6969 steps/s (collection: 14.391s, learning 0.302s)
+                       Mean reward: -2.47
+               Mean episode length: 959.19
+---loss--
+               Value function loss: 0.0401
+                    Surrogate loss: -0.0151
+             Mean action noise std: 0.59
+---reward--
+walk_task: 0.0000
+carryup_task: 0.5587
+pickup_pose_task: 0.1195
+pickup_height_cmd_task: 0.1633
+pickup_pitch_cmd_task: 0.1002
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3621
+amo_cmd_rate: -0.0454
+amo_posture_limits: -0.0001
+dof_acc: -0.2148
+dof_pos_limits: -0.0715
+dof_vel: -0.0872
+dof_vel_limits: -0.0000
+torque_limits: -0.2964
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 7782400
+                    Iteration time: 14.69s
+                        Total time: 1159.07s
+                               ETA: 1143.8s
+
+################################################################################
+                      [1m Learning iteration 76/150 [0m                       
+
+                       Computation: 6920 steps/s (collection: 14.458s, learning 0.338s)
+                       Mean reward: -4.43
+               Mean episode length: 923.08
+---loss--
+               Value function loss: 0.0389
+                    Surrogate loss: -0.0151
+             Mean action noise std: 0.59
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4840
+pickup_pose_task: 0.1138
+pickup_height_cmd_task: 0.1543
+pickup_pitch_cmd_task: 0.0945
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3613
+amo_cmd_rate: -0.0450
+amo_posture_limits: -0.0001
+dof_acc: -0.2127
+dof_pos_limits: -0.0686
+dof_vel: -0.0866
+dof_vel_limits: -0.0000
+torque_limits: -0.3008
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 7884800
+                    Iteration time: 14.80s
+                        Total time: 1173.86s
+                               ETA: 1128.1s
+
+################################################################################
+                      [1m Learning iteration 77/150 [0m                       
+
+                       Computation: 7440 steps/s (collection: 13.424s, learning 0.338s)
+                       Mean reward: -3.49
+               Mean episode length: 890.44
+---loss--
+               Value function loss: 0.0364
+                    Surrogate loss: -0.0132
+             Mean action noise std: 0.59
+---reward--
+walk_task: 0.0000
+carryup_task: 0.4602
+pickup_pose_task: 0.1209
+pickup_height_cmd_task: 0.1644
+pickup_pitch_cmd_task: 0.0933
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3581
+amo_cmd_rate: -0.0451
+amo_posture_limits: -0.0001
+dof_acc: -0.2117
+dof_pos_limits: -0.0881
+dof_vel: -0.0863
+dof_vel_limits: -0.0000
+torque_limits: -0.3054
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 7987200
+                    Iteration time: 13.76s
+                        Total time: 1187.63s
+                               ETA: 1111.5s
+
+################################################################################
+                      [1m Learning iteration 78/150 [0m                       
+
+                       Computation: 7057 steps/s (collection: 14.173s, learning 0.337s)
+                       Mean reward: -3.51
+               Mean episode length: 921.26
+---loss--
+               Value function loss: 0.0431
+                    Surrogate loss: -0.0124
+             Mean action noise std: 0.59
+---reward--
+walk_task: 0.0000
+carryup_task: 0.5259
+pickup_pose_task: 0.1183
+pickup_height_cmd_task: 0.1614
+pickup_pitch_cmd_task: 0.0929
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3585
+amo_cmd_rate: -0.0450
+amo_posture_limits: -0.0001
+dof_acc: -0.2117
+dof_pos_limits: -0.0769
+dof_vel: -0.0864
+dof_vel_limits: -0.0000
+torque_limits: -0.2911
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 8089600
+                    Iteration time: 14.51s
+                        Total time: 1202.14s
+                               ETA: 1095.6s
+
+################################################################################
+                      [1m Learning iteration 79/150 [0m                       
+
+                       Computation: 7018 steps/s (collection: 14.292s, learning 0.299s)
+                       Mean reward: -4.11
+               Mean episode length: 873.64
+---loss--
+               Value function loss: 0.0465
+                    Surrogate loss: -0.0159
+             Mean action noise std: 0.59
+---reward--
+walk_task: 0.0000
+carryup_task: 0.5994
+pickup_pose_task: 0.1320
+pickup_height_cmd_task: 0.1776
+pickup_pitch_cmd_task: 0.1032
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3596
+amo_cmd_rate: -0.0456
+amo_posture_limits: -0.0001
+dof_acc: -0.2127
+dof_pos_limits: -0.0948
+dof_vel: -0.0867
+dof_vel_limits: -0.0000
+torque_limits: -0.3185
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 8192000
+                    Iteration time: 14.59s
+                        Total time: 1216.73s
+                               ETA: 1079.8s
+
+################################################################################
+                      [1m Learning iteration 80/150 [0m                       
+
+                       Computation: 7215 steps/s (collection: 13.862s, learning 0.330s)
+                       Mean reward: -2.67
+               Mean episode length: 879.06
+---loss--
+               Value function loss: 0.0488
+                    Surrogate loss: -0.0123
+             Mean action noise std: 0.59
+---reward--
+walk_task: 0.0000
+carryup_task: 0.6083
+pickup_pose_task: 0.1329
+pickup_height_cmd_task: 0.1791
+pickup_pitch_cmd_task: 0.1034
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3573
+amo_cmd_rate: -0.0453
+amo_posture_limits: -0.0001
+dof_acc: -0.2114
+dof_pos_limits: -0.0867
+dof_vel: -0.0861
+dof_vel_limits: -0.0000
+torque_limits: -0.2981
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 8294400
+                    Iteration time: 14.19s
+                        Total time: 1230.92s
+                               ETA: 1063.8s
+
+################################################################################
+                      [1m Learning iteration 81/150 [0m                       
+
+                       Computation: 5885 steps/s (collection: 17.070s, learning 0.330s)
+                       Mean reward: -2.23
+               Mean episode length: 917.15
+---loss--
+               Value function loss: 0.0467
+                    Surrogate loss: -0.0138
+             Mean action noise std: 0.59
+---reward--
+walk_task: 0.0000
+carryup_task: 0.6238
+pickup_pose_task: 0.1381
+pickup_height_cmd_task: 0.1825
+pickup_pitch_cmd_task: 0.1059
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3568
+amo_cmd_rate: -0.0454
+amo_posture_limits: -0.0001
+dof_acc: -0.2116
+dof_pos_limits: -0.0865
+dof_vel: -0.0860
+dof_vel_limits: -0.0000
+torque_limits: -0.3036
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 8396800
+                    Iteration time: 17.40s
+                        Total time: 1248.32s
+                               ETA: 1050.4s
+
+################################################################################
+                      [1m Learning iteration 82/150 [0m                       
+
+                       Computation: 5063 steps/s (collection: 19.861s, learning 0.361s)
+                       Mean reward: -1.60
+               Mean episode length: 926.74
+---loss--
+               Value function loss: 0.0535
+                    Surrogate loss: -0.0148
+             Mean action noise std: 0.59
+---reward--
+walk_task: 0.0000
+carryup_task: 0.5772
+pickup_pose_task: 0.1475
+pickup_height_cmd_task: 0.1990
+pickup_pitch_cmd_task: 0.1077
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3560
+amo_cmd_rate: -0.0451
+amo_posture_limits: -0.0001
+dof_acc: -0.2126
+dof_pos_limits: -0.0933
+dof_vel: -0.0869
+dof_vel_limits: -0.0000
+torque_limits: -0.3360
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 8499200
+                    Iteration time: 20.22s
+                        Total time: 1268.54s
+                               ETA: 1039.3s
+
+################################################################################
+                      [1m Learning iteration 83/150 [0m                       
+
+                       Computation: 5022 steps/s (collection: 20.020s, learning 0.368s)
+                       Mean reward: 0.93
+               Mean episode length: 908.10
+---loss--
+               Value function loss: 0.0518
+                    Surrogate loss: -0.0135
+             Mean action noise std: 0.59
+---reward--
+walk_task: 0.0000
+carryup_task: 0.7159
+pickup_pose_task: 0.1478
+pickup_height_cmd_task: 0.2002
+pickup_pitch_cmd_task: 0.1130
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3546
+amo_cmd_rate: -0.0457
+amo_posture_limits: -0.0001
+dof_acc: -0.2103
+dof_pos_limits: -0.0924
+dof_vel: -0.0860
+dof_vel_limits: -0.0000
+torque_limits: -0.3148
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 8601600
+                    Iteration time: 20.39s
+                        Total time: 1288.93s
+                               ETA: 1028.1s
+
+################################################################################
+                      [1m Learning iteration 84/150 [0m                       
+
+                       Computation: 5282 steps/s (collection: 19.013s, learning 0.373s)
+                       Mean reward: -1.58
+               Mean episode length: 861.70
+---loss--
+               Value function loss: 0.0541
+                    Surrogate loss: -0.0104
+             Mean action noise std: 0.59
+---reward--
+walk_task: 0.0000
+carryup_task: 0.5833
+pickup_pose_task: 0.1407
+pickup_height_cmd_task: 0.1910
+pickup_pitch_cmd_task: 0.1037
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3560
+amo_cmd_rate: -0.0455
+amo_posture_limits: -0.0001
+dof_acc: -0.2112
+dof_pos_limits: -0.0984
+dof_vel: -0.0863
+dof_vel_limits: -0.0000
+torque_limits: -0.3304
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 8704000
+                    Iteration time: 19.39s
+                        Total time: 1308.31s
+                               ETA: 1015.9s
+
+################################################################################
+                      [1m Learning iteration 85/150 [0m                       
+
+                       Computation: 4963 steps/s (collection: 20.291s, learning 0.341s)
+                       Mean reward: -0.08
+               Mean episode length: 911.85
+---loss--
+               Value function loss: 0.0454
+                    Surrogate loss: -0.0137
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.5711
+pickup_pose_task: 0.1441
+pickup_height_cmd_task: 0.1937
+pickup_pitch_cmd_task: 0.1057
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3574
+amo_cmd_rate: -0.0452
+amo_posture_limits: -0.0001
+dof_acc: -0.2098
+dof_pos_limits: -0.0911
+dof_vel: -0.0854
+dof_vel_limits: -0.0000
+torque_limits: -0.3056
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 8806400
+                    Iteration time: 20.63s
+                        Total time: 1328.95s
+                               ETA: 1004.4s
+
+################################################################################
+                      [1m Learning iteration 86/150 [0m                       
+
+                       Computation: 4877 steps/s (collection: 20.628s, learning 0.367s)
+                       Mean reward: -0.83
+               Mean episode length: 899.42
+---loss--
+               Value function loss: 0.0443
+                    Surrogate loss: -0.0130
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.6350
+pickup_pose_task: 0.1543
+pickup_height_cmd_task: 0.2095
+pickup_pitch_cmd_task: 0.1079
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3535
+amo_cmd_rate: -0.0456
+amo_posture_limits: -0.0001
+dof_acc: -0.2097
+dof_pos_limits: -0.1064
+dof_vel: -0.0856
+dof_vel_limits: -0.0000
+torque_limits: -0.3284
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 8908800
+                    Iteration time: 20.99s
+                        Total time: 1349.94s
+                               ETA: 993.1s
+
+################################################################################
+                      [1m Learning iteration 87/150 [0m                       
+
+                       Computation: 5728 steps/s (collection: 17.540s, learning 0.335s)
+                       Mean reward: -1.49
+               Mean episode length: 935.58
+---loss--
+               Value function loss: 0.0513
+                    Surrogate loss: -0.0126
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.6272
+pickup_pose_task: 0.1535
+pickup_height_cmd_task: 0.2071
+pickup_pitch_cmd_task: 0.1051
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3532
+amo_cmd_rate: -0.0452
+amo_posture_limits: -0.0001
+dof_acc: -0.2092
+dof_pos_limits: -0.1127
+dof_vel: -0.0853
+dof_vel_limits: -0.0000
+torque_limits: -0.2918
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 9011200
+                    Iteration time: 17.88s
+                        Total time: 1367.82s
+                               ETA: 979.2s
+
+################################################################################
+                      [1m Learning iteration 88/150 [0m                       
+
+                       Computation: 6985 steps/s (collection: 14.322s, learning 0.336s)
+                       Mean reward: 0.58
+               Mean episode length: 931.90
+---loss--
+               Value function loss: 0.0544
+                    Surrogate loss: -0.0096
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.6126
+pickup_pose_task: 0.1502
+pickup_height_cmd_task: 0.1981
+pickup_pitch_cmd_task: 0.0985
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3517
+amo_cmd_rate: -0.0454
+amo_posture_limits: -0.0001
+dof_acc: -0.2072
+dof_pos_limits: -0.1012
+dof_vel: -0.0845
+dof_vel_limits: -0.0000
+torque_limits: -0.3260
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 9113600
+                    Iteration time: 14.66s
+                        Total time: 1382.47s
+                               ETA: 963.1s
+
+################################################################################
+                      [1m Learning iteration 89/150 [0m                       
+
+                       Computation: 6934 steps/s (collection: 14.414s, learning 0.352s)
+                       Mean reward: -0.96
+               Mean episode length: 891.48
+---loss--
+               Value function loss: 0.0513
+                    Surrogate loss: -0.0131
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.6741
+pickup_pose_task: 0.1538
+pickup_height_cmd_task: 0.2098
+pickup_pitch_cmd_task: 0.1026
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3520
+amo_cmd_rate: -0.0453
+amo_posture_limits: -0.0001
+dof_acc: -0.2092
+dof_pos_limits: -0.1135
+dof_vel: -0.0857
+dof_vel_limits: -0.0000
+torque_limits: -0.3318
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 9216000
+                    Iteration time: 14.77s
+                        Total time: 1397.24s
+                               ETA: 947.0s
+
+################################################################################
+                      [1m Learning iteration 90/150 [0m                       
+
+                       Computation: 6969 steps/s (collection: 14.384s, learning 0.310s)
+                       Mean reward: 1.74
+               Mean episode length: 942.68
+---loss--
+               Value function loss: 0.0448
+                    Surrogate loss: -0.0121
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.6964
+pickup_pose_task: 0.1604
+pickup_height_cmd_task: 0.2186
+pickup_pitch_cmd_task: 0.1093
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3534
+amo_cmd_rate: -0.0456
+amo_posture_limits: -0.0001
+dof_acc: -0.2084
+dof_pos_limits: -0.1108
+dof_vel: -0.0847
+dof_vel_limits: -0.0000
+torque_limits: -0.2899
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 9318400
+                    Iteration time: 14.69s
+                        Total time: 1411.93s
+                               ETA: 930.9s
+
+################################################################################
+                      [1m Learning iteration 91/150 [0m                       
+
+                       Computation: 7362 steps/s (collection: 13.565s, learning 0.342s)
+                       Mean reward: -0.78
+               Mean episode length: 942.64
+---loss--
+               Value function loss: 0.0482
+                    Surrogate loss: -0.0142
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.5877
+pickup_pose_task: 0.1592
+pickup_height_cmd_task: 0.2193
+pickup_pitch_cmd_task: 0.1062
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3505
+amo_cmd_rate: -0.0456
+amo_posture_limits: -0.0001
+dof_acc: -0.2067
+dof_pos_limits: -0.1079
+dof_vel: -0.0842
+dof_vel_limits: -0.0000
+torque_limits: -0.2960
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 9420800
+                    Iteration time: 13.91s
+                        Total time: 1425.84s
+                               ETA: 914.4s
+
+################################################################################
+                      [1m Learning iteration 92/150 [0m                       
+
+                       Computation: 7043 steps/s (collection: 14.230s, learning 0.308s)
+                       Mean reward: -0.12
+               Mean episode length: 939.95
+---loss--
+               Value function loss: 0.0504
+                    Surrogate loss: -0.0119
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.5392
+pickup_pose_task: 0.1558
+pickup_height_cmd_task: 0.2198
+pickup_pitch_cmd_task: 0.1076
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3495
+amo_cmd_rate: -0.0455
+amo_posture_limits: -0.0001
+dof_acc: -0.2052
+dof_pos_limits: -0.1172
+dof_vel: -0.0834
+dof_vel_limits: -0.0000
+torque_limits: -0.2721
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 9523200
+                    Iteration time: 14.54s
+                        Total time: 1440.38s
+                               ETA: 898.3s
+
+################################################################################
+                      [1m Learning iteration 93/150 [0m                       
+
+                       Computation: 6963 steps/s (collection: 14.405s, learning 0.300s)
+                       Mean reward: 0.69
+               Mean episode length: 920.84
+---loss--
+               Value function loss: 0.0506
+                    Surrogate loss: -0.0152
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.6982
+pickup_pose_task: 0.1808
+pickup_height_cmd_task: 0.2525
+pickup_pitch_cmd_task: 0.1188
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3510
+amo_cmd_rate: -0.0459
+amo_posture_limits: -0.0001
+dof_acc: -0.2084
+dof_pos_limits: -0.1240
+dof_vel: -0.0850
+dof_vel_limits: -0.0000
+torque_limits: -0.2981
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 9625600
+                    Iteration time: 14.70s
+                        Total time: 1455.08s
+                               ETA: 882.3s
+
+################################################################################
+                      [1m Learning iteration 94/150 [0m                       
+
+                       Computation: 7436 steps/s (collection: 13.444s, learning 0.326s)
+                       Mean reward: 0.20
+               Mean episode length: 924.32
+---loss--
+               Value function loss: 0.0630
+                    Surrogate loss: -0.0071
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.5678
+pickup_pose_task: 0.1730
+pickup_height_cmd_task: 0.2344
+pickup_pitch_cmd_task: 0.1114
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3493
+amo_cmd_rate: -0.0455
+amo_posture_limits: -0.0001
+dof_acc: -0.2065
+dof_pos_limits: -0.1182
+dof_vel: -0.0843
+dof_vel_limits: -0.0000
+torque_limits: -0.2946
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 9728000
+                    Iteration time: 13.77s
+                        Total time: 1468.85s
+                               ETA: 865.9s
+
+################################################################################
+                      [1m Learning iteration 95/150 [0m                       
+
+                       Computation: 6862 steps/s (collection: 14.618s, learning 0.304s)
+                       Mean reward: 5.68
+               Mean episode length: 943.39
+---loss--
+               Value function loss: 0.0553
+                    Surrogate loss: -0.0136
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.8123
+pickup_pose_task: 0.1999
+pickup_height_cmd_task: 0.2744
+pickup_pitch_cmd_task: 0.1260
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3505
+amo_cmd_rate: -0.0460
+amo_posture_limits: -0.0002
+dof_acc: -0.2088
+dof_pos_limits: -0.1393
+dof_vel: -0.0848
+dof_vel_limits: -0.0000
+torque_limits: -0.2984
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 9830400
+                    Iteration time: 14.92s
+                        Total time: 1483.77s
+                               ETA: 850.1s
+
+################################################################################
+                      [1m Learning iteration 96/150 [0m                       
+
+                       Computation: 6922 steps/s (collection: 14.446s, learning 0.345s)
+                       Mean reward: 3.09
+               Mean episode length: 934.19
+---loss--
+               Value function loss: 0.0536
+                    Surrogate loss: -0.0140
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.6769
+pickup_pose_task: 0.1892
+pickup_height_cmd_task: 0.2615
+pickup_pitch_cmd_task: 0.1200
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3516
+amo_cmd_rate: -0.0459
+amo_posture_limits: -0.0001
+dof_acc: -0.2077
+dof_pos_limits: -0.1369
+dof_vel: -0.0845
+dof_vel_limits: -0.0000
+torque_limits: -0.3065
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 9932800
+                    Iteration time: 14.79s
+                        Total time: 1498.57s
+                               ETA: 834.3s
+
+################################################################################
+                      [1m Learning iteration 97/150 [0m                       
+
+                       Computation: 7341 steps/s (collection: 13.647s, learning 0.301s)
+                       Mean reward: 0.67
+               Mean episode length: 889.21
+---loss--
+               Value function loss: 0.0548
+                    Surrogate loss: -0.0129
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.5879
+pickup_pose_task: 0.1643
+pickup_height_cmd_task: 0.2360
+pickup_pitch_cmd_task: 0.1015
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3500
+amo_cmd_rate: -0.0450
+amo_posture_limits: -0.0001
+dof_acc: -0.2054
+dof_pos_limits: -0.1436
+dof_vel: -0.0841
+dof_vel_limits: -0.0000
+torque_limits: -0.3114
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 10035200
+                    Iteration time: 13.95s
+                        Total time: 1512.51s
+                               ETA: 818.0s
+
+################################################################################
+                      [1m Learning iteration 98/150 [0m                       
+
+                       Computation: 7086 steps/s (collection: 14.114s, learning 0.337s)
+                       Mean reward: 5.04
+               Mean episode length: 963.10
+---loss--
+               Value function loss: 0.0609
+                    Surrogate loss: -0.0094
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.7867
+pickup_pose_task: 0.2135
+pickup_height_cmd_task: 0.3013
+pickup_pitch_cmd_task: 0.1319
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3491
+amo_cmd_rate: -0.0463
+amo_posture_limits: -0.0002
+dof_acc: -0.2081
+dof_pos_limits: -0.1746
+dof_vel: -0.0847
+dof_vel_limits: -0.0000
+torque_limits: -0.3228
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 10137600
+                    Iteration time: 14.45s
+                        Total time: 1526.96s
+                               ETA: 802.0s
+
+################################################################################
+                      [1m Learning iteration 99/150 [0m                       
+
+                       Computation: 6891 steps/s (collection: 14.529s, learning 0.330s)
+                       Mean reward: 0.63
+               Mean episode length: 945.42
+---loss--
+               Value function loss: 0.0558
+                    Surrogate loss: -0.0129
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.6634
+pickup_pose_task: 0.1627
+pickup_height_cmd_task: 0.2328
+pickup_pitch_cmd_task: 0.1047
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3507
+amo_cmd_rate: -0.0448
+amo_posture_limits: -0.0001
+dof_acc: -0.2056
+dof_pos_limits: -0.1400
+dof_vel: -0.0839
+dof_vel_limits: -0.0000
+torque_limits: -0.2910
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 10240000
+                    Iteration time: 14.86s
+                        Total time: 1541.82s
+                               ETA: 786.3s
+
+################################################################################
+                      [1m Learning iteration 100/150 [0m                      
+
+                       Computation: 7307 steps/s (collection: 13.675s, learning 0.337s)
+                       Mean reward: 2.89
+               Mean episode length: 936.78
+---loss--
+               Value function loss: 0.0627
+                    Surrogate loss: -0.0119
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.7178
+pickup_pose_task: 0.1972
+pickup_height_cmd_task: 0.2781
+pickup_pitch_cmd_task: 0.1227
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3495
+amo_cmd_rate: -0.0457
+amo_posture_limits: -0.0002
+dof_acc: -0.2069
+dof_pos_limits: -0.1534
+dof_vel: -0.0841
+dof_vel_limits: -0.0000
+torque_limits: -0.3083
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 10342400
+                    Iteration time: 14.01s
+                        Total time: 1555.84s
+                               ETA: 770.2s
+
+################################################################################
+                      [1m Learning iteration 101/150 [0m                      
+
+                       Computation: 6961 steps/s (collection: 14.372s, learning 0.337s)
+                       Mean reward: 5.28
+               Mean episode length: 922.96
+---loss--
+               Value function loss: 0.0618
+                    Surrogate loss: -0.0119
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.8028
+pickup_pose_task: 0.2125
+pickup_height_cmd_task: 0.3106
+pickup_pitch_cmd_task: 0.1319
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3487
+amo_cmd_rate: -0.0460
+amo_posture_limits: -0.0002
+dof_acc: -0.2066
+dof_pos_limits: -0.1729
+dof_vel: -0.0841
+dof_vel_limits: -0.0000
+torque_limits: -0.3080
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 10444800
+                    Iteration time: 14.71s
+                        Total time: 1570.54s
+                               ETA: 754.5s
+
+################################################################################
+                      [1m Learning iteration 102/150 [0m                      
+
+                       Computation: 6919 steps/s (collection: 14.449s, learning 0.350s)
+                       Mean reward: 4.65
+               Mean episode length: 927.73
+---loss--
+               Value function loss: 0.0584
+                    Surrogate loss: -0.0126
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.7060
+pickup_pose_task: 0.2247
+pickup_height_cmd_task: 0.3349
+pickup_pitch_cmd_task: 0.1418
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3497
+amo_cmd_rate: -0.0457
+amo_posture_limits: -0.0002
+dof_acc: -0.2059
+dof_pos_limits: -0.2002
+dof_vel: -0.0834
+dof_vel_limits: -0.0000
+torque_limits: -0.2851
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 10547200
+                    Iteration time: 14.80s
+                        Total time: 1585.34s
+                               ETA: 738.8s
+
+################################################################################
+                      [1m Learning iteration 103/150 [0m                      
+
+                       Computation: 5973 steps/s (collection: 16.810s, learning 0.333s)
+                       Mean reward: 5.07
+               Mean episode length: 976.35
+---loss--
+               Value function loss: 0.0614
+                    Surrogate loss: -0.0107
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.7485
+pickup_pose_task: 0.1995
+pickup_height_cmd_task: 0.3008
+pickup_pitch_cmd_task: 0.1306
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3495
+amo_cmd_rate: -0.0454
+amo_posture_limits: -0.0002
+dof_acc: -0.2053
+dof_pos_limits: -0.1778
+dof_vel: -0.0831
+dof_vel_limits: -0.0000
+torque_limits: -0.2780
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 10649600
+                    Iteration time: 17.14s
+                        Total time: 1602.49s
+                               ETA: 724.2s
+
+################################################################################
+                      [1m Learning iteration 104/150 [0m                      
+
+                       Computation: 5025 steps/s (collection: 20.000s, learning 0.378s)
+                       Mean reward: 5.61
+               Mean episode length: 909.87
+---loss--
+               Value function loss: 0.0632
+                    Surrogate loss: -0.0122
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.7412
+pickup_pose_task: 0.2157
+pickup_height_cmd_task: 0.3105
+pickup_pitch_cmd_task: 0.1322
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3495
+amo_cmd_rate: -0.0457
+amo_posture_limits: -0.0002
+dof_acc: -0.2075
+dof_pos_limits: -0.1875
+dof_vel: -0.0845
+dof_vel_limits: -0.0000
+torque_limits: -0.2974
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 10752000
+                    Iteration time: 20.38s
+                        Total time: 1622.87s
+                               ETA: 711.0s
+
+################################################################################
+                      [1m Learning iteration 105/150 [0m                      
+
+                       Computation: 4980 steps/s (collection: 20.207s, learning 0.355s)
+                       Mean reward: 6.08
+               Mean episode length: 973.45
+---loss--
+               Value function loss: 0.0732
+                    Surrogate loss: -0.0086
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.7797
+pickup_pose_task: 0.2243
+pickup_height_cmd_task: 0.3363
+pickup_pitch_cmd_task: 0.1439
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3497
+amo_cmd_rate: -0.0461
+amo_posture_limits: -0.0002
+dof_acc: -0.2072
+dof_pos_limits: -0.1934
+dof_vel: -0.0842
+dof_vel_limits: -0.0000
+torque_limits: -0.2868
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 10854400
+                    Iteration time: 20.56s
+                        Total time: 1643.43s
+                               ETA: 697.7s
+
+################################################################################
+                      [1m Learning iteration 106/150 [0m                      
+
+                       Computation: 4900 steps/s (collection: 20.521s, learning 0.374s)
+                       Mean reward: 5.95
+               Mean episode length: 933.08
+---loss--
+               Value function loss: 0.0634
+                    Surrogate loss: -0.0121
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.7660
+pickup_pose_task: 0.2450
+pickup_height_cmd_task: 0.3680
+pickup_pitch_cmd_task: 0.1498
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3481
+amo_cmd_rate: -0.0459
+amo_posture_limits: -0.0002
+dof_acc: -0.2057
+dof_pos_limits: -0.2360
+dof_vel: -0.0837
+dof_vel_limits: -0.0000
+torque_limits: -0.2936
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 10956800
+                    Iteration time: 20.89s
+                        Total time: 1664.32s
+                               ETA: 684.4s
+
+################################################################################
+                      [1m Learning iteration 107/150 [0m                      
+
+                       Computation: 5122 steps/s (collection: 19.632s, learning 0.359s)
+                       Mean reward: 4.02
+               Mean episode length: 901.51
+---loss--
+               Value function loss: 0.0651
+                    Surrogate loss: -0.0132
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.7517
+pickup_pose_task: 0.2255
+pickup_height_cmd_task: 0.3436
+pickup_pitch_cmd_task: 0.1340
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3507
+amo_cmd_rate: -0.0458
+amo_posture_limits: -0.0002
+dof_acc: -0.2065
+dof_pos_limits: -0.2366
+dof_vel: -0.0846
+dof_vel_limits: -0.0000
+torque_limits: -0.3429
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 11059200
+                    Iteration time: 19.99s
+                        Total time: 1684.31s
+                               ETA: 670.6s
+
+################################################################################
+                      [1m Learning iteration 108/150 [0m                      
+
+                       Computation: 5040 steps/s (collection: 19.951s, learning 0.365s)
+                       Mean reward: 9.50
+               Mean episode length: 929.62
+---loss--
+               Value function loss: 0.0844
+                    Surrogate loss: -0.0093
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.7722
+pickup_pose_task: 0.2306
+pickup_height_cmd_task: 0.3295
+pickup_pitch_cmd_task: 0.1412
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3488
+amo_cmd_rate: -0.0459
+amo_posture_limits: -0.0002
+dof_acc: -0.2063
+dof_pos_limits: -0.1959
+dof_vel: -0.0842
+dof_vel_limits: -0.0000
+torque_limits: -0.3021
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 11161600
+                    Iteration time: 20.32s
+                        Total time: 1704.63s
+                               ETA: 656.8s
+
+################################################################################
+                      [1m Learning iteration 109/150 [0m                      
+
+                       Computation: 5526 steps/s (collection: 18.230s, learning 0.297s)
+                       Mean reward: 4.56
+               Mean episode length: 860.28
+---loss--
+               Value function loss: 0.0803
+                    Surrogate loss: -0.0097
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.7100
+pickup_pose_task: 0.2139
+pickup_height_cmd_task: 0.3353
+pickup_pitch_cmd_task: 0.1356
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3564
+amo_cmd_rate: -0.0460
+amo_posture_limits: -0.0002
+dof_acc: -0.2117
+dof_pos_limits: -0.2337
+dof_vel: -0.0869
+dof_vel_limits: -0.0000
+torque_limits: -0.3385
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 11264000
+                    Iteration time: 18.53s
+                        Total time: 1723.16s
+                               ETA: 642.3s
+
+################################################################################
+                      [1m Learning iteration 110/150 [0m                      
+
+                       Computation: 6847 steps/s (collection: 14.620s, learning 0.335s)
+                       Mean reward: 8.22
+               Mean episode length: 875.17
+---loss--
+               Value function loss: 0.0879
+                    Surrogate loss: -0.0074
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.8708
+pickup_pose_task: 0.2622
+pickup_height_cmd_task: 0.3980
+pickup_pitch_cmd_task: 0.1549
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3527
+amo_cmd_rate: -0.0461
+amo_posture_limits: -0.0002
+dof_acc: -0.2080
+dof_pos_limits: -0.2452
+dof_vel: -0.0850
+dof_vel_limits: -0.0000
+torque_limits: -0.3308
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 11366400
+                    Iteration time: 14.95s
+                        Total time: 1738.11s
+                               ETA: 626.3s
+
+################################################################################
+                      [1m Learning iteration 111/150 [0m                      
+
+                       Computation: 7177 steps/s (collection: 13.939s, learning 0.328s)
+                       Mean reward: 8.32
+               Mean episode length: 908.57
+---loss--
+               Value function loss: 0.0876
+                    Surrogate loss: -0.0049
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.8117
+pickup_pose_task: 0.2607
+pickup_height_cmd_task: 0.4002
+pickup_pitch_cmd_task: 0.1534
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3504
+amo_cmd_rate: -0.0459
+amo_posture_limits: -0.0002
+dof_acc: -0.2091
+dof_pos_limits: -0.2449
+dof_vel: -0.0851
+dof_vel_limits: -0.0000
+torque_limits: -0.3322
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 11468800
+                    Iteration time: 14.27s
+                        Total time: 1752.38s
+                               ETA: 610.2s
+
+################################################################################
+                      [1m Learning iteration 112/150 [0m                      
+
+                       Computation: 6864 steps/s (collection: 14.572s, learning 0.345s)
+                       Mean reward: 7.04
+               Mean episode length: 910.48
+---loss--
+               Value function loss: 0.0743
+                    Surrogate loss: -0.0107
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.7959
+pickup_pose_task: 0.2643
+pickup_height_cmd_task: 0.4141
+pickup_pitch_cmd_task: 0.1554
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3524
+amo_cmd_rate: -0.0463
+amo_posture_limits: -0.0003
+dof_acc: -0.2087
+dof_pos_limits: -0.2869
+dof_vel: -0.0851
+dof_vel_limits: -0.0000
+torque_limits: -0.3503
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 11571200
+                    Iteration time: 14.92s
+                        Total time: 1767.29s
+                               ETA: 594.3s
+
+################################################################################
+                      [1m Learning iteration 113/150 [0m                      
+
+                       Computation: 6793 steps/s (collection: 14.753s, learning 0.319s)
+                       Mean reward: 10.75
+               Mean episode length: 928.81
+---loss--
+               Value function loss: 0.0641
+                    Surrogate loss: -0.0048
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.9236
+pickup_pose_task: 0.2801
+pickup_height_cmd_task: 0.4579
+pickup_pitch_cmd_task: 0.1648
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3522
+amo_cmd_rate: -0.0465
+amo_posture_limits: -0.0003
+dof_acc: -0.2087
+dof_pos_limits: -0.3158
+dof_vel: -0.0846
+dof_vel_limits: -0.0000
+torque_limits: -0.3205
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 11673600
+                    Iteration time: 15.07s
+                        Total time: 1782.37s
+                               ETA: 578.5s
+
+################################################################################
+                      [1m Learning iteration 114/150 [0m                      
+
+                       Computation: 7314 steps/s (collection: 13.657s, learning 0.341s)
+                       Mean reward: 9.78
+               Mean episode length: 886.41
+---loss--
+               Value function loss: 0.0651
+                    Surrogate loss: -0.0108
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.8742
+pickup_pose_task: 0.2763
+pickup_height_cmd_task: 0.4355
+pickup_pitch_cmd_task: 0.1595
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3537
+amo_cmd_rate: -0.0453
+amo_posture_limits: -0.0003
+dof_acc: -0.2085
+dof_pos_limits: -0.2920
+dof_vel: -0.0848
+dof_vel_limits: -0.0000
+torque_limits: -0.3263
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 11776000
+                    Iteration time: 14.00s
+                        Total time: 1796.37s
+                               ETA: 562.3s
+
+################################################################################
+                      [1m Learning iteration 115/150 [0m                      
+
+                       Computation: 6836 steps/s (collection: 14.650s, learning 0.328s)
+                       Mean reward: 7.55
+               Mean episode length: 913.37
+---loss--
+               Value function loss: 0.0708
+                    Surrogate loss: -0.0126
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.7994
+pickup_pose_task: 0.2800
+pickup_height_cmd_task: 0.4423
+pickup_pitch_cmd_task: 0.1663
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3526
+amo_cmd_rate: -0.0460
+amo_posture_limits: -0.0003
+dof_acc: -0.2102
+dof_pos_limits: -0.2754
+dof_vel: -0.0848
+dof_vel_limits: -0.0000
+torque_limits: -0.3177
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 11878400
+                    Iteration time: 14.98s
+                        Total time: 1811.34s
+                               ETA: 546.5s
+
+################################################################################
+                      [1m Learning iteration 116/150 [0m                      
+
+                       Computation: 6902 steps/s (collection: 14.490s, learning 0.345s)
+                       Mean reward: 10.26
+               Mean episode length: 972.03
+---loss--
+               Value function loss: 0.0661
+                    Surrogate loss: -0.0123
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.9773
+pickup_pose_task: 0.3027
+pickup_height_cmd_task: 0.4702
+pickup_pitch_cmd_task: 0.1706
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3533
+amo_cmd_rate: -0.0466
+amo_posture_limits: -0.0003
+dof_acc: -0.2084
+dof_pos_limits: -0.3158
+dof_vel: -0.0840
+dof_vel_limits: -0.0000
+torque_limits: -0.3124
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 11980800
+                    Iteration time: 14.84s
+                        Total time: 1826.18s
+                               ETA: 530.7s
+
+################################################################################
+                      [1m Learning iteration 117/150 [0m                      
+
+                       Computation: 7191 steps/s (collection: 13.903s, learning 0.337s)
+                       Mean reward: 12.35
+               Mean episode length: 921.06
+---loss--
+               Value function loss: 0.0741
+                    Surrogate loss: -0.0098
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0785
+pickup_pose_task: 0.3016
+pickup_height_cmd_task: 0.4748
+pickup_pitch_cmd_task: 0.1606
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3528
+amo_cmd_rate: -0.0464
+amo_posture_limits: -0.0003
+dof_acc: -0.2092
+dof_pos_limits: -0.3355
+dof_vel: -0.0845
+dof_vel_limits: -0.0000
+torque_limits: -0.3277
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 12083200
+                    Iteration time: 14.24s
+                        Total time: 1840.42s
+                               ETA: 514.7s
+
+################################################################################
+                      [1m Learning iteration 118/150 [0m                      
+
+                       Computation: 6860 steps/s (collection: 14.578s, learning 0.349s)
+                       Mean reward: 11.66
+               Mean episode length: 922.14
+---loss--
+               Value function loss: 0.0801
+                    Surrogate loss: -0.0043
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.8970
+pickup_pose_task: 0.3054
+pickup_height_cmd_task: 0.5093
+pickup_pitch_cmd_task: 0.1692
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3548
+amo_cmd_rate: -0.0457
+amo_posture_limits: -0.0003
+dof_acc: -0.2094
+dof_pos_limits: -0.3668
+dof_vel: -0.0848
+dof_vel_limits: -0.0000
+torque_limits: -0.3439
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 12185600
+                    Iteration time: 14.93s
+                        Total time: 1855.34s
+                               ETA: 498.9s
+
+################################################################################
+                      [1m Learning iteration 119/150 [0m                      
+
+                       Computation: 6871 steps/s (collection: 14.580s, learning 0.322s)
+                       Mean reward: 11.15
+               Mean episode length: 923.19
+---loss--
+               Value function loss: 0.0694
+                    Surrogate loss: -0.0095
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.9963
+pickup_pose_task: 0.2950
+pickup_height_cmd_task: 0.4754
+pickup_pitch_cmd_task: 0.1595
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3548
+amo_cmd_rate: -0.0466
+amo_posture_limits: -0.0003
+dof_acc: -0.2102
+dof_pos_limits: -0.3672
+dof_vel: -0.0849
+dof_vel_limits: -0.0000
+torque_limits: -0.3343
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 12288000
+                    Iteration time: 14.90s
+                        Total time: 1870.25s
+                               ETA: 483.1s
+
+################################################################################
+                      [1m Learning iteration 120/150 [0m                      
+
+                       Computation: 7271 steps/s (collection: 13.785s, learning 0.298s)
+                       Mean reward: 12.47
+               Mean episode length: 912.31
+---loss--
+               Value function loss: 0.0654
+                    Surrogate loss: -0.0107
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0026
+pickup_pose_task: 0.3074
+pickup_height_cmd_task: 0.4978
+pickup_pitch_cmd_task: 0.1747
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3531
+amo_cmd_rate: -0.0463
+amo_posture_limits: -0.0003
+dof_acc: -0.2091
+dof_pos_limits: -0.3224
+dof_vel: -0.0845
+dof_vel_limits: -0.0000
+torque_limits: -0.3447
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 12390400
+                    Iteration time: 14.08s
+                        Total time: 1884.33s
+                               ETA: 467.2s
+
+################################################################################
+                      [1m Learning iteration 121/150 [0m                      
+
+                       Computation: 6880 steps/s (collection: 14.546s, learning 0.336s)
+                       Mean reward: 11.32
+               Mean episode length: 935.94
+---loss--
+               Value function loss: 0.0648
+                    Surrogate loss: -0.0113
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.8868
+pickup_pose_task: 0.3154
+pickup_height_cmd_task: 0.4916
+pickup_pitch_cmd_task: 0.1708
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3561
+amo_cmd_rate: -0.0460
+amo_posture_limits: -0.0003
+dof_acc: -0.2092
+dof_pos_limits: -0.3087
+dof_vel: -0.0842
+dof_vel_limits: -0.0000
+torque_limits: -0.3075
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 12492800
+                    Iteration time: 14.88s
+                        Total time: 1899.21s
+                               ETA: 451.5s
+
+################################################################################
+                      [1m Learning iteration 122/150 [0m                      
+
+                       Computation: 6867 steps/s (collection: 14.578s, learning 0.333s)
+                       Mean reward: 10.66
+               Mean episode length: 971.87
+---loss--
+               Value function loss: 0.0711
+                    Surrogate loss: -0.0063
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.9386
+pickup_pose_task: 0.3120
+pickup_height_cmd_task: 0.5016
+pickup_pitch_cmd_task: 0.1681
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3543
+amo_cmd_rate: -0.0459
+amo_posture_limits: -0.0003
+dof_acc: -0.2088
+dof_pos_limits: -0.3304
+dof_vel: -0.0843
+dof_vel_limits: -0.0000
+torque_limits: -0.3307
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 12595200
+                    Iteration time: 14.91s
+                        Total time: 1914.12s
+                               ETA: 435.7s
+
+################################################################################
+                      [1m Learning iteration 123/150 [0m                      
+
+                       Computation: 6928 steps/s (collection: 14.464s, learning 0.316s)
+                       Mean reward: 13.67
+               Mean episode length: 946.67
+---loss--
+               Value function loss: 0.0638
+                    Surrogate loss: -0.0099
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0870
+pickup_pose_task: 0.3342
+pickup_height_cmd_task: 0.5373
+pickup_pitch_cmd_task: 0.1751
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3547
+amo_cmd_rate: -0.0461
+amo_posture_limits: -0.0003
+dof_acc: -0.2083
+dof_pos_limits: -0.3691
+dof_vel: -0.0838
+dof_vel_limits: -0.0000
+torque_limits: -0.3267
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 12697600
+                    Iteration time: 14.78s
+                        Total time: 1928.90s
+                               ETA: 420.0s
+
+################################################################################
+                      [1m Learning iteration 124/150 [0m                      
+
+                       Computation: 7287 steps/s (collection: 13.703s, learning 0.348s)
+                       Mean reward: 12.85
+               Mean episode length: 938.05
+---loss--
+               Value function loss: 0.0737
+                    Surrogate loss: -0.0078
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0004
+pickup_pose_task: 0.3517
+pickup_height_cmd_task: 0.5488
+pickup_pitch_cmd_task: 0.1759
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3552
+amo_cmd_rate: -0.0468
+amo_posture_limits: -0.0004
+dof_acc: -0.2089
+dof_pos_limits: -0.3867
+dof_vel: -0.0843
+dof_vel_limits: -0.0000
+torque_limits: -0.3537
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 12800000
+                    Iteration time: 14.05s
+                        Total time: 1942.96s
+                               ETA: 404.1s
+
+################################################################################
+                      [1m Learning iteration 125/150 [0m                      
+
+                       Computation: 6885 steps/s (collection: 14.555s, learning 0.317s)
+                       Mean reward: 13.65
+               Mean episode length: 937.15
+---loss--
+               Value function loss: 0.0769
+                    Surrogate loss: -0.0060
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.9709
+pickup_pose_task: 0.3286
+pickup_height_cmd_task: 0.5165
+pickup_pitch_cmd_task: 0.1789
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3548
+amo_cmd_rate: -0.0455
+amo_posture_limits: -0.0003
+dof_acc: -0.2085
+dof_pos_limits: -0.3314
+dof_vel: -0.0843
+dof_vel_limits: -0.0000
+torque_limits: -0.3549
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 12902400
+                    Iteration time: 14.87s
+                        Total time: 1957.83s
+                               ETA: 388.5s
+
+################################################################################
+                      [1m Learning iteration 126/150 [0m                      
+
+                       Computation: 6863 steps/s (collection: 14.582s, learning 0.337s)
+                       Mean reward: 12.99
+               Mean episode length: 935.66
+---loss--
+               Value function loss: 0.0660
+                    Surrogate loss: -0.0096
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.9866
+pickup_pose_task: 0.3125
+pickup_height_cmd_task: 0.4787
+pickup_pitch_cmd_task: 0.1678
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3545
+amo_cmd_rate: -0.0448
+amo_posture_limits: -0.0003
+dof_acc: -0.2082
+dof_pos_limits: -0.2867
+dof_vel: -0.0838
+dof_vel_limits: -0.0000
+torque_limits: -0.3007
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 13004800
+                    Iteration time: 14.92s
+                        Total time: 1972.75s
+                               ETA: 372.8s
+
+################################################################################
+                      [1m Learning iteration 127/150 [0m                      
+
+                       Computation: 7196 steps/s (collection: 13.888s, learning 0.342s)
+                       Mean reward: 14.63
+               Mean episode length: 921.94
+---loss--
+               Value function loss: 0.0728
+                    Surrogate loss: -0.0116
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0798
+pickup_pose_task: 0.3364
+pickup_height_cmd_task: 0.5383
+pickup_pitch_cmd_task: 0.1687
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3551
+amo_cmd_rate: -0.0457
+amo_posture_limits: -0.0003
+dof_acc: -0.2064
+dof_pos_limits: -0.3757
+dof_vel: -0.0833
+dof_vel_limits: -0.0000
+torque_limits: -0.3530
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 13107200
+                    Iteration time: 14.23s
+                        Total time: 1986.98s
+                               ETA: 357.0s
+
+################################################################################
+                      [1m Learning iteration 128/150 [0m                      
+
+                       Computation: 6208 steps/s (collection: 16.108s, learning 0.387s)
+                       Mean reward: 14.80
+               Mean episode length: 934.56
+---loss--
+               Value function loss: 0.0845
+                    Surrogate loss: -0.0033
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0072
+pickup_pose_task: 0.3198
+pickup_height_cmd_task: 0.4956
+pickup_pitch_cmd_task: 0.1714
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3565
+amo_cmd_rate: -0.0456
+amo_posture_limits: -0.0003
+dof_acc: -0.2083
+dof_pos_limits: -0.3105
+dof_vel: -0.0839
+dof_vel_limits: -0.0000
+torque_limits: -0.3105
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 13209600
+                    Iteration time: 16.49s
+                        Total time: 2003.47s
+                               ETA: 341.7s
+
+################################################################################
+                      [1m Learning iteration 129/150 [0m                      
+
+                       Computation: 5014 steps/s (collection: 20.074s, learning 0.348s)
+                       Mean reward: 14.56
+               Mean episode length: 944.38
+---loss--
+               Value function loss: 0.0659
+                    Surrogate loss: -0.0057
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0257
+pickup_pose_task: 0.3461
+pickup_height_cmd_task: 0.5552
+pickup_pitch_cmd_task: 0.1726
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3552
+amo_cmd_rate: -0.0463
+amo_posture_limits: -0.0003
+dof_acc: -0.2085
+dof_pos_limits: -0.3727
+dof_vel: -0.0837
+dof_vel_limits: -0.0000
+torque_limits: -0.3267
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 13312000
+                    Iteration time: 20.42s
+                        Total time: 2023.89s
+                               ETA: 326.9s
+
+################################################################################
+                      [1m Learning iteration 130/150 [0m                      
+
+                       Computation: 5186 steps/s (collection: 19.371s, learning 0.371s)
+                       Mean reward: 14.31
+               Mean episode length: 947.53
+---loss--
+               Value function loss: 0.0609
+                    Surrogate loss: -0.0083
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0929
+pickup_pose_task: 0.3298
+pickup_height_cmd_task: 0.5219
+pickup_pitch_cmd_task: 0.1699
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3545
+amo_cmd_rate: -0.0457
+amo_posture_limits: -0.0003
+dof_acc: -0.2072
+dof_pos_limits: -0.3367
+dof_vel: -0.0837
+dof_vel_limits: -0.0000
+torque_limits: -0.3090
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 13414400
+                    Iteration time: 19.74s
+                        Total time: 2043.64s
+                               ETA: 312.0s
+
+################################################################################
+                      [1m Learning iteration 131/150 [0m                      
+
+                       Computation: 5027 steps/s (collection: 20.024s, learning 0.343s)
+                       Mean reward: 14.78
+               Mean episode length: 967.00
+---loss--
+               Value function loss: 0.0614
+                    Surrogate loss: -0.0133
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0573
+pickup_pose_task: 0.3484
+pickup_height_cmd_task: 0.5227
+pickup_pitch_cmd_task: 0.1816
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3542
+amo_cmd_rate: -0.0450
+amo_posture_limits: -0.0003
+dof_acc: -0.2061
+dof_pos_limits: -0.3032
+dof_vel: -0.0827
+dof_vel_limits: -0.0000
+torque_limits: -0.3041
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 13516800
+                    Iteration time: 20.37s
+                        Total time: 2064.00s
+                               ETA: 297.1s
+
+################################################################################
+                      [1m Learning iteration 132/150 [0m                      
+
+                       Computation: 4931 steps/s (collection: 20.385s, learning 0.380s)
+                       Mean reward: 14.70
+               Mean episode length: 948.88
+---loss--
+               Value function loss: 0.0651
+                    Surrogate loss: -0.0053
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0556
+pickup_pose_task: 0.3333
+pickup_height_cmd_task: 0.5068
+pickup_pitch_cmd_task: 0.1694
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3549
+amo_cmd_rate: -0.0449
+amo_posture_limits: -0.0003
+dof_acc: -0.2045
+dof_pos_limits: -0.3246
+dof_vel: -0.0823
+dof_vel_limits: -0.0000
+torque_limits: -0.2942
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 13619200
+                    Iteration time: 20.76s
+                        Total time: 2084.77s
+                               ETA: 282.1s
+
+################################################################################
+                      [1m Learning iteration 133/150 [0m                      
+
+                       Computation: 5003 steps/s (collection: 20.091s, learning 0.376s)
+                       Mean reward: 15.97
+               Mean episode length: 972.63
+---loss--
+               Value function loss: 0.0611
+                    Surrogate loss: -0.0083
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0810
+pickup_pose_task: 0.3563
+pickup_height_cmd_task: 0.5669
+pickup_pitch_cmd_task: 0.1787
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3537
+amo_cmd_rate: -0.0455
+amo_posture_limits: -0.0003
+dof_acc: -0.2047
+dof_pos_limits: -0.3651
+dof_vel: -0.0820
+dof_vel_limits: -0.0000
+torque_limits: -0.2961
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 13721600
+                    Iteration time: 20.47s
+                        Total time: 2105.23s
+                               ETA: 267.1s
+
+################################################################################
+                      [1m Learning iteration 134/150 [0m                      
+
+                       Computation: 5357 steps/s (collection: 18.807s, learning 0.307s)
+                       Mean reward: 15.69
+               Mean episode length: 920.73
+---loss--
+               Value function loss: 0.0564
+                    Surrogate loss: -0.0115
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0614
+pickup_pose_task: 0.3617
+pickup_height_cmd_task: 0.5417
+pickup_pitch_cmd_task: 0.1823
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3528
+amo_cmd_rate: -0.0450
+amo_posture_limits: -0.0003
+dof_acc: -0.2069
+dof_pos_limits: -0.3304
+dof_vel: -0.0832
+dof_vel_limits: -0.0000
+torque_limits: -0.3092
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 13824000
+                    Iteration time: 19.11s
+                        Total time: 2124.35s
+                               ETA: 251.8s
+
+################################################################################
+                      [1m Learning iteration 135/150 [0m                      
+
+                       Computation: 6822 steps/s (collection: 14.659s, learning 0.349s)
+                       Mean reward: 16.24
+               Mean episode length: 977.19
+---loss--
+               Value function loss: 0.0553
+                    Surrogate loss: -0.0124
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0643
+pickup_pose_task: 0.3517
+pickup_height_cmd_task: 0.5530
+pickup_pitch_cmd_task: 0.1777
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3535
+amo_cmd_rate: -0.0449
+amo_posture_limits: -0.0003
+dof_acc: -0.2049
+dof_pos_limits: -0.3401
+dof_vel: -0.0818
+dof_vel_limits: -0.0000
+torque_limits: -0.2923
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 13926400
+                    Iteration time: 15.01s
+                        Total time: 2139.36s
+                               ETA: 236.0s
+
+################################################################################
+                      [1m Learning iteration 136/150 [0m                      
+
+                       Computation: 6863 steps/s (collection: 14.573s, learning 0.348s)
+                       Mean reward: 17.37
+               Mean episode length: 960.63
+---loss--
+               Value function loss: 0.0600
+                    Surrogate loss: -0.0096
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.1369
+pickup_pose_task: 0.3587
+pickup_height_cmd_task: 0.5530
+pickup_pitch_cmd_task: 0.1849
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3520
+amo_cmd_rate: -0.0444
+amo_posture_limits: -0.0003
+dof_acc: -0.2045
+dof_pos_limits: -0.3232
+dof_vel: -0.0818
+dof_vel_limits: -0.0000
+torque_limits: -0.2955
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 14028800
+                    Iteration time: 14.92s
+                        Total time: 2154.28s
+                               ETA: 220.1s
+
+################################################################################
+                      [1m Learning iteration 137/150 [0m                      
+
+                       Computation: 7174 steps/s (collection: 13.922s, learning 0.350s)
+                       Mean reward: 16.38
+               Mean episode length: 973.66
+---loss--
+               Value function loss: 0.0634
+                    Surrogate loss: -0.0066
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.1271
+pickup_pose_task: 0.3574
+pickup_height_cmd_task: 0.5531
+pickup_pitch_cmd_task: 0.1718
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3519
+amo_cmd_rate: -0.0453
+amo_posture_limits: -0.0003
+dof_acc: -0.2032
+dof_pos_limits: -0.3761
+dof_vel: -0.0814
+dof_vel_limits: -0.0000
+torque_limits: -0.2957
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 14131200
+                    Iteration time: 14.27s
+                        Total time: 2168.55s
+                               ETA: 204.3s
+
+################################################################################
+                      [1m Learning iteration 138/150 [0m                      
+
+                       Computation: 6909 steps/s (collection: 14.493s, learning 0.326s)
+                       Mean reward: 15.38
+               Mean episode length: 931.26
+---loss--
+               Value function loss: 0.0603
+                    Surrogate loss: -0.0109
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.9939
+pickup_pose_task: 0.3724
+pickup_height_cmd_task: 0.5717
+pickup_pitch_cmd_task: 0.1829
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3519
+amo_cmd_rate: -0.0451
+amo_posture_limits: -0.0003
+dof_acc: -0.2035
+dof_pos_limits: -0.3616
+dof_vel: -0.0821
+dof_vel_limits: -0.0000
+torque_limits: -0.3275
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 14233600
+                    Iteration time: 14.82s
+                        Total time: 2183.37s
+                               ETA: 188.5s
+
+################################################################################
+                      [1m Learning iteration 139/150 [0m                      
+
+                       Computation: 6951 steps/s (collection: 14.394s, learning 0.336s)
+                       Mean reward: 15.03
+               Mean episode length: 921.83
+---loss--
+               Value function loss: 0.0601
+                    Surrogate loss: -0.0092
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 0.9753
+pickup_pose_task: 0.3656
+pickup_height_cmd_task: 0.5652
+pickup_pitch_cmd_task: 0.1759
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3514
+amo_cmd_rate: -0.0438
+amo_posture_limits: -0.0003
+dof_acc: -0.2020
+dof_pos_limits: -0.3700
+dof_vel: -0.0814
+dof_vel_limits: -0.0000
+torque_limits: -0.3180
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 14336000
+                    Iteration time: 14.73s
+                        Total time: 2198.10s
+                               ETA: 172.7s
+
+################################################################################
+                      [1m Learning iteration 140/150 [0m                      
+
+                       Computation: 6944 steps/s (collection: 14.409s, learning 0.335s)
+                       Mean reward: 16.88
+               Mean episode length: 950.13
+---loss--
+               Value function loss: 0.0601
+                    Surrogate loss: -0.0068
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.1437
+pickup_pose_task: 0.3693
+pickup_height_cmd_task: 0.5602
+pickup_pitch_cmd_task: 0.1819
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3478
+amo_cmd_rate: -0.0443
+amo_posture_limits: -0.0003
+dof_acc: -0.2009
+dof_pos_limits: -0.3557
+dof_vel: -0.0802
+dof_vel_limits: -0.0000
+torque_limits: -0.2821
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 14438400
+                    Iteration time: 14.74s
+                        Total time: 2212.84s
+                               ETA: 156.9s
+
+################################################################################
+                      [1m Learning iteration 141/150 [0m                      
+
+                       Computation: 7237 steps/s (collection: 13.819s, learning 0.330s)
+                       Mean reward: 16.81
+               Mean episode length: 967.56
+---loss--
+               Value function loss: 0.0701
+                    Surrogate loss: -0.0070
+             Mean action noise std: 0.58
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0299
+pickup_pose_task: 0.3724
+pickup_height_cmd_task: 0.5650
+pickup_pitch_cmd_task: 0.1855
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3521
+amo_cmd_rate: -0.0437
+amo_posture_limits: -0.0003
+dof_acc: -0.2010
+dof_pos_limits: -0.3391
+dof_vel: -0.0804
+dof_vel_limits: -0.0000
+torque_limits: -0.2913
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 14540800
+                    Iteration time: 14.15s
+                        Total time: 2226.99s
+                               ETA: 141.1s
+
+################################################################################
+                      [1m Learning iteration 142/150 [0m                      
+
+                       Computation: 6876 steps/s (collection: 14.552s, learning 0.338s)
+                       Mean reward: 14.53
+               Mean episode length: 956.58
+---loss--
+               Value function loss: 0.0616
+                    Surrogate loss: 0.0002
+             Mean action noise std: 0.57
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0372
+pickup_pose_task: 0.3634
+pickup_height_cmd_task: 0.5630
+pickup_pitch_cmd_task: 0.1797
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3517
+amo_cmd_rate: -0.0439
+amo_posture_limits: -0.0003
+dof_acc: -0.2015
+dof_pos_limits: -0.3656
+dof_vel: -0.0806
+dof_vel_limits: -0.0000
+torque_limits: -0.2964
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 14643200
+                    Iteration time: 14.89s
+                        Total time: 2241.88s
+                               ETA: 125.4s
+
+################################################################################
+                      [1m Learning iteration 143/150 [0m                      
+
+                       Computation: 6965 steps/s (collection: 14.403s, learning 0.298s)
+                       Mean reward: 18.46
+               Mean episode length: 962.85
+---loss--
+               Value function loss: 0.0587
+                    Surrogate loss: -0.0088
+             Mean action noise std: 0.57
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0867
+pickup_pose_task: 0.3723
+pickup_height_cmd_task: 0.5758
+pickup_pitch_cmd_task: 0.1818
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3512
+amo_cmd_rate: -0.0437
+amo_posture_limits: -0.0003
+dof_acc: -0.2011
+dof_pos_limits: -0.3719
+dof_vel: -0.0807
+dof_vel_limits: -0.0000
+torque_limits: -0.3209
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 14745600
+                    Iteration time: 14.70s
+                        Total time: 2256.58s
+                               ETA: 109.7s
+
+################################################################################
+                      [1m Learning iteration 144/150 [0m                      
+
+                       Computation: 7250 steps/s (collection: 13.786s, learning 0.338s)
+                       Mean reward: 17.73
+               Mean episode length: 924.23
+---loss--
+               Value function loss: 0.0557
+                    Surrogate loss: -0.0121
+             Mean action noise std: 0.57
+---reward--
+walk_task: 0.0000
+carryup_task: 1.1259
+pickup_pose_task: 0.3870
+pickup_height_cmd_task: 0.5786
+pickup_pitch_cmd_task: 0.1873
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3496
+amo_cmd_rate: -0.0436
+amo_posture_limits: -0.0003
+dof_acc: -0.2005
+dof_pos_limits: -0.3593
+dof_vel: -0.0805
+dof_vel_limits: -0.0000
+torque_limits: -0.2983
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 14848000
+                    Iteration time: 14.12s
+                        Total time: 2270.71s
+                               ETA: 94.0s
+
+################################################################################
+                      [1m Learning iteration 145/150 [0m                      
+
+                       Computation: 6889 steps/s (collection: 14.514s, learning 0.348s)
+                       Mean reward: 18.16
+               Mean episode length: 969.34
+---loss--
+               Value function loss: 0.0626
+                    Surrogate loss: -0.0031
+             Mean action noise std: 0.57
+---reward--
+walk_task: 0.0000
+carryup_task: 0.9985
+pickup_pose_task: 0.3677
+pickup_height_cmd_task: 0.5702
+pickup_pitch_cmd_task: 0.1889
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3515
+amo_cmd_rate: -0.0432
+amo_posture_limits: -0.0003
+dof_acc: -0.2007
+dof_pos_limits: -0.3404
+dof_vel: -0.0800
+dof_vel_limits: -0.0000
+torque_limits: -0.2870
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 14950400
+                    Iteration time: 14.86s
+                        Total time: 2285.57s
+                               ETA: 78.3s
+
+################################################################################
+                      [1m Learning iteration 146/150 [0m                      
+
+                       Computation: 6836 steps/s (collection: 14.655s, learning 0.323s)
+                       Mean reward: 17.82
+               Mean episode length: 935.77
+---loss--
+               Value function loss: 0.0572
+                    Surrogate loss: -0.0100
+             Mean action noise std: 0.57
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0422
+pickup_pose_task: 0.3797
+pickup_height_cmd_task: 0.5625
+pickup_pitch_cmd_task: 0.1878
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3503
+amo_cmd_rate: -0.0431
+amo_posture_limits: -0.0003
+dof_acc: -0.1997
+dof_pos_limits: -0.3367
+dof_vel: -0.0800
+dof_vel_limits: -0.0000
+torque_limits: -0.2867
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 15052800
+                    Iteration time: 14.98s
+                        Total time: 2300.55s
+                               ETA: 62.6s
+
+################################################################################
+                      [1m Learning iteration 147/150 [0m                      
+
+                       Computation: 7253 steps/s (collection: 13.808s, learning 0.310s)
+                       Mean reward: 18.76
+               Mean episode length: 969.83
+---loss--
+               Value function loss: 0.0611
+                    Surrogate loss: -0.0069
+             Mean action noise std: 0.57
+---reward--
+walk_task: 0.0000
+carryup_task: 1.1881
+pickup_pose_task: 0.3826
+pickup_height_cmd_task: 0.5746
+pickup_pitch_cmd_task: 0.1824
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3497
+amo_cmd_rate: -0.0436
+amo_posture_limits: -0.0003
+dof_acc: -0.2000
+dof_pos_limits: -0.3416
+dof_vel: -0.0800
+dof_vel_limits: -0.0000
+torque_limits: -0.2935
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 15155200
+                    Iteration time: 14.12s
+                        Total time: 2314.66s
+                               ETA: 46.9s
+
+################################################################################
+                      [1m Learning iteration 148/150 [0m                      
+
+                       Computation: 6801 steps/s (collection: 14.710s, learning 0.345s)
+                       Mean reward: 17.84
+               Mean episode length: 964.12
+---loss--
+               Value function loss: 0.0567
+                    Surrogate loss: -0.0072
+             Mean action noise std: 0.57
+---reward--
+walk_task: 0.0000
+carryup_task: 1.0248
+pickup_pose_task: 0.3776
+pickup_height_cmd_task: 0.5750
+pickup_pitch_cmd_task: 0.1783
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3509
+amo_cmd_rate: -0.0436
+amo_posture_limits: -0.0003
+dof_acc: -0.2000
+dof_pos_limits: -0.3491
+dof_vel: -0.0798
+dof_vel_limits: -0.0000
+torque_limits: -0.2906
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 15257600
+                    Iteration time: 15.05s
+                        Total time: 2329.72s
+                               ETA: 31.3s
+
+################################################################################
+                      [1m Learning iteration 149/150 [0m                      
+
+                       Computation: 6970 steps/s (collection: 14.389s, learning 0.302s)
+                       Mean reward: 17.93
+               Mean episode length: 962.99
+---loss--
+               Value function loss: 0.0551
+                    Surrogate loss: -0.0106
+             Mean action noise std: 0.57
+---reward--
+walk_task: 0.0000
+carryup_task: 1.1018
+pickup_pose_task: 0.3890
+pickup_height_cmd_task: 0.5817
+pickup_pitch_cmd_task: 0.1818
+relocation_task: 0.0000
+standup_task: 0.0000
+--penalty--
+action_rate: -0.3464
+amo_cmd_rate: -0.0437
+amo_posture_limits: -0.0003
+dof_acc: -0.1985
+dof_pos_limits: -0.3666
+dof_vel: -0.0796
+dof_vel_limits: -0.0000
+torque_limits: -0.2950
+torques: -0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 15360000
+                    Iteration time: 14.69s
+                        Total time: 2344.41s
+                               ETA: 15.6s
+
+| Bare Metal Logical Cores: 48
+| Available Cores:  32 
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 144669 | Free Memory: 100366
+| Total Page/Swap (MB): 30750 | Free Page/Swap: 30749
+|---------------------------------------------------------------------------------------------|
+2026-06-29T16:25:50Z [4,123ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-06-29T16:25:50Z [4,123ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.
+2026-06-29T16:25:50Z [4,735ms] [Warning] [omni.graph.visualization.nodes._impl.extension] No Viewport Window to add omni.graph.visualization.nodes-2.1.3 scene to

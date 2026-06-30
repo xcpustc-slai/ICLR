@@ -223,7 +223,15 @@ class HIMOnPolicyRunner:
         iteration_time = locs['collection_time'] + locs['learn_time']
 
         episode_values = {}
-        reward_order = ("walk_task", "carryup_task", "pickup_pose_task", "relocation_task", "standup_task")
+        reward_order = (
+            "walk_task",
+            "carryup_task",
+            "pickup_pose_task",
+            "pickup_height_cmd_task",
+            "pickup_pitch_cmd_task",
+            "relocation_task",
+            "standup_task",
+        )
         penalty_order = (
             "action_rate",
             "amo_cmd_rate",

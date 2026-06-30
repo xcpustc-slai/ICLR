@@ -23,6 +23,10 @@ parser.add_argument("--max_steps", type=int, default=None)
 parser.add_argument("--seed", type=int, default=1)
 parser.add_argument("--mode", choices=("baseline", "amo"), default="baseline")
 parser.add_argument("--amp_len", type=int, choices=(17, 29), default=17)
+parser.add_argument("--pickup_only", action="store_true", help="Evaluate with the pickup-only reset/reward configuration.")
+parser.add_argument("--disable_amp", action="store_true", help="Report/evaluate with AMP disabled in the environment config.")
+parser.add_argument("--episode_length_s", type=float, default=None, help="Override episode length in seconds.")
+parser.add_argument("--pickup_rsi", action="store_true", help="Use pickUp reference-state initialization in pickup-only eval.")
 parser.add_argument("--no_task_noise", action="store_true", default=False)
 parser.add_argument("--no_domain_randomization", action="store_true", default=False)
 parser.add_argument("--output_dir", type=str, default=None)
@@ -67,6 +71,12 @@ HAND_DIAGNOSTIC_KEYS = (
     "rubber_hand_walk_path_length_mean",
     "rubber_hand_pos_range_mean",
     "rubber_hand_max_speed",
+    "hand_center_box_dist_initial",
+    "hand_center_box_dist_final",
+    "hand_center_box_dist_delta",
+    "hand_min_box_dist_initial",
+    "hand_min_box_dist_final",
+    "hand_min_box_dist_delta",
     "near_box_hand_sample_count",
     "near_box_hand_center_dist_mean",
     "near_box_hand_center_dist_min",
@@ -123,14 +133,30 @@ def _make_cfg() -> CarryBoxEnvCfg:
     cfg = CarryBoxEnvCfg()
     cfg.mode = args_cli.mode
     cfg.amp_len = args_cli.amp_len
+    cfg.pickup_only = bool(args_cli.pickup_only)
+    cfg.disable_amp = bool(args_cli.disable_amp)
+    cfg.pickup_only_use_rsi = bool(args_cli.pickup_rsi)
+    if args_cli.episode_length_s is not None:
+        cfg.pickup_only_episode_length_s = float(args_cli.episode_length_s) if cfg.pickup_only else 0.0
+        if not cfg.pickup_only:
+            cfg.episode_length_s = float(args_cli.episode_length_s)
     sync_carrybox_mode_cfg(cfg)
 
     cfg.scene.num_envs = args_cli.num_envs
     cfg.seed = args_cli.seed
-    cfg.episode_length_s = 20.0
+    if args_cli.episode_length_s is None:
+        cfg.episode_length_s = 20.0
     cfg.use_motionlib = cfg.mode == "baseline"
     cfg.reset_mode = "default"
-    cfg.add_task_noise = not args_cli.no_task_noise
+    if args_cli.pickup_rsi:
+        if not cfg.pickup_only:
+            raise ValueError("--pickup_rsi requires --pickup_only.")
+        if not cfg.use_motionlib:
+            raise ValueError("--pickup_rsi requires mode=baseline/use_motionlib=True.")
+        cfg.reset_mode = "hybrid"
+        cfg.hybrid_init_prob = 1.0
+        cfg.skill_init_prob = (0.0, 1.0, 0.0, 0.0)
+    cfg.add_task_noise = False if cfg.pickup_only else not args_cli.no_task_noise
     cfg.domain_randomization = not args_cli.no_domain_randomization
     cfg.randomize_box_size = not args_cli.no_domain_randomization
     cfg.randomize_box_density = not args_cli.no_domain_randomization
@@ -248,6 +274,12 @@ def _empty_diagnostics(mode: str) -> dict[str, float]:
         "rubber_hand_walk_path_length_mean": 0.0,
         "rubber_hand_pos_range_mean": 0.0,
         "rubber_hand_max_speed": 0.0,
+        "hand_center_box_dist_initial": math.nan,
+        "hand_center_box_dist_final": math.nan,
+        "hand_center_box_dist_delta": 0.0,
+        "hand_min_box_dist_initial": math.nan,
+        "hand_min_box_dist_final": math.nan,
+        "hand_min_box_dist_delta": 0.0,
         "near_box_hand_sample_count": 0.0,
     }
     _init_series(diagnostics, "near_box_hand_center_dist")
@@ -310,10 +342,19 @@ def _update_hand_diagnostics(
             trace["walk_path_length_mean"] += mean_delta
     trace["prev_pos"] = hand_pos
 
+    box_pos = state["box_pos"][env_id]
+    center_dist = torch.norm(hand_pos.mean(dim=0) - box_pos).item()
+    min_dist = torch.norm(hand_pos - box_pos.unsqueeze(0), dim=-1).min().item()
+    if math.isnan(diagnostics["hand_center_box_dist_initial"]):
+        diagnostics["hand_center_box_dist_initial"] = center_dist
+    if math.isnan(diagnostics["hand_min_box_dist_initial"]):
+        diagnostics["hand_min_box_dist_initial"] = min_dist
+    diagnostics["hand_center_box_dist_final"] = center_dist
+    diagnostics["hand_min_box_dist_final"] = min_dist
+    diagnostics["hand_center_box_dist_delta"] = diagnostics["hand_center_box_dist_initial"] - center_dist
+    diagnostics["hand_min_box_dist_delta"] = diagnostics["hand_min_box_dist_initial"] - min_dist
+
     if state["robot2object_dist"][env_id].item() <= unwrapped.cfg.thresh_robot2object:
-        box_pos = state["box_pos"][env_id]
-        center_dist = torch.norm(hand_pos.mean(dim=0) - box_pos).item()
-        min_dist = torch.norm(hand_pos - box_pos.unsqueeze(0), dim=-1).min().item()
         _update_series(diagnostics, "near_box_hand_center_dist", center_dist)
         _update_series(diagnostics, "near_box_hand_min_dist", min_dist)
 
@@ -652,6 +693,7 @@ def _hand_diagnosis_lines(records: list[dict]) -> list[str]:
         "- `rubber_hand_path_length_mean`: average 3D path length of tracked hand links during the episode.",
         "- `rubber_hand_walk_path_length_mean`: same metric while the robot is still walking toward the box.",
         "- `rubber_hand_pos_range_mean`: average 3D bounding-box range of tracked hand links; larger values mean larger arm swing.",
+        "- `hand_*_box_dist_delta`: initial distance minus final distance; positive values mean the hands moved closer to the box.",
         "- `near_box_hand_*_dist_*`: hand-to-box distance after the robot reaches the box region; valid only when `near_box_hand_sample_count > 0`.",
     ]
 
@@ -674,6 +716,9 @@ def _write_report(path: Path, checkpoint: str, loaded: dict, records: list[dict]
         "",
         "## Eval Setting",
         f"- mode: `{cfg.mode}`",
+        f"- pickup_only: `{cfg.pickup_only}`",
+        f"- pickup_only_use_rsi: `{cfg.pickup_only_use_rsi}`",
+        f"- disable_amp: `{cfg.disable_amp}`",
         f"- action_dim: `{cfg.action_space}`",
         f"- obs_dim: `{cfg.observation_space}`",
         f"- episodes: `{len(records)}`",
@@ -681,6 +726,9 @@ def _write_report(path: Path, checkpoint: str, loaded: dict, records: list[dict]
         f"- seed: `{args_cli.seed}`",
         f"- max_steps: `{max_steps}`",
         f"- reset_mode: `{cfg.reset_mode}`",
+        f"- hybrid_init_prob: `{cfg.hybrid_init_prob}`",
+        f"- skill_init_prob: `{cfg.skill_init_prob}`",
+        f"- episode_length_s: `{cfg.episode_length_s}`",
         f"- use_amp: `{cfg.use_amp}`",
         f"- use_motionlib: `{cfg.use_motionlib}`",
         f"- hand_tracking_bodies: `{', '.join(records[0].get('hand_tracking_bodies', [])) if records else 'none'}`",
@@ -758,7 +806,8 @@ def _write_report(path: Path, checkpoint: str, loaded: dict, records: list[dict]
 def main() -> None:
     cfg = _make_cfg()
     env = gym.make("PhysHSI-CarryBox-Direct-v0", cfg=cfg)
-    env.unwrapped.cfg.reset_mode = "default"
+    if not args_cli.pickup_rsi:
+        env.unwrapped.cfg.reset_mode = "default"
     policy, loaded = _load_eval_policy(args_cli.checkpoint, env)
     hand_body_ids, hand_body_names = _resolve_hand_tracking_bodies(env)
     launched = min(args_cli.episodes, env.unwrapped.num_envs)
@@ -811,7 +860,8 @@ def main() -> None:
         if exp_idx >= 0 and exp_idx not in completed:
             _complete_record(records[exp_idx], "eval_stop")
 
-    output_dir = Path(args_cli.output_dir) if args_cli.output_dir is not None else PROJECT_ROOT / "eval_result" / cfg.mode
+    mode_dir = f"{cfg.mode}_pickup" if cfg.pickup_only else cfg.mode
+    output_dir = Path(args_cli.output_dir) if args_cli.output_dir is not None else PROJECT_ROOT / "eval_result" / mode_dir
     output_dir.mkdir(parents=True, exist_ok=True)
     report_path = output_dir / f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
     _write_report(report_path, args_cli.checkpoint, loaded, records, cfg, max_steps)
